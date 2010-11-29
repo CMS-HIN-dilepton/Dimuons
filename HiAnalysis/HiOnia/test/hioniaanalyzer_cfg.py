@@ -16,7 +16,7 @@ process.HeavyIonGlobalParameters = cms.PSet(
     centralitySrc = cms.InputTag("hiCentrality")
     )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
@@ -26,7 +26,7 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.hionia = cms.EDAnalyzer('HIOnia',
+process.hionia = cms.EDAnalyzer('HIOniaAnalyzer',
                                 src = cms.InputTag("onia2MuMuPatTrkTrk"),
                                 primaryVertexTag = cms.InputTag("hiSelectedVertex"),
 
