@@ -27,6 +27,8 @@ process.source = cms.Source("PoolSource",
 )
 
 process.hionia = cms.EDAnalyzer('HiOniaAnalyzer',
+                                srcMuon = cms.InputTag("patMuonWithTrigger"),
+                                srcMuonNoTrig = cms.InputTag("patMuonWithoutTrigger"),
                                 src = cms.InputTag("onia2MuMuPatTrkTrk"),
                                 primaryVertexTag = cms.InputTag("hiSelectedVertex"),
 
