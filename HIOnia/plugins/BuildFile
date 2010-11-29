@@ -1,0 +1,4 @@
+<library file=*.cc name=HIOnialugins>
+   <use name=HIOnia>
+   <flags EDM_PLUGIN=1>
+</library>
