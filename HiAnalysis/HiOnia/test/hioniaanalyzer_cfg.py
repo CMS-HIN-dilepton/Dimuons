@@ -26,7 +26,7 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.hionia = cms.EDAnalyzer('HIOniaAnalyzer',
+process.hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                                 src = cms.InputTag("onia2MuMuPatTrkTrk"),
                                 primaryVertexTag = cms.InputTag("hiSelectedVertex"),
 
