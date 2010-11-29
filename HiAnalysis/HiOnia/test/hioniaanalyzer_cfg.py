@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("HIOnia")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.destinations = ['cout', 'cerr']
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = 'GR10_P_V12::All'
@@ -16,7 +18,7 @@ process.HeavyIonGlobalParameters = cms.PSet(
     centralitySrc = cms.InputTag("hiCentrality")
     )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
@@ -27,8 +29,8 @@ process.source = cms.Source("PoolSource",
 )
 
 process.hionia = cms.EDAnalyzer('HiOniaAnalyzer',
-                                srcMuon = cms.InputTag("patMuonWithTrigger"),
-                                srcMuonNoTrig = cms.InputTag("patMuonWithoutTrigger"),
+                                srcMuon = cms.InputTag("patMuonsWithTrigger"),
+                                srcMuonNoTrig = cms.InputTag("patMuonsWithoutTrigger"),
                                 src = cms.InputTag("onia2MuMuPatTrkTrk"),
                                 primaryVertexTag = cms.InputTag("hiSelectedVertex"),
 
@@ -48,11 +50,12 @@ process.hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                       
                                 removeSignalEvents = cms.untracked.bool(False),
                                 removeTrueMuons = cms.untracked.bool(False),
-                                storeSameSign = cms.untracked.bool(False),
+                                storeSameSign = cms.untracked.bool(True),
 
                                 #-- Histogram configuration
-                                combineCategories = cms.bool(False),
+                                combineCategories = cms.bool(True),
                                 fillRooDataSet = cms.bool(False),
+                                fillSingleMuons = cms.bool(True),
                                 histFileName = cms.string("Jpsi_Histos.root"),		
                                 dataSetName = cms.string("Jpsi_DataSet.root"),
                                 

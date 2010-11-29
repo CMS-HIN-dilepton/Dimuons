@@ -1,33 +1,36 @@
 #include "HiAnalysis/HiOnia/interface/MyCommonHistoManager.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-void MyCommonHistoManager::Add(string theAppendix, string theName2) {
+void
+MyCommonHistoManager::Add(std::string theAppendix, std::string theName2) {
   if (!hName.empty()) {
     if (!theName2.empty()) {
       theAppendix += ("_" + theName2);
     }
     myHistos.push_back(new MyCommonHistograms(hName + "_" + theAppendix));
-    ret = theCategories.insert( pair<string,int>(theAppendix, myHistos.size()-1) );
+    ret = theCategories.insert( pair<std::string,int>(theAppendix, myHistos.size()-1) );
     if (ret.second==false) {
       edm::LogWarning("MyCommonHistograms") << "[MyCommonHistoManager::Add] Histogram with name: " << hName + "_" + theAppendix << " already existed at: " << ret.first->second;
     }
   }
   else {
-    edm::LogWarning("MyCommonHistograms") << "[MyCommonHistoManager::Add] Warning: Histograms do not have a name. Please run SetName(string) first" << endl;
+    edm::LogWarning("MyCommonHistograms") << "[MyCommonHistoManager::Add] Warning: Histograms do not have a name. Please run SetName(std::string) first" << endl;
     return;
   }
 
   return;
 }
 
-void MyCommonHistoManager::Print() {
+void
+MyCommonHistoManager::Print() {
   for (idx = theCategories.begin(); idx!=theCategories.end(); ++idx) {
     cout << (*idx).first << " => " << (*idx).second << endl;
   }
   return;
 }
 
-void MyCommonHistoManager::Fill(const reco::Candidate *p, string theFullName) {
+void
+MyCommonHistoManager::Fill(const reco::Candidate *p, std::string theFullName) {
   idx = theCategories.find(theFullName);
   if (idx!=theCategories.end()) {
     myHistos.at(idx->second)->Fill(p);
@@ -39,7 +42,8 @@ void MyCommonHistoManager::Fill(const reco::Candidate *p, string theFullName) {
   return;
 }
 
-void MyCommonHistoManager::Fill(const reco::Candidate *p1, const reco::Candidate *p2, string theFullName, string theName2) {
+void
+MyCommonHistoManager::Fill(const reco::Candidate *p1, const reco::Candidate *p2, std::string theFullName, std::string theName2) {
   idx = theCategories.find(theFullName + "_" + theName2);
   if (idx!=theCategories.end()) {
     myHistos.at(idx->second)->Fill(p1, p2, theName2);
@@ -51,7 +55,8 @@ edm::LogWarning("MyCommonHistograms") << "[MyCommonHistoManager::Fill] Histogram
   return;
 }
 
-void MyCommonHistoManager::Write(TFile *outf) {
+void
+MyCommonHistoManager::Write(TFile *outf) {
   for (unsigned int i=0; i<myHistos.size(); ++i) {
     myHistos.at(i)->Write(outf);
   }
@@ -59,13 +64,13 @@ void MyCommonHistoManager::Write(TFile *outf) {
   return;
 }
 
-MyCommonHistograms::MyCommonHistograms(string theFullName) {
+MyCommonHistograms::MyCommonHistograms(std::string theFullName) {
   hName = theFullName;
   hLabel = MakeLabel(hName);
 
-  if (hName.find("Jpsi")!=string::npos ||
-      hName.find("Upsilon")!=string::npos ||
-      hName.find("Chi")!=string::npos) {
+  if (hName.find("Jpsi")!=std::string::npos ||
+      hName.find("Upsilon")!=std::string::npos ||
+      hName.find("Chi")!=std::string::npos) {
     useRapidity = true;
   }
   else {
@@ -82,13 +87,15 @@ MyCommonHistograms::MyCommonHistograms(string theFullName) {
   theEtaBinning  = new binning(128, -3.2,   3.2);
   thePhiBinning  = new binning(128, -3.2,   3.2);
   theCentBinning = new binning(40,   0.0, 100.0);
+  theCtauBinning = new binning(400, -1.0,   3.0);
 
   the3dEBinning   = new binning(40,  0.0, 20.0);
   the3dPtBinning  = new binning(40,  0.0, 20.0);
   the3dEtaBinning = new binning(16, -3.2,  3.2);
 }
 
-void MyCommonHistograms::BookParticleHistos() {
+void
+MyCommonHistograms::BookParticleHistos() {
   edm::LogInfo("MyCommonHistograms")<<"[MyCommonHistograms::BookParticleHistos] " << hName;
 
   hMass = new TH1F(("h" + hName + "_mass").c_str(),
@@ -177,6 +184,11 @@ void MyCommonHistograms::BookParticleHistos() {
 		      theMassBinning->GetNbins(), theMassBinning->GetMinVal(), theMassBinning->GetMaxVal(),
 		      theCentBinning->GetNbins(), theCentBinning->GetMinVal(), theCentBinning->GetMaxVal());
 
+  hCtau_Mass = new TH2F(("h" + hName + "_ctau_mass").c_str(),
+			("c#tau vs. invariant mass of " + hLabel + ";m_{inv} (" + hLabel + ") [GeV/c^{2}];#ell_{" + hLabel + "} [mm];counts").c_str(),
+		      theMassBinning->GetNbins(), theMassBinning->GetMinVal(), theMassBinning->GetMaxVal(),
+		      theCtauBinning->GetNbins(), theCtauBinning->GetMinVal(), theCtauBinning->GetMaxVal());
+
   hMass->Sumw2();
   hE->Sumw2();
   hPt->Sumw2();
@@ -195,6 +207,7 @@ void MyCommonHistograms::BookParticleHistos() {
   hEta_Mass->Sumw2();
   hPhi_Mass->Sumw2();
   hCent_Mass->Sumw2();
+  hCtau_Mass->Sumw2();
 
   
   booked1ParticleHistos = true;
@@ -202,7 +215,8 @@ void MyCommonHistograms::BookParticleHistos() {
 }
 
 
-void MyCommonHistograms::BookParticleHistos(string hName2) {
+void
+MyCommonHistograms::BookParticleHistos(std::string hName2) {
   edm::LogInfo("MyCommonHistograms")<<"[MyCommonHistograms::BookParticleHistos] " << hName;
   hLabel2 = MakeLabel(hName2);
 
@@ -214,7 +228,8 @@ void MyCommonHistograms::BookParticleHistos(string hName2) {
   return;
 }
 
-void MyCommonHistograms::Fill(const reco::Candidate *p) {
+void
+MyCommonHistograms::Fill(const reco::Candidate *p) {
   if (!booked1ParticleHistos) BookParticleHistos();
 
   hMass->Fill(p->mass());
@@ -248,11 +263,25 @@ void MyCommonHistograms::Fill(const reco::Candidate *p) {
   hE_Mass->Fill(p->mass(), p->energy());
   hPt_Mass->Fill(p->mass(), p->pt());
 
-  hCent_Mass->Fill(p->mass(), p->mass()); // FIXME: add centrality information
+  double theCentrality = 0.0;
+  hCent_Mass->Fill(p->mass(), theCentrality); // FIXME: add centrality information
+
+  double theCtau;
+  double theCtauErr;
+
+  if (hName.find("Jpsi")!=std::string::npos) {
+    const pat::CompositeCandidate * cand = dynamic_cast<const pat::CompositeCandidate*> (p->clone());
+    theCtau = 10.0*cand->userFloat("ppdlPV");
+    theCtauErr = 10.*cand->userFloat("ppdlErrPV");
+    
+    hCtau_Mass->Fill(p->mass(), theCtau);
+  }
+
   return;
 }
 
-void MyCommonHistograms::Fill(const reco::Candidate *p1, const reco::Candidate *p2, string hName2) {
+void
+MyCommonHistograms::Fill(const reco::Candidate *p1, const reco::Candidate *p2, std::string hName2) {
   if (!booked2ParticleHistos) BookParticleHistos(hName2);  
 
   /*
@@ -262,7 +291,8 @@ void MyCommonHistograms::Fill(const reco::Candidate *p1, const reco::Candidate *
   return;
 }
 
-void MyCommonHistograms::Write(TFile *outf) {
+void
+MyCommonHistograms::Write(TFile *outf) {
 
   if (!outf->IsOpen()) {
     cerr << "No output file defined. Writing output to DummyHistos.root" << endl;
@@ -292,6 +322,7 @@ void MyCommonHistograms::Write(TFile *outf) {
     hEta_Mass->Write();
     hPhi_Mass->Write();
     hCent_Mass->Write();
+    hCtau_Mass->Write();
   }
   
   if (booked2ParticleHistos) {
@@ -307,15 +338,15 @@ void MyCommonHistograms::Write(TFile *outf) {
 }
 
 
-string MyCommonHistograms::MakeLabel(string name) {
-  string label;
+std::string
+MyCommonHistograms::MakeLabel(std::string name) {
+  std::string label;
 
   size_t stop;
 
   stop = name.find("_");
-  if(stop==string::npos)
+  if(stop==std::string::npos)
     stop = name.length();
-
 
   if (name.find("GenPhoton")<stop)
     label = "#gamma_{gen}";

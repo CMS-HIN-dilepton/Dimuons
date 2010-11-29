@@ -1,14 +1,15 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <map>
 
 #include <TFile.h>
 #include <TH1.h>
 #include <TH2.h>
 #include <TH3.h>
 
-#include <DataFormats/RecoCandidate/interface/RecoCandidate.h>
-//#include <DataFormats/PatCandidates/interface/CompositeCandidate.h>
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 
 using namespace std;
 
@@ -40,34 +41,34 @@ class binning {
 
 class MyCommonHistoManager {
  public:
-  MyCommonHistoManager(string theName) {hName = theName;};
+  MyCommonHistoManager(std::string theName) {hName = theName;};
   ~MyCommonHistoManager();
 
-  inline void SetName(string theName) {hName = theName; return;};
-  void Add(string theAppendix, string theName2="");
+  inline void SetName(std::string theName) {hName = theName; return;};
+  void Add(std::string theAppendix, std::string theName2="");
 
-  void Fill(const reco::Candidate *p, string theFullName);
-  void Fill(const reco::Candidate *p1, const reco::Candidate *p2, string theFullName, string theName2);
+  void Fill(const reco::Candidate *p, std::string theFullName);
+  void Fill(const reco::Candidate *p1, const reco::Candidate *p2, std::string theFullName, std::string theName2);
   void Print();
   void Write(TFile *outf);
 
-  MyCommonHistograms *GetHistograms(string theName) {return myHistos.at(theCategories.find(theName)->second);};
-  MyCommonHistograms *GetHistograms(string theName, string theName2) {return myHistos.at(theCategories.find(theName + "_" + theName2)->second);};
+  MyCommonHistograms *GetHistograms(std::string theName) {return myHistos.at(theCategories.find(theName)->second);};
+  MyCommonHistograms *GetHistograms(std::string theName, std::string theName2) {return myHistos.at(theCategories.find(theName + "_" + theName2)->second);};
 
  private:
-  map<string,int> theCategories;
-  map<string,int>::iterator idx;
-  pair<map<string,int>::iterator,bool> ret;
+  std::map<std::string,int> theCategories;
+  std::map<std::string,int>::iterator idx;
+  std::pair<std::map<std::string,int>::iterator,bool> ret;
 
   vector<MyCommonHistograms*> myHistos;
-  string hName;
+  std::string hName;
 
 };
 
 class MyCommonHistograms {
  public:
   //  MyCommonHistograms();
-  MyCommonHistograms(string theFullName);
+  MyCommonHistograms(std::string theFullName);
   ~MyCommonHistograms();
 
   inline void SetMassBinning(int n, float min, float max) {theMassBinning->SetBinning(n, min, max); return;};
@@ -76,20 +77,21 @@ class MyCommonHistograms {
   inline void SetEtaBinning(int n, float min, float max)  {theEtaBinning->SetBinning(n, min, max);  return;};
   inline void SetPhiBinning(int n, float min, float max)  {thePhiBinning->SetBinning(n, min, max);  return;};
   inline void SetCentBinning(int n, float min, float max)  {theCentBinning->SetBinning(n, min, max);  return;};
+  inline void SetCtauBinning(int n, float min, float max)  {theCtauBinning->SetBinning(n, min, max);  return;};
 
   inline void Set3dEBinning(int n, float min, float max)    {the3dEBinning->SetBinning(n, min, max);    return;};
   inline void Set3dPtBinning(int n, float min, float max)   {the3dPtBinning->SetBinning(n, min, max);   return;};
   inline void Set3dEtaBinning(int n, float min, float max)  {the3dEtaBinning->SetBinning(n, min, max);  return;};
 
   void Fill(const reco::Candidate *p);
-  void Fill(const reco::Candidate *p1, const reco::Candidate *p2, string hName2);
+  void Fill(const reco::Candidate *p1, const reco::Candidate *p2, std::string hName2);
 
   void Write(TFile *outf);
 
  private:
   void BookParticleHistos();
-  void BookParticleHistos(string hName2);
-  string MakeLabel(string hName);
+  void BookParticleHistos(std::string hName2);
+  std::string MakeLabel(std::string hName);
 
   binning *theMassBinning;
   binning *theEBinning;
@@ -97,15 +99,16 @@ class MyCommonHistograms {
   binning *theEtaBinning;
   binning *thePhiBinning;
   binning *theCentBinning;
+  binning *theCtauBinning;
 
   binning *the3dEBinning;
   binning *the3dPtBinning;
   binning *the3dEtaBinning;
   
-  string hName;
-  string hLabel;
-  string hLabel2;
-  string hAppendix;
+  std::string hName;
+  std::string hLabel;
+  std::string hLabel2;
+  std::string hAppendix;
 
   bool useRapidity;
   
@@ -120,6 +123,7 @@ class MyCommonHistograms {
   TH2F* hEta_Mass;
   TH2F* hPhi_Mass;
   TH2F* hCent_Mass;
+  TH2F* hCtau_Mass;
 
   TH2F* hE_Eta;
   TH2F* hPt_Eta;
