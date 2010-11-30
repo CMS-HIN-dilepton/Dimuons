@@ -55,6 +55,8 @@ process.hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                                 #-- Histogram configuration
                                 combineCategories = cms.bool(True),
                                 fillRooDataSet = cms.bool(False),
+                                fillTree = cms.bool(True),
+                                minimumFlag = cms.bool(True),
                                 fillSingleMuons = cms.bool(True),
                                 histFileName = cms.string("Jpsi_Histos.root"),		
                                 dataSetName = cms.string("Jpsi_DataSet.root"),

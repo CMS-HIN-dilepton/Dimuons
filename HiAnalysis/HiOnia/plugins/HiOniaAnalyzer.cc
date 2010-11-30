@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.1 2010/11/29 16:50:30 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.2 2010/11/29 21:16:01 tdahms Exp $
 //
 //
 
@@ -23,6 +23,10 @@
 #include <iostream>
 #include <vector>
 #include <utility>
+
+#include <TTree.h>
+#include <TLorentzVector.h>
+#include <TClonesArray.h>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -61,7 +65,8 @@ private:
   virtual void endJob() ;
   
   
-  void Init();
+  void InitEvent();
+  void InitTree();
 
   void makeCuts(int sign) ;
   bool checkCuts(const pat::CompositeCandidate* cand, const pat::Muon* muon1,  const pat::Muon* muon2, bool(HiOniaAnalyzer::* callFunc1)(const pat::Muon*), bool(HiOniaAnalyzer::* callFunc2)(const pat::Muon*)); 
@@ -78,9 +83,14 @@ private:
   void fillRecoHistos(int lastSign);
   void fillRecoJpsi(int iSign, int count, std::string trigName, std::string centName);
   void fillHistosAndDS(unsigned int theCat, const pat::CompositeCandidate* aJpsiCand);
+
+  void fillTreeMuon(const pat::Muon* muon, int iType, int trigBits);
+  void fillTreeJpsi(int iSign, int count);
+
   void checkTriggers(const pat::CompositeCandidate* aJpsiCand);
 
-      // ----------member data ---------------------------
+  TLorentzVector lorentzMomentum(const reco::Candidate::LorentzVector& p);
+  // ----------member data ---------------------------
   enum StatBins {
     BIN_nEvents = 0,
     BIN_HLT_HIL1DoubleMuOpen = 1,
@@ -108,33 +118,87 @@ private:
   float etaMin;
   float etaMax;
 
+  // TFile
+  TFile* fOut;
+
+  // TTree
+  TTree* myTree;
+
+  TClonesArray* PriVtxs;
+  TClonesArray* Reco_mu_4mom;
+  TClonesArray* Reco_mu_3vec;
+  TClonesArray* Reco_QQ_4mom;
+
+  static const int Max_QQ_size = 100;
+  static const int Max_mu_size = 100;
+
+  int Reco_QQ_size;       // Number of reconstructed Onia 
+  int Reco_QQ_type[100];   // Onia category:
+  int Reco_QQ_sign[100];   /* Mu Mu combinations sign:
+			     0 = +/- (signal)
+			     1 = +/+
+			     2 = -/- 
+			  */
+  int Reco_QQ_mupl[100];       // Index of muon plus in onia 
+  int Reco_QQ_mumi[100];       // Index of muon minus in onia
+  int Reco_QQ_mulpt[100];      // Index of lower-pT muon in onia 
+  int Reco_QQ_muhpt[100];      // Index of higher-pT minus in onia
+  double Reco_QQ_VtxProb[100]; // chi2 probability of vertex fitting 
+  double Reco_QQ_ctau[100];    // ctau: flight time
+  double Reco_QQ_ctauErr[100]; // error on ctau
+
+  int Reco_mu_size;           // Number of reconstructed muons
+  int Reco_mu_trig[100];      // Vector of trigger bits matched to the muons
+  double Reco_mu_ptErr[100];   // Vector of err on pt of muons
+  double Reco_mu_phiErr[100];  // Vector of err on phi of muons
+  double Reco_mu_etaErr[100];  // Vector of err on eta of muons
+  double Reco_mu_d0[100];      // Vector of d0 of muons
+  double Reco_mu_d0err[100];   // Vector of d0err of muons
+  double Reco_mu_dz[100];      // Vector of dz of muons
+  double Reco_mu_dzerr[100];   // Vector of dzerr of muons
+  int Reco_mu_charge[100];  // Vector of charge of muons
+  int Reco_mu_type[100];  // Vector of type of muon (global=0, tracker=1, calo=2)  
+  double Reco_mu_normChi2[100];   // Vector of chi2/ndof of muons
+  int Reco_mu_nhitsCSC[100];    // Vector of number of valid hits of muons
+  int Reco_mu_nhitsDT[100];    // Vector of number of valid hits of muons
+  int Reco_mu_nhitsTrack[100];    // Vector of number of valid hits of muons
+  double Reco_mu_caloComp[100];    // Vector of calorimeter compatibilities
+  double Reco_mu_segmComp[100];    // Vector of muon segment compatibilities 
+  double Reco_mu_iso[100];    // Vector of isolations (NOW ONLY SUMPt OF TRACKS) 
+  int Reco_mu_nhitsStrip[100];  // Vectors of strip/pixel hits
+  int Reco_mu_nhitsPixB[100];
+  int Reco_mu_nhitsPixE[100];
+  int Reco_mu_nhitsPix1Hit[100];
+  int Reco_mu_nhitsPix1HitBE[100];
+
+
   // histos
-  TH1F *hGoodMuonsNoTrig;
-  TH1F *hGoodMuons;
-  TH1F *hL1DoubleMuOpen;
-  TH1F *hL2DoubleMu3;
-  TH1F *hL2Mu20;
+  TH1F* hGoodMuonsNoTrig;
+  TH1F* hGoodMuons;
+  TH1F* hL1DoubleMuOpen;
+  TH1F* hL2DoubleMu3;
+  TH1F* hL2Mu20;
 
-  MyCommonHistoManager *myRecoGlbMuonHistos;
-  MyCommonHistoManager *myRecoTrkMuonHistos;
-  MyCommonHistoManager *myRecoCalMuonHistos;
+  MyCommonHistoManager* myRecoGlbMuonHistos;
+  MyCommonHistoManager* myRecoTrkMuonHistos;
+  MyCommonHistoManager* myRecoCalMuonHistos;
 
-  MyCommonHistoManager *myRecoJpsiHistos;
-  MyCommonHistoManager *myRecoJpsiGlbGlbHistos;
-  MyCommonHistoManager *myRecoJpsiGlbTrkHistos;
-  MyCommonHistoManager *myRecoJpsiTrkTrkHistos;
+  MyCommonHistoManager* myRecoJpsiHistos;
+  MyCommonHistoManager* myRecoJpsiGlbGlbHistos;
+  MyCommonHistoManager* myRecoJpsiGlbTrkHistos;
+  MyCommonHistoManager* myRecoJpsiTrkTrkHistos;
 
   // event counters
-  TH1F *hStats;
+  TH1F* hStats;
 
   // number of primary vertices
-  TH1F *hPileUp;
+  TH1F* hPileUp;
 
   // z vertex distribution
-  TH1F *hZVtx;
+  TH1F* hZVtx;
 
   // centrality
-  CentralityProvider * centrality_;
+  CentralityProvider* centrality_;
   int theCentralityBin;
 
   // handles
@@ -162,6 +226,8 @@ private:
   bool           _storeSs;
   bool           _combineCategories;
   bool           _fillRooDataSet;
+  bool           _fillTree;
+  bool           _theMinimumFlag;
   bool           _fillSingleMuons;
 
   std::vector<unsigned int>                     _thePassedCats[3];
@@ -173,6 +239,10 @@ private:
   // number of events
   unsigned int nEvents;
   unsigned int passedCandidates;
+
+  unsigned int runNb;
+  unsigned int eventNb;
+  unsigned int lumiSection;
 
   // limits 
   float JpsiMassMin;
@@ -197,6 +267,7 @@ private:
   bool isTriggerMatched[sNTRIGGERS];
   std::string HLTLastFilters[sNTRIGGERS];
   bool alreadyFilled[sNTRIGGERS];
+  int HLTriggers;
 
   const edm::ParameterSet _iConfig;
 };
@@ -231,6 +302,8 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig):
   _storeSs(iConfig.getUntrackedParameter<bool>("storeSameSign",false)),
   _combineCategories(iConfig.getParameter<bool>("combineCategories")),
   _fillRooDataSet(iConfig.getParameter<bool>("fillRooDataSet")),  
+  _fillTree(iConfig.getParameter<bool>("fillTree")),  
+  _theMinimumFlag(iConfig.getParameter<bool>("minimumFlag")),  
   _fillSingleMuons(iConfig.getParameter<bool>("fillSingleMuons")),  
   NTRIGGERS(iConfig.getParameter<uint32_t>("NumberOfTriggers")),
   _iConfig(iConfig)
@@ -285,6 +358,10 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig):
   JpsiCtMin = -1.0;
   JpsiCtMax = 3.5;
 
+  JpsiPtMin = _ptbinranges[0];
+  std::cout << "Pt min = " << JpsiPtMin << std::endl;
+  JpsiPtMax = _ptbinranges[_ptbinranges.size()-1];
+  std::cout << "Pt max = " << JpsiPtMax << std::endl;
 }
 
 
@@ -306,33 +383,37 @@ void
 HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   //   using namespace edm;
-   Init();
+  InitEvent();
 
-   nEvents++;
-   hStats->Fill(BIN_nEvents);
-
-   edm::Handle<reco::VertexCollection> privtxs;
-   iEvent.getByLabel(_thePVs, privtxs);
-   reco::VertexCollection::const_iterator privtx;
-
-   nPV = privtxs->size();
+  nEvents++;
+  hStats->Fill(BIN_nEvents);
    
-   if ( privtxs->begin() != privtxs->end() ) {
-     privtx=privtxs->begin();
-     RefVtx = privtx->position();
-   } else {
-     RefVtx.SetXYZ(0.,0.,0.);
-   }
+  runNb = iEvent.id().run();
+  eventNb = iEvent.id().event();
+  lumiSection = iEvent.luminosityBlock();
+  
+  edm::Handle<reco::VertexCollection> privtxs;
+  iEvent.getByLabel(_thePVs, privtxs);
+  reco::VertexCollection::const_iterator privtx;
+
+  nPV = privtxs->size();
+   
+  if ( privtxs->begin() != privtxs->end() ) {
+    privtx=privtxs->begin();
+    RefVtx = privtx->position();
+  } else {
+    RefVtx.SetXYZ(0.,0.,0.);
+  }
 
   hZVtx->Fill(RefVtx.Z());
   if (fabs(RefVtx.Z()) > _iConfig.getParameter< double > ("maxAbsZ")) return;
   hPileUp->Fill(nPV);
 
   if(!centrality_) centrality_ = new CentralityProvider(iSetup);
-//   centrality_->newEvent(iEvent,iSetup); // make sure you do this first in every event
-//   double c = centrality_->centralityValue();
-//   int bin = centrality_->getBin();
-//   std::cout << "centrality bin: " << bin << " value: " << c << std::endl;
+  //   centrality_->newEvent(iEvent,iSetup); // make sure you do this first in every event
+  //   double c = centrality_->centralityValue();
+  //   int bin = centrality_->getBin();
+  //   std::cout << "centrality bin: " << bin << " value: " << c << std::endl;
   theCentralityBin=0;
 
   iEvent.getByLabel(_patJpsi,collJpsi); 
@@ -355,6 +436,9 @@ HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   fillRecoHistos(lastSign);
 
+  if (_fillTree)
+    myTree->Fill();
+
   return;
 }
 
@@ -373,9 +457,12 @@ HiOniaAnalyzer::fillRecoHistos(int lastSign) {
    
     for (int iSign = 0; iSign <= lastSign; ++iSign) {
       for( unsigned int count = 0; count < _thePassedCands[iSign].size(); count++) { 
-	const pat::CompositeCandidate *aJpsiCand = _thePassedCands[iSign].at(count); 
+	const pat::CompositeCandidate* aJpsiCand = _thePassedCands[iSign].at(count); 
 
 	checkTriggers(aJpsiCand);
+	if (_fillTree)
+	  fillTreeJpsi(iSign, count);
+
 	for (unsigned int iTr=0; iTr<NTRIGGERS; ++iTr) {
 	  if (isTriggerMatched[iTr]) {
 	    fillRecoJpsi(iSign,count,theTriggerNames.at(iTr), theCentralities.at(theCentralityBin));
@@ -389,8 +476,59 @@ HiOniaAnalyzer::fillRecoHistos(int lastSign) {
 }
 
 void
+HiOniaAnalyzer::fillTreeMuon(const pat::Muon* muon, int iType, int trigBits) {
+  if (Reco_mu_size >= Max_mu_size) {
+    std::cout << "Two many muons: " << Reco_mu_size << std::endl;
+    std::cout << "Maximum allowed: " << Max_mu_size << std::endl;
+    return;
+  }
+
+  Reco_mu_charge[Reco_mu_size] = muon->charge();
+  Reco_mu_type[Reco_mu_size] = iType;
+  
+  TLorentzVector vMuon = lorentzMomentum(muon->p4());
+  new((*Reco_mu_4mom)[Reco_mu_size])TLorentzVector(vMuon);
+
+  Reco_mu_trig[Reco_mu_size] = trigBits;
+
+  Reco_mu_size++;
+  return;
+}
+
+void
+HiOniaAnalyzer::fillTreeJpsi(int iSign, int count) {
+  if (Reco_QQ_size >= Max_QQ_size) {
+    std::cout << "Two many dimuons: " << Reco_QQ_size << std::endl;
+    std::cout << "Maximum allowed: " << Max_QQ_size << std::endl;
+    return;
+  }
+
+  const pat::CompositeCandidate* aJpsiCand = _thePassedCands[iSign].at(count);
+
+  Reco_QQ_sign[Reco_QQ_size] = iSign;
+  Reco_QQ_type[Reco_QQ_size] = _thePassedCats[iSign].at(count);
+
+  TLorentzVector vJpsi = lorentzMomentum(aJpsiCand->p4());
+  new((*Reco_QQ_4mom)[Reco_QQ_size])TLorentzVector(vJpsi);
+
+  if (_useBS) {
+    Reco_QQ_ctau[Reco_QQ_size] = 10.0*aJpsiCand->userFloat("ppdlBS");
+    Reco_QQ_ctauErr[Reco_QQ_size] = 10.*aJpsiCand->userFloat("ppdlErrBS");
+  }
+  else {
+    Reco_QQ_ctau[Reco_QQ_size] = 10.0*aJpsiCand->userFloat("ppdlPV");
+    Reco_QQ_ctauErr[Reco_QQ_size] = 10.*aJpsiCand->userFloat("ppdlErrPV");
+  }
+
+  Reco_QQ_VtxProb[Reco_QQ_size] = aJpsiCand->userFloat("vProb");
+
+  Reco_QQ_size++;
+  return;
+}
+
+void
 HiOniaAnalyzer::fillRecoJpsi(int iSign, int count, std::string trigName, std::string centName) {
-  const pat::CompositeCandidate *aJpsiCand = _thePassedCands[iSign].at(count);
+  const pat::CompositeCandidate* aJpsiCand = _thePassedCands[iSign].at(count);
   std::string theLabel =  trigName + "_" + centName + "_" + theSign.at(iSign);
 
   bool isBarrel = false;
@@ -485,6 +623,7 @@ HiOniaAnalyzer::checkTriggers(const pat::CompositeCandidate* aJpsiCand) {
       // fill event counting histogram only once per event, also if several muons fired trigger
       if (alreadyFilled[iTr]) continue;
       hStats->Fill(iTr);
+      HLTriggers += pow(2,iTr-1);
       alreadyFilled[iTr]=true;
     }
   }
@@ -636,15 +775,24 @@ HiOniaAnalyzer::selTrackerMuon(const pat::Muon* aMuon) {
 
 
 void
-HiOniaAnalyzer::Init()
+HiOniaAnalyzer::InitEvent()
 {
   for (unsigned int iTr=1;iTr<NTRIGGERS;++iTr) {
     alreadyFilled[iTr]=false;
   }
+  HLTriggers = 0;
 
   _thePassedCats[0].clear();      _thePassedCands[0].clear();
   _thePassedCats[1].clear();      _thePassedCands[1].clear();
   _thePassedCats[2].clear();      _thePassedCands[2].clear();
+
+  Reco_QQ_size = 0;
+  Reco_mu_size = 0;
+
+  PriVtxs->Clear();
+  Reco_QQ_4mom->Clear();
+  Reco_mu_4mom->Clear();
+  Reco_mu_3vec->Clear();
 
   return;
 }
@@ -689,6 +837,7 @@ HiOniaAnalyzer::fillRecoMuons(int iCent)
 	
 	nGoodMuons++;
 
+	int trigBits=0;
 	for (unsigned int iTrig=1; iTrig<NTRIGGERS; ++iTrig) {
 	  const pat::TriggerObjectStandAloneCollection muHLTMatches = muon->triggerObjectMatchesByFilter(  HLTLastFilters[iTrig] );
 
@@ -701,11 +850,15 @@ HiOniaAnalyzer::fillRecoMuons(int iCent)
 	    else
 	      myRecoGlbMuonHistos->Fill(muon, "EndCap_"+theLabel);
 
+	    trigBits += pow(2,iTrig-1);
+
 	    if (iTrig==1) nL1DoubleMuOpenMuons++;
 	    if (iTrig==3) nL2DoubleMu3Muons++;
 	    if (iTrig==4) nL2Mu20Muons++;
 	  }
 	}
+	if (_fillTree)
+	  fillTreeMuon(muon, 0, trigBits);
       }
     }
   }
@@ -719,10 +872,68 @@ HiOniaAnalyzer::fillRecoMuons(int iCent)
   return;
 }
 
+void
+HiOniaAnalyzer::InitTree()
+{
+  PriVtxs = new TClonesArray("TVector3", 10);
+  Reco_mu_4mom = new TClonesArray("TLorentzVector", 100);
+  Reco_mu_3vec = new TClonesArray("TVector3", 100);
+  Reco_QQ_4mom = new TClonesArray("TLorentzVector",10);
+
+  myTree = new TTree("myTree","My TTree of dimuons");
+  
+  myTree->Branch("eventNb", &eventNb,   "eventNb/i");
+  myTree->Branch("runNb",   &runNb,     "runNb/i");
+  myTree->Branch("LS",      &lumiSection, "LS/i"); 
+  myTree->Branch("PriVtxs", "TClonesArray",  &PriVtxs, 32000, 0); 
+  myTree->Branch("HLTriggers", &HLTriggers, "HLTriggers/I");
+
+  myTree->Branch("Reco_QQ_size", &Reco_QQ_size,  "Reco_QQ_size/I");
+  myTree->Branch("Reco_QQ_type", Reco_QQ_type,   "Reco_QQ_type[Reco_QQ_size]/I");
+  myTree->Branch("Reco_QQ_sign", Reco_QQ_sign,   "Reco_QQ_sign[Reco_QQ_size]/I");
+  myTree->Branch("Reco_QQ_4mom", "TClonesArray", &Reco_QQ_4mom, 32000, 0);
+  myTree->Branch("Reco_QQ_ctau", Reco_QQ_ctau,   "Reco_QQ_ctau[Reco_QQ_size]/I");
+  myTree->Branch("Reco_QQ_ctauErr", Reco_QQ_ctauErr,   "Reco_QQ_ctauErr[Reco_QQ_size]/I");
+  myTree->Branch("Reco_QQ_VtxProb", Reco_QQ_VtxProb,   "Reco_QQ_VtxProb[Reco_QQ_size]/I");
+
+  myTree->Branch("Reco_mu_size", &Reco_mu_size,  "Reco_mu_size/I");
+  myTree->Branch("Reco_mu_type", Reco_mu_type,   "Reco_mu_type[Reco_mu_size]/I");
+  myTree->Branch("Reco_mu_charge", Reco_mu_charge,   "Reco_mu_charge[Reco_mu_size]/I");
+  myTree->Branch("Reco_mu_4mom", "TClonesArray", &Reco_mu_4mom, 32000, 0);
+  //  myTree->Branch("Reco_mu_3vec", "TClonesArray", &Reco_mu_3vec, 32000, 0);
+  myTree->Branch("Reco_mu_trig", Reco_mu_trig,   "Reco_mu_trig[Reco_mu_size]/I");
+  if (!_theMinimumFlag) {
+    myTree->Branch("Reco_mu_phiErr",   Reco_mu_phiErr,  "Reco_mu_phiErr[Reco_mu_size]/D");
+    myTree->Branch("Reco_mu_etaErr",   Reco_mu_etaErr,  "Reco_mu_etaErr[Reco_mu_size]/D");
+    myTree->Branch("Reco_mu_ptErr",    Reco_mu_ptErr,   "Reco_mu_ptErr[Reco_mu_size]/D");
+    myTree->Branch("Reco_mu_d0",       Reco_mu_d0,      "Reco_mu_d0[Reco_mu_size]/D");
+    myTree->Branch("Reco_mu_d0err",    Reco_mu_d0err,   "Reco_mu_d0err[Reco_mu_size]/D");
+    myTree->Branch("Reco_mu_dz",       Reco_mu_dz,      "Reco_mu_dz[Reco_mu_size]/D");
+    myTree->Branch("Reco_mu_dzerr",    Reco_mu_dzerr,   "Reco_mu_dzerr[Reco_mu_size]/D");
+    myTree->Branch("Reco_mu_normChi2",     Reco_mu_normChi2,    "Reco_mu_normChi2[Reco_mu_size]/D");
+    myTree->Branch("Reco_mu_nhitsTrack",    Reco_mu_nhitsTrack,   "Reco_mu_nhitsTrack[Reco_mu_size]/I");      
+    myTree->Branch("Reco_mu_nhitsStrip",    Reco_mu_nhitsStrip,   "Reco_mu_nhitsStrip[Reco_mu_size]/I");
+    myTree->Branch("Reco_mu_nhitsPixB",    Reco_mu_nhitsPixB,   "Reco_mu_nhitsPixB[Reco_mu_size]/I");
+    myTree->Branch("Reco_mu_nhitsPixE",    Reco_mu_nhitsPixE,   "Reco_mu_nhitsPixE[Reco_mu_size]/I");
+    myTree->Branch("Reco_mu_nhitsPix1Hit",    Reco_mu_nhitsPix1Hit,   "Reco_mu_nhitsPix1Hit[Reco_mu_size]/I");
+    myTree->Branch("Reco_mu_nhitsPix1HitBE",    Reco_mu_nhitsPix1HitBE,   "Reco_mu_nhitsPix1HitBE[Reco_mu_size]/I");
+    myTree->Branch("Reco_mu_nhitsDT",    Reco_mu_nhitsDT,   "Reco_mu_nhitsDT[Reco_mu_size]/I");
+    myTree->Branch("Reco_mu_nhitsCSC",    Reco_mu_nhitsCSC,   "Reco_mu_nhitsCSC[Reco_mu_size]/I");
+    myTree->Branch("Reco_mu_caloComp",   Reco_mu_caloComp,  "Reco_mu_caloComp[Reco_mu_size]/D"); 
+    myTree->Branch("Reco_mu_segmComp",   Reco_mu_segmComp,  "Reco_mu_segmComp[Reco_mu_size]/D"); 
+    myTree->Branch("Reco_mu_iso",   Reco_mu_iso,  "Reco_mu_iso[Reco_mu_size]/D");  
+  }
+
+
+}
+
 // ------------ method called once each job just before starting event loop  ------------
 void 
 HiOniaAnalyzer::beginJob()
 {
+  fOut = new TFile(_histfilename.c_str(), "RECREATE");
+  InitTree();
+
   // book histos
   hGoodMuonsNoTrig = new TH1F("hGoodMuonsNoTrig","hGoodMuonsNoTrig",10,0,10);
   hGoodMuons = new TH1F("hGoodMuons","hGoodMuons",10,0,10);
@@ -804,8 +1015,10 @@ HiOniaAnalyzer::endJob() {
   std::cout << "Total number of events = " << nEvents << std::endl;
   std::cout << "Total number of passed candidates = " << passedCandidates << std::endl;
 
-  TFile *fOut = new TFile(_histfilename.c_str(), "RECREATE");
   fOut->cd();
+  if (_fillTree)
+    myTree->Write();
+
   hGoodMuonsNoTrig->Write();
   hGoodMuons->Write();
   hL1DoubleMuOpen->Write();
@@ -828,6 +1041,14 @@ HiOniaAnalyzer::endJob() {
 
 
   return;
+}
+
+TLorentzVector
+HiOniaAnalyzer::lorentzMomentum(const reco::Candidate::LorentzVector& p) {
+  TLorentzVector res;
+  res.SetPtEtaPhiM(p.pt(), p.eta(), p.phi(), p.mass());
+
+  return res;
 }
 
 //define this as a plug-in
