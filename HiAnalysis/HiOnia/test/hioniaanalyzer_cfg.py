@@ -1,6 +1,19 @@
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing
 
 process = cms.Process("HIOnia")
+
+# setup 'analysis'  options
+options = VarParsing.VarParsing ('analysis')
+
+# setup any defaults you want
+options.outputFile = "Jpsi_Histos.root"
+options.secondaryOutputFile = "Jpsi_DataSet.root"
+options.inputFiles = 'rfio:/castor/cern.ch/cms/store/caf/user/tdahms/HeavyIons/Onia/Data2010/v1/Skims/Prompt/150844-152638/onia2MuMuPAT_9_3_Cdi.root'
+options.maxEvents = -1 # -1 means all events
+
+# get and parse the command line arguments
+options.parseArguments()
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.destinations = ['cout', 'cerr']
@@ -18,14 +31,22 @@ process.HeavyIonGlobalParameters = cms.PSet(
     centralitySrc = cms.InputTag("hiCentrality")
     )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'rfio:/castor/cern.ch/cms/store/caf/user/tdahms/HeavyIons/Onia/Data2010/v1/Skims/Prompt/150844-152638/onia2MuMuPAT_9_3_Cdi.root'
+        options.inputFiles
     )
+)
+
+process.hltDoubleMuOpen = cms.EDFilter("HLTHighLevel",
+                 TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
+                 HLTPaths = cms.vstring("HLT_HIL1DoubleMuOpen"),
+                 eventSetupPathsKey = cms.string(''),
+                 andOr = cms.bool(True),
+                 throw = cms.bool(False)
 )
 
 process.hionia = cms.EDAnalyzer('HiOniaAnalyzer',
@@ -41,8 +62,9 @@ process.hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                                 #--
                                 maxAbsZ = cms.double(24.0),
                                 
-                                pTBinRanges = cms.vdouble(0.5, 3.0, 6.0, 8.0, 10.0, 15.0, 35.0),
+                                pTBinRanges = cms.vdouble(0.0, 6.0, 8.0, 9.0, 10.0, 12.0, 15.0, 40.0),
                                 etaBinRanges = cms.vdouble(0.0, 2.5),
+                                centralityRanges = cms.vdouble(10,20,40,60,100),
 
                                 onlyTheBest = cms.bool(False),		
                                 applyCuts = cms.bool(True),			
@@ -51,19 +73,19 @@ process.hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                                 removeSignalEvents = cms.untracked.bool(False),
                                 removeTrueMuons = cms.untracked.bool(False),
                                 storeSameSign = cms.untracked.bool(True),
-
+                                
                                 #-- Histogram configuration
-                                combineCategories = cms.bool(True),
+                                combineCategories = cms.bool(False),
                                 fillRooDataSet = cms.bool(False),
                                 fillTree = cms.bool(True),
                                 minimumFlag = cms.bool(True),
                                 fillSingleMuons = cms.bool(True),
-                                histFileName = cms.string("Jpsi_Histos.root"),		
-                                dataSetName = cms.string("Jpsi_DataSet.root"),
+                                histFileName = cms.string(options.outputFile),		
+                                dataSetName = cms.string(options.secondaryOutputFile),
                                 
                                 #--
                                 NumberOfTriggers = cms.uint32(2),
                                 )
 
 
-process.p = cms.Path(process.hionia)
+process.p = cms.Path(process.hltDoubleMuOpen + process.hionia)

@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.2 2010/11/29 21:16:01 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.3 2010/11/30 00:46:26 tdahms Exp $
 //
 //
 
@@ -21,6 +21,8 @@
 // system include files
 #include <memory>
 #include <iostream>
+#include <string>
+#include <sstream>
 #include <vector>
 #include <utility>
 
@@ -199,6 +201,7 @@ private:
 
   // centrality
   CentralityProvider* centrality_;
+  int centBin;
   int theCentralityBin;
 
   // handles
@@ -216,6 +219,7 @@ private:
 
   std::vector<double> _ptbinranges;
   std::vector<double> _etabinranges;
+  std::vector<double> _centralityranges;
   bool           _onlythebest;
   bool           _applycuts;
   bool           _storeefficiency;
@@ -292,6 +296,7 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig):
   _datasetname(iConfig.getParameter<std::string>("dataSetName")),		
   _ptbinranges(iConfig.getParameter< std::vector<double> >("pTBinRanges")),	
   _etabinranges(iConfig.getParameter< std::vector<double> >("etaBinRanges")),
+  _centralityranges(iConfig.getParameter< std::vector<double> >("centralityRanges")),	
   _onlythebest(iConfig.getParameter<bool>("onlyTheBest")),		
   _applycuts(iConfig.getParameter<bool>("applyCuts")),			
   _storeefficiency(iConfig.getParameter<bool>("storeEfficiency")),	
@@ -316,11 +321,17 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig):
   theRegions.push_back("Barrel");
   theRegions.push_back("EndCap");
 
+  std::stringstream centLabel;
+  for (unsigned int iCent=0; iCent<_centralityranges.size(); ++iCent) {
+    if (iCent==0)
+      centLabel << "00" << _centralityranges.at(iCent);
+    else
+      centLabel << _centralityranges.at(iCent-1) << _centralityranges.at(iCent);
+
+    theCentralities.push_back(centLabel.str());
+    centLabel.str("");
+  }
   theCentralities.push_back("MinBias");
-  theCentralities.push_back("0010");
-  theCentralities.push_back("1020");
-  theCentralities.push_back("2040");
-  theCentralities.push_back("40100");
 
   theSign.push_back("pm");
   if (_storeSs) {
@@ -410,11 +421,20 @@ HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   hPileUp->Fill(nPV);
 
   if(!centrality_) centrality_ = new CentralityProvider(iSetup);
+  //   std::cout << "HELLO" << std::endl;
   //   centrality_->newEvent(iEvent,iSetup); // make sure you do this first in every event
   //   double c = centrality_->centralityValue();
-  //   int bin = centrality_->getBin();
-  //   std::cout << "centrality bin: " << bin << " value: " << c << std::endl;
-  theCentralityBin=0;
+  //   centBin = centrality_->getBin();
+  //   std::cout << "centrality bin: " << centBin << " value: " << c << std::endl;
+
+  centBin=0;
+  for (unsigned int iCent=0; iCent<_centralityranges.size(); ++iCent) {
+    if (centBin<_centralityranges.at(iCent)/2.5)
+      theCentralityBin=iCent;
+    break;
+  }
+
+  theCentralityBin=5; // hard code MinBias for the moment
 
   iEvent.getByLabel(_patJpsi,collJpsi); 
   iEvent.getByLabel(_patMuon,collMuon);
@@ -432,7 +452,7 @@ HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   if (_fillSingleMuons)
-    fillRecoMuons(0); // theCentralityBin
+    fillRecoMuons(theCentralityBin);
 
   fillRecoHistos(lastSign);
 
@@ -887,6 +907,7 @@ HiOniaAnalyzer::InitTree()
   myTree->Branch("LS",      &lumiSection, "LS/i"); 
   myTree->Branch("PriVtxs", "TClonesArray",  &PriVtxs, 32000, 0); 
   myTree->Branch("HLTriggers", &HLTriggers, "HLTriggers/I");
+  myTree->Branch("Centrality", &centBin, "Centrality/I");
 
   myTree->Branch("Reco_QQ_size", &Reco_QQ_size,  "Reco_QQ_size/I");
   myTree->Branch("Reco_QQ_type", Reco_QQ_type,   "Reco_QQ_type[Reco_QQ_size]/I");
