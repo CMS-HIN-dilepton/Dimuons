@@ -263,16 +263,19 @@ MyCommonHistograms::Fill(const reco::Candidate *p) {
   hE_Mass->Fill(p->mass(), p->energy());
   hPt_Mass->Fill(p->mass(), p->pt());
 
-  double theCentrality = 0.0;
-  hCent_Mass->Fill(p->mass(), theCentrality); // FIXME: add centrality information
-
+  int theCentrality;
   double theCtau;
   double theCtauErr;
 
   if (hName.find("Jpsi")!=std::string::npos) {
     const pat::CompositeCandidate * cand = dynamic_cast<const pat::CompositeCandidate*> (p->clone());
+
+    theCentrality = cand->userInt("centBin");
+    hCent_Mass->Fill(p->mass(), theCentrality);
+
     theCtau = 10.0*cand->userFloat("ppdlPV");
     theCtauErr = 10.*cand->userFloat("ppdlErrPV");
+  
     
     hCtau_Mass->Fill(p->mass(), theCtau);
   }

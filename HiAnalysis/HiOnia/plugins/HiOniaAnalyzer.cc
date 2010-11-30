@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.4 2010/11/30 12:40:33 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.5 2010/11/30 14:26:49 tdahms Exp $
 //
 //
 
@@ -192,6 +192,9 @@ private:
   // event counters
   TH1F* hStats;
 
+  // centrality
+  TH1F *hCent;
+
   // number of primary vertices
   TH1F* hPileUp;
 
@@ -315,6 +318,7 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig):
    //now do what ever initialization is needed
   nEvents = 0;
   passedCandidates = 0;
+  centrality_ = 0;
 
   theRegions.push_back("All");
   theRegions.push_back("Barrel");
@@ -420,20 +424,16 @@ HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   hPileUp->Fill(nPV);
 
   if(!centrality_) centrality_ = new CentralityProvider(iSetup);
-  //   std::cout << "HELLO" << std::endl;
-  //   centrality_->newEvent(iEvent,iSetup); // make sure you do this first in every event
-  //   double c = centrality_->centralityValue();
-  //   centBin = centrality_->getBin();
-  //   std::cout << "centrality bin: " << centBin << " value: " << c << std::endl;
+  centrality_->newEvent(iEvent,iSetup); // make sure you do this first in every event
+  centBin = centrality_->getBin();
+  hCent->Fill(centBin);
 
-  centBin=0;
   for (unsigned int iCent=0; iCent<_centralityranges.size(); ++iCent) {
-    if (centBin<_centralityranges.at(iCent)/2.5)
+    if (centBin<_centralityranges.at(iCent)/2.5) {
       theCentralityBin=iCent;
-    break;
+      break;
+    }
   }
-
-  theCentralityBin=5; // hard code MinBias for the moment
 
   iEvent.getByLabel(_patJpsi,collJpsi); 
   iEvent.getByLabel(_patMuon,collMuon);
@@ -547,7 +547,9 @@ HiOniaAnalyzer::fillTreeJpsi(int iSign, int count) {
 
 void
 HiOniaAnalyzer::fillRecoJpsi(int iSign, int count, std::string trigName, std::string centName) {
-  const pat::CompositeCandidate* aJpsiCand = _thePassedCands[iSign].at(count);
+  pat::CompositeCandidate* aJpsiCand = _thePassedCands[iSign].at(count)->clone();
+  aJpsiCand->addUserInt("centBin",centBin);
+
   std::string theLabel =  trigName + "_" + centName + "_" + theSign.at(iSign);
 
   bool isBarrel = false;
@@ -1023,6 +1025,9 @@ HiOniaAnalyzer::beginJob()
   hStats->GetXaxis()->SetBinLabel(4,"HLT_HIL2Mu5Tight");
   hStats->Sumw2();
 
+  hCent = new TH1F("hCent","hCent;centrality bin;Number of Events",40,0,40);
+  hCent->Sumw2();
+
   hPileUp = new TH1F("hPileUp","Number of Primary Vertices;n_{PV};counts", 50, 0, 50);
   hPileUp->Sumw2();
 
@@ -1039,6 +1044,11 @@ HiOniaAnalyzer::endJob() {
   std::cout << "Total number of passed candidates = " << passedCandidates << std::endl;
 
   fOut->cd();
+  hStats->Write();
+  hCent->Write();
+  hPileUp->Write();
+  hZVtx->Write();
+
   if (_fillTree)
     myTree->Write();
 
