@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.5 2010/11/30 14:26:49 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.6 2010/11/30 16:05:02 tdahms Exp $
 //
 //
 
@@ -259,8 +259,8 @@ private:
   float JpsiCtMax;
   float JpsiPtMin;           // SET BY 
   float JpsiPtMax;           // DEFINITION
-  float JpsiEtaMin;          // OF BIN
-  float JpsiEtaMax;          // LIMITS 
+  float JpsiRapMin;          // OF BIN
+  float JpsiRapMax;          // LIMITS 
 
   math::XYZPoint RefVtx;
   float nPV;
@@ -376,6 +376,13 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig):
   std::cout << "Pt min = " << JpsiPtMin << std::endl;
   JpsiPtMax = _ptbinranges[_ptbinranges.size()-1];
   std::cout << "Pt max = " << JpsiPtMax << std::endl;
+
+     
+  JpsiRapMin = _etabinranges[0];
+  std::cout << "Rap min = " << JpsiRapMin << std::endl;
+  JpsiRapMax = _etabinranges[_etabinranges.size()-1];
+  std::cout << "Rap max = " << JpsiRapMax << std::endl;
+  
 }
 
 
@@ -571,7 +578,7 @@ HiOniaAnalyzer::fillRecoJpsi(int iSign, int count, std::string trigName, std::st
       aJpsiCand->mass() >= JpsiMassMin && aJpsiCand->mass() < JpsiMassMax && 
       theCtau >= JpsiCtMin && theCtau < JpsiCtMax && 
       aJpsiCand->pt() >= JpsiPtMin && aJpsiCand->pt() < JpsiPtMax && 
-      fabs(aJpsiCand->rapidity()) >= JpsiEtaMin && fabs(aJpsiCand->rapidity()) < JpsiEtaMax) {
+      fabs(aJpsiCand->rapidity()) >= JpsiRapMin && fabs(aJpsiCand->rapidity()) < JpsiRapMax) {
     passedCandidates++;
   }
 
