@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.3 2010/11/30 00:46:26 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.4 2010/11/30 12:40:33 tdahms Exp $
 //
 //
 
@@ -183,7 +183,6 @@ private:
 
   MyCommonHistoManager* myRecoGlbMuonHistos;
   MyCommonHistoManager* myRecoTrkMuonHistos;
-  MyCommonHistoManager* myRecoCalMuonHistos;
 
   MyCommonHistoManager* myRecoJpsiHistos;
   MyCommonHistoManager* myRecoJpsiGlbGlbHistos;
@@ -552,7 +551,7 @@ HiOniaAnalyzer::fillRecoJpsi(int iSign, int count, std::string trigName, std::st
   std::string theLabel =  trigName + "_" + centName + "_" + theSign.at(iSign);
 
   bool isBarrel = false;
-  if (aJpsiCand->rapidity() < 1.2) isBarrel = true;
+  if ( fabs(aJpsiCand->rapidity()) < 1.2) isBarrel = true;
 
   double theCtau;
   float theCtauErr; 
@@ -843,7 +842,7 @@ HiOniaAnalyzer::fillRecoMuons(int iCent)
       const pat::Muon* muon = &(*it);
 
       bool isBarrel = false;
-      if (muon->eta() < 1.2) isBarrel = true;
+      if ( fabs(muon->eta() < 1.2) ) isBarrel = true;
 
       if (muon->isGlobalMuon() &&
 	  selGlobalMuon(muon)) {
@@ -970,7 +969,7 @@ HiOniaAnalyzer::beginJob()
 
   // muons
   myRecoGlbMuonHistos = new MyCommonHistoManager("GlobalMuon");
-  myRecoTrkMuonHistos = new MyCommonHistoManager("TrackerMuon");
+  //  myRecoTrkMuonHistos = new MyCommonHistoManager("TrackerMuon");
 
   // J/psi
   if (_combineCategories) {
@@ -992,8 +991,11 @@ HiOniaAnalyzer::beginJob()
 
 	// muons
 	myRecoGlbMuonHistos->Add(theAppendix);
-	myRecoTrkMuonHistos->Add(theAppendix);
+	//	myRecoTrkMuonHistos->Add(theAppendix);
 	
+	myRecoGlbMuonHistos->GetHistograms(theAppendix)->SetMassBinning(1,0.10,0.11);
+	myRecoGlbMuonHistos->GetHistograms(theAppendix)->SetPtBinning(200,0.0,100.0);
+
 	for (unsigned int l=0; l<theSign.size(); ++l) {
 	  // J/psi
 	  if (_combineCategories) {
@@ -1048,7 +1050,7 @@ HiOniaAnalyzer::endJob() {
 
   // muons
   myRecoGlbMuonHistos->Write(fOut);
-  myRecoTrkMuonHistos->Write(fOut);
+  //  myRecoTrkMuonHistos->Write(fOut);
 
   // J/psi
   if (_combineCategories) {

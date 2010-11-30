@@ -81,7 +81,7 @@ MyCommonHistograms::MyCommonHistograms(std::string theFullName) {
   booked2ParticleHistos = false;
 
   // Define a default binning
-  theMassBinning = new binning(500,  0.0,   5.0);
+  theMassBinning = new binning(300,  2.0,   5.0);
   theEBinning    = new binning(400,  0.0,  20.0);
   thePtBinning   = new binning(400,  0.0,  20.0);
   theEtaBinning  = new binning(128, -3.2,   3.2);
