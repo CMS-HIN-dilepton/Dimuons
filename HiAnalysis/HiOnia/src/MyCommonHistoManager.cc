@@ -270,7 +270,7 @@ MyCommonHistograms::Fill(const reco::Candidate *p) {
   if (hName.find("Jpsi")!=std::string::npos) {
     const pat::CompositeCandidate * cand = dynamic_cast<const pat::CompositeCandidate*> (p->clone());
 
-    theCentrality = cand->userInt("centBin");
+    theCentrality = 2.5*cand->userInt("centBin");
     hCent_Mass->Fill(p->mass(), theCentrality);
 
     theCtau = 10.0*cand->userFloat("ppdlPV");

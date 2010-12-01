@@ -7,12 +7,12 @@ function command(){
 
 workDir=$PWD  
                                                                        
-logDir=${workDir}"/BATCHJOBS/v1.h1/"
+logDir=${workDir}"/BATCHJOBS/v1.h2/"
 command "mkdir -p $logDir"
 
 castorDirIn="/castor/cern.ch/cms/store/caf/user/tdahms/HeavyIons/Onia/Data2010/v2/Skims/Prompt/150844-152638/"
 
-castorDirOut="/castor/cern.ch/cms/store/user/tdahms/HeavyIons/Onia/Data2010/v1/Histos/Prompt/150844-152638/h1/"
+castorDirOut="/castor/cern.ch/cms/store/user/tdahms/HeavyIons/Onia/Data2010/v1/Histos/Prompt/150844-152638/h2/"
 command "rfmkdir -p  $castorDirOut"
 
 inputfiles=""
@@ -25,7 +25,7 @@ do
 	echo $inputfiles;
 	jobNb=${j};
 	let j=${j}+1;
-	name="OniaSkim_allv2_${jobNb}"
+	name="OniaSkim_allv3_${jobNb}"
 	outfilename="Histos_${name}.root"
 	secoutfilename="DataSet_${name}.root"
 
@@ -42,7 +42,8 @@ workDir=$PWD
 logDir="${logDir}"
 castorDirOut="${castorDirOut}"
 
-cd /afs/cern.ch/user/t/tdahms/scratch0/HeavyIons2010/CMSSW_3_9_5/src/
+
+	cd /afs/cern.ch/user/t/tdahms/scratch0/HeavyIons2010/CMSSW_3_9_5/src/
 eval \`scramv1 runtime -sh\`
 cd -
 cp /afs/cern.ch/user/t/tdahms/scratch0/HeavyIons2010/CMSSW_3_9_5/src/HiAnalysis/HiOnia/test/hioniaanalyzer_cfg.py .
