@@ -263,7 +263,7 @@ MyCommonHistograms::Fill(const reco::Candidate *p) {
   hE_Mass->Fill(p->mass(), p->energy());
   hPt_Mass->Fill(p->mass(), p->pt());
 
-  int theCentrality;
+  double theCentrality;
   double theCtau;
   double theCtauErr;
 
@@ -278,7 +278,6 @@ MyCommonHistograms::Fill(const reco::Candidate *p) {
   
     
     hCtau_Mass->Fill(p->mass(), theCtau);
-    delete cand;
   }
 
   return;

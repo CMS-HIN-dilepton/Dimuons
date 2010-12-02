@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.7 2010/11/30 16:16:11 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.8 2010/12/02 00:12:48 tdahms Exp $
 //
 //
 
@@ -618,8 +618,6 @@ HiOniaAnalyzer::fillRecoJpsi(int iSign, int count, std::string trigName, std::st
   }
 
   fillHistosAndDS(_thePassedCats[iSign].at(count), aJpsiCand); 
-
-  delete aJpsiCand;
 
   return;
 }
