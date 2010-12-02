@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.6 2010/11/30 16:05:02 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.7 2010/11/30 16:16:11 tdahms Exp $
 //
 //
 
@@ -539,11 +539,11 @@ HiOniaAnalyzer::fillTreeJpsi(int iSign, int count) {
 
   if (_useBS) {
     Reco_QQ_ctau[Reco_QQ_size] = 10.0*aJpsiCand->userFloat("ppdlBS");
-    Reco_QQ_ctauErr[Reco_QQ_size] = 10.*aJpsiCand->userFloat("ppdlErrBS");
+    Reco_QQ_ctauErr[Reco_QQ_size] = 10.0*aJpsiCand->userFloat("ppdlErrBS");
   }
   else {
     Reco_QQ_ctau[Reco_QQ_size] = 10.0*aJpsiCand->userFloat("ppdlPV");
-    Reco_QQ_ctauErr[Reco_QQ_size] = 10.*aJpsiCand->userFloat("ppdlErrPV");
+    Reco_QQ_ctauErr[Reco_QQ_size] = 10.0*aJpsiCand->userFloat("ppdlErrPV");
   }
 
   Reco_QQ_VtxProb[Reco_QQ_size] = aJpsiCand->userFloat("vProb");
@@ -618,6 +618,8 @@ HiOniaAnalyzer::fillRecoJpsi(int iSign, int count, std::string trigName, std::st
   }
 
   fillHistosAndDS(_thePassedCats[iSign].at(count), aJpsiCand); 
+
+  delete aJpsiCand;
 
   return;
 }
@@ -921,9 +923,9 @@ HiOniaAnalyzer::InitTree()
   myTree->Branch("Reco_QQ_type", Reco_QQ_type,   "Reco_QQ_type[Reco_QQ_size]/I");
   myTree->Branch("Reco_QQ_sign", Reco_QQ_sign,   "Reco_QQ_sign[Reco_QQ_size]/I");
   myTree->Branch("Reco_QQ_4mom", "TClonesArray", &Reco_QQ_4mom, 32000, 0);
-  myTree->Branch("Reco_QQ_ctau", Reco_QQ_ctau,   "Reco_QQ_ctau[Reco_QQ_size]/I");
-  myTree->Branch("Reco_QQ_ctauErr", Reco_QQ_ctauErr,   "Reco_QQ_ctauErr[Reco_QQ_size]/I");
-  myTree->Branch("Reco_QQ_VtxProb", Reco_QQ_VtxProb,   "Reco_QQ_VtxProb[Reco_QQ_size]/I");
+  myTree->Branch("Reco_QQ_ctau", Reco_QQ_ctau,   "Reco_QQ_ctau[Reco_QQ_size]/F");
+  myTree->Branch("Reco_QQ_ctauErr", Reco_QQ_ctauErr,   "Reco_QQ_ctauErr[Reco_QQ_size]/F");
+  myTree->Branch("Reco_QQ_VtxProb", Reco_QQ_VtxProb,   "Reco_QQ_VtxProb[Reco_QQ_size]/F");
 
   myTree->Branch("Reco_mu_size", &Reco_mu_size,  "Reco_mu_size/I");
   myTree->Branch("Reco_mu_type", Reco_mu_type,   "Reco_mu_type[Reco_mu_size]/I");
@@ -932,14 +934,14 @@ HiOniaAnalyzer::InitTree()
   //  myTree->Branch("Reco_mu_3vec", "TClonesArray", &Reco_mu_3vec, 32000, 0);
   myTree->Branch("Reco_mu_trig", Reco_mu_trig,   "Reco_mu_trig[Reco_mu_size]/I");
   if (!_theMinimumFlag) {
-    myTree->Branch("Reco_mu_phiErr",   Reco_mu_phiErr,  "Reco_mu_phiErr[Reco_mu_size]/D");
-    myTree->Branch("Reco_mu_etaErr",   Reco_mu_etaErr,  "Reco_mu_etaErr[Reco_mu_size]/D");
-    myTree->Branch("Reco_mu_ptErr",    Reco_mu_ptErr,   "Reco_mu_ptErr[Reco_mu_size]/D");
-    myTree->Branch("Reco_mu_d0",       Reco_mu_d0,      "Reco_mu_d0[Reco_mu_size]/D");
-    myTree->Branch("Reco_mu_d0err",    Reco_mu_d0err,   "Reco_mu_d0err[Reco_mu_size]/D");
-    myTree->Branch("Reco_mu_dz",       Reco_mu_dz,      "Reco_mu_dz[Reco_mu_size]/D");
-    myTree->Branch("Reco_mu_dzerr",    Reco_mu_dzerr,   "Reco_mu_dzerr[Reco_mu_size]/D");
-    myTree->Branch("Reco_mu_normChi2",     Reco_mu_normChi2,    "Reco_mu_normChi2[Reco_mu_size]/D");
+    myTree->Branch("Reco_mu_phiErr",   Reco_mu_phiErr,  "Reco_mu_phiErr[Reco_mu_size]/F");
+    myTree->Branch("Reco_mu_etaErr",   Reco_mu_etaErr,  "Reco_mu_etaErr[Reco_mu_size]/F");
+    myTree->Branch("Reco_mu_ptErr",    Reco_mu_ptErr,   "Reco_mu_ptErr[Reco_mu_size]/F");
+    myTree->Branch("Reco_mu_d0",       Reco_mu_d0,      "Reco_mu_d0[Reco_mu_size]/F");
+    myTree->Branch("Reco_mu_d0err",    Reco_mu_d0err,   "Reco_mu_d0err[Reco_mu_size]/F");
+    myTree->Branch("Reco_mu_dz",       Reco_mu_dz,      "Reco_mu_dz[Reco_mu_size]/F");
+    myTree->Branch("Reco_mu_dzerr",    Reco_mu_dzerr,   "Reco_mu_dzerr[Reco_mu_size]/F");
+    myTree->Branch("Reco_mu_normChi2",     Reco_mu_normChi2,    "Reco_mu_normChi2[Reco_mu_size]/F");
     myTree->Branch("Reco_mu_nhitsTrack",    Reco_mu_nhitsTrack,   "Reco_mu_nhitsTrack[Reco_mu_size]/I");      
     myTree->Branch("Reco_mu_nhitsStrip",    Reco_mu_nhitsStrip,   "Reco_mu_nhitsStrip[Reco_mu_size]/I");
     myTree->Branch("Reco_mu_nhitsPixB",    Reco_mu_nhitsPixB,   "Reco_mu_nhitsPixB[Reco_mu_size]/I");
@@ -948,9 +950,9 @@ HiOniaAnalyzer::InitTree()
     myTree->Branch("Reco_mu_nhitsPix1HitBE",    Reco_mu_nhitsPix1HitBE,   "Reco_mu_nhitsPix1HitBE[Reco_mu_size]/I");
     myTree->Branch("Reco_mu_nhitsDT",    Reco_mu_nhitsDT,   "Reco_mu_nhitsDT[Reco_mu_size]/I");
     myTree->Branch("Reco_mu_nhitsCSC",    Reco_mu_nhitsCSC,   "Reco_mu_nhitsCSC[Reco_mu_size]/I");
-    myTree->Branch("Reco_mu_caloComp",   Reco_mu_caloComp,  "Reco_mu_caloComp[Reco_mu_size]/D"); 
-    myTree->Branch("Reco_mu_segmComp",   Reco_mu_segmComp,  "Reco_mu_segmComp[Reco_mu_size]/D"); 
-    myTree->Branch("Reco_mu_iso",   Reco_mu_iso,  "Reco_mu_iso[Reco_mu_size]/D");  
+    myTree->Branch("Reco_mu_caloComp",   Reco_mu_caloComp,  "Reco_mu_caloComp[Reco_mu_size]/F"); 
+    myTree->Branch("Reco_mu_segmComp",   Reco_mu_segmComp,  "Reco_mu_segmComp[Reco_mu_size]/F"); 
+    myTree->Branch("Reco_mu_iso",   Reco_mu_iso,  "Reco_mu_iso[Reco_mu_size]/F");  
   }
 
 

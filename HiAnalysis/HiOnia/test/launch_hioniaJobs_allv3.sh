@@ -7,12 +7,12 @@ function command(){
 
 workDir=$PWD  
                                                                        
-logDir=${workDir}"/BATCHJOBS/v1.h2/"
+logDir=${workDir}"/BATCHJOBS/v1.h3/"
 command "mkdir -p $logDir"
 
 castorDirIn="/castor/cern.ch/cms/store/caf/user/tdahms/HeavyIons/Onia/Data2010/v2/Skims/Prompt/150844-152638/"
 
-castorDirOut="/castor/cern.ch/cms/store/user/tdahms/HeavyIons/Onia/Data2010/v1/Histos/Prompt/150844-152638/h2/"
+castorDirOut="/castor/cern.ch/cms/store/user/tdahms/HeavyIons/Onia/Data2010/v1/Histos/Prompt/150844-152638/h3/"
 command "rfmkdir -p  $castorDirOut"
 
 inputfiles=""
@@ -30,7 +30,7 @@ do
 	secoutfilename="DataSet_${name}.root"
 
 #Start to write the script
-	cat > job_hionia_${jobNb}.sh << EOF
+	cat > job_hionia_v3_${jobNb}.sh << EOF
 #!/bin/sh
 
 function command(){                                  
@@ -43,7 +43,7 @@ logDir="${logDir}"
 castorDirOut="${castorDirOut}"
 
 
-	cd /afs/cern.ch/user/t/tdahms/scratch0/HeavyIons2010/CMSSW_3_9_5/src/
+cd /afs/cern.ch/user/t/tdahms/scratch0/HeavyIons2010/CMSSW_3_9_5/src/
 eval \`scramv1 runtime -sh\`
 cd -
 cp /afs/cern.ch/user/t/tdahms/scratch0/HeavyIons2010/CMSSW_3_9_5/src/HiAnalysis/HiOnia/test/hioniaanalyzer_cfg.py .
@@ -60,9 +60,9 @@ rm -f hioniaanalyzerpat_cfg.py
 
 EOF
 
-	chmod 755 job_hionia_${jobNb}.sh
+	chmod 755 job_hionia_v3_${jobNb}.sh
 	
-	bsub -q 2nw -J $name /afs/cern.ch/user/t/tdahms/scratch0/HeavyIons2010/CMSSW_3_9_5/src/HiAnalysis/HiOnia/test/job_hionia_${jobNb}.sh
+	bsub -q 2nw -J $name /afs/cern.ch/user/t/tdahms/scratch0/HeavyIons2010/CMSSW_3_9_5/src/HiAnalysis/HiOnia/test/job_hionia_v3_${jobNb}.sh
 
 
 done

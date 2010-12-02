@@ -180,12 +180,12 @@ MyCommonHistograms::BookParticleHistos() {
 		      thePtBinning->GetNbins(), thePtBinning->GetMinVal(), thePtBinning->GetMaxVal());
 
   hCent_Mass = new TH2F(("h" + hName + "_cent_mass").c_str(),
-		      ("Cantrality vs. invariant mass of " + hLabel + ";m_{inv} (" + hLabel + ") [GeV/c^{2}];Centrality [%];counts").c_str(),
+		      ("Centrality vs. invariant mass of " + hLabel + ";m_{inv} (" + hLabel + ") [GeV/c^{2}];Centrality [%];counts").c_str(),
 		      theMassBinning->GetNbins(), theMassBinning->GetMinVal(), theMassBinning->GetMaxVal(),
 		      theCentBinning->GetNbins(), theCentBinning->GetMinVal(), theCentBinning->GetMaxVal());
 
   hCtau_Mass = new TH2F(("h" + hName + "_ctau_mass").c_str(),
-			("c#tau vs. invariant mass of " + hLabel + ";m_{inv} (" + hLabel + ") [GeV/c^{2}];#ell_{" + hLabel + "} [mm];counts").c_str(),
+			("c#tau vs. invariant mass of " + hLabel + ";m_{inv} (" + hLabel + ") [GeV/c^{2}];l_{" + hLabel + "} [mm];counts").c_str(),
 		      theMassBinning->GetNbins(), theMassBinning->GetMinVal(), theMassBinning->GetMaxVal(),
 		      theCtauBinning->GetNbins(), theCtauBinning->GetMinVal(), theCtauBinning->GetMaxVal());
 
@@ -274,10 +274,11 @@ MyCommonHistograms::Fill(const reco::Candidate *p) {
     hCent_Mass->Fill(p->mass(), theCentrality);
 
     theCtau = 10.0*cand->userFloat("ppdlPV");
-    theCtauErr = 10.*cand->userFloat("ppdlErrPV");
+    theCtauErr = 10.0*cand->userFloat("ppdlErrPV");
   
     
     hCtau_Mass->Fill(p->mass(), theCtau);
+    delete cand;
   }
 
   return;
