@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.8 2010/12/02 00:12:48 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.9 2010/12/02 02:17:31 tdahms Exp $
 //
 //
 
@@ -126,7 +126,6 @@ private:
   // TTree
   TTree* myTree;
 
-  TClonesArray* PriVtxs;
   TClonesArray* Reco_mu_4mom;
   TClonesArray* Reco_mu_3vec;
   TClonesArray* Reco_QQ_4mom;
@@ -145,28 +144,28 @@ private:
   int Reco_QQ_mumi[100];       // Index of muon minus in onia
   int Reco_QQ_mulpt[100];      // Index of lower-pT muon in onia 
   int Reco_QQ_muhpt[100];      // Index of higher-pT minus in onia
-  double Reco_QQ_VtxProb[100]; // chi2 probability of vertex fitting 
-  double Reco_QQ_ctau[100];    // ctau: flight time
-  double Reco_QQ_ctauErr[100]; // error on ctau
+  float Reco_QQ_VtxProb[100]; // chi2 probability of vertex fitting 
+  float Reco_QQ_ctau[100];    // ctau: flight time
+  float Reco_QQ_ctauErr[100]; // error on ctau
 
   int Reco_mu_size;           // Number of reconstructed muons
   int Reco_mu_trig[100];      // Vector of trigger bits matched to the muons
-  double Reco_mu_ptErr[100];   // Vector of err on pt of muons
-  double Reco_mu_phiErr[100];  // Vector of err on phi of muons
-  double Reco_mu_etaErr[100];  // Vector of err on eta of muons
-  double Reco_mu_d0[100];      // Vector of d0 of muons
-  double Reco_mu_d0err[100];   // Vector of d0err of muons
-  double Reco_mu_dz[100];      // Vector of dz of muons
-  double Reco_mu_dzerr[100];   // Vector of dzerr of muons
+  float Reco_mu_ptErr[100];   // Vector of err on pt of muons
+  float Reco_mu_phiErr[100];  // Vector of err on phi of muons
+  float Reco_mu_etaErr[100];  // Vector of err on eta of muons
+  float Reco_mu_d0[100];      // Vector of d0 of muons
+  float Reco_mu_d0err[100];   // Vector of d0err of muons
+  float Reco_mu_dz[100];      // Vector of dz of muons
+  float Reco_mu_dzerr[100];   // Vector of dzerr of muons
   int Reco_mu_charge[100];  // Vector of charge of muons
   int Reco_mu_type[100];  // Vector of type of muon (global=0, tracker=1, calo=2)  
-  double Reco_mu_normChi2[100];   // Vector of chi2/ndof of muons
+  float Reco_mu_normChi2[100];   // Vector of chi2/ndof of muons
   int Reco_mu_nhitsCSC[100];    // Vector of number of valid hits of muons
   int Reco_mu_nhitsDT[100];    // Vector of number of valid hits of muons
   int Reco_mu_nhitsTrack[100];    // Vector of number of valid hits of muons
-  double Reco_mu_caloComp[100];    // Vector of calorimeter compatibilities
-  double Reco_mu_segmComp[100];    // Vector of muon segment compatibilities 
-  double Reco_mu_iso[100];    // Vector of isolations (NOW ONLY SUMPt OF TRACKS) 
+  float Reco_mu_caloComp[100];    // Vector of calorimeter compatibilities
+  float Reco_mu_segmComp[100];    // Vector of muon segment compatibilities 
+  float Reco_mu_iso[100];    // Vector of isolations (NOW ONLY SUMPt OF TRACKS) 
   int Reco_mu_nhitsStrip[100];  // Vectors of strip/pixel hits
   int Reco_mu_nhitsPixB[100];
   int Reco_mu_nhitsPixE[100];
@@ -263,6 +262,7 @@ private:
   float JpsiRapMax;          // LIMITS 
 
   math::XYZPoint RefVtx;
+  float zVtx;
   float nPV;
 
  // Triger stuff
@@ -426,8 +426,10 @@ HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     RefVtx.SetXYZ(0.,0.,0.);
   }
 
-  hZVtx->Fill(RefVtx.Z());
-  if (fabs(RefVtx.Z()) > _iConfig.getParameter< double > ("maxAbsZ")) return;
+  zVtx = RefVtx.Z();
+
+  hZVtx->Fill(zVtx);
+  if (fabs(zVtx) > _iConfig.getParameter< double > ("maxAbsZ")) return;
   hPileUp->Fill(nPV);
 
   if(!centrality_) centrality_ = new CentralityProvider(iSetup);
@@ -817,7 +819,6 @@ HiOniaAnalyzer::InitEvent()
   Reco_QQ_size = 0;
   Reco_mu_size = 0;
 
-  PriVtxs->Clear();
   Reco_QQ_4mom->Clear();
   Reco_mu_4mom->Clear();
   Reco_mu_3vec->Clear();
@@ -903,7 +904,6 @@ HiOniaAnalyzer::fillRecoMuons(int iCent)
 void
 HiOniaAnalyzer::InitTree()
 {
-  PriVtxs = new TClonesArray("TVector3", 10);
   Reco_mu_4mom = new TClonesArray("TLorentzVector", 100);
   Reco_mu_3vec = new TClonesArray("TVector3", 100);
   Reco_QQ_4mom = new TClonesArray("TLorentzVector",10);
@@ -913,7 +913,7 @@ HiOniaAnalyzer::InitTree()
   myTree->Branch("eventNb", &eventNb,   "eventNb/i");
   myTree->Branch("runNb",   &runNb,     "runNb/i");
   myTree->Branch("LS",      &lumiSection, "LS/i"); 
-  myTree->Branch("PriVtxs", "TClonesArray",  &PriVtxs, 32000, 0); 
+  myTree->Branch("zVtx",    &zVtx,        "zVtx/F"); 
   myTree->Branch("HLTriggers", &HLTriggers, "HLTriggers/I");
   myTree->Branch("Centrality", &centBin, "Centrality/I");
 

@@ -7,12 +7,12 @@ function command(){
 
 workDir=$PWD  
                                                                        
-logDir=${workDir}"/BATCHJOBS/v1.h3/"
+logDir=${workDir}"/BATCHJOBS/v1.h4/"
 command "mkdir -p $logDir"
 
 castorDirIn="/castor/cern.ch/cms/store/caf/user/tdahms/HeavyIons/Onia/Data2010/v2/Skims/Prompt/150844-152638/"
 
-castorDirOut="/castor/cern.ch/cms/store/user/tdahms/HeavyIons/Onia/Data2010/v1/Histos/Prompt/150844-152638/h3/"
+castorDirOut="/castor/cern.ch/cms/store/user/tdahms/HeavyIons/Onia/Data2010/v1/Histos/Prompt/150844-152638/h4/"
 command "rfmkdir -p  $castorDirOut"
 
 inputfiles=""
