@@ -1,0 +1,11 @@
+<library name="HiMuTrigEffAnalyzerPlugins" file="*.cc">
+ <use name="DataFormats/BeamSpot">
+ <use name="DataFormats/HeavyIonEvent">
+ <use name="DataFormats/PatCandidates">
+ <use name="DataFormats/TrackReco">
+ <use name="DataFormats/VertexReco">
+ <use name="FWCore/Framework">
+ <use name="FWCore/ParameterSet">
+ <use name="roothistmatrix">
+ <flags EDM_PLUGIN="1">
+</library>
