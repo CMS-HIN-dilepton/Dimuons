@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.9 2010/12/02 02:17:31 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.10 2010/12/03 20:48:36 tdahms Exp $
 //
 //
 
@@ -129,6 +129,9 @@ private:
   TClonesArray* Reco_mu_4mom;
   TClonesArray* Reco_mu_3vec;
   TClonesArray* Reco_QQ_4mom;
+  TClonesArray* Reco_QQ_mupl_4mom;
+  TClonesArray* Reco_QQ_mumi_4mom;
+
 
   static const int Max_QQ_size = 100;
   static const int Max_mu_size = 100;
@@ -140,10 +143,7 @@ private:
 			     1 = +/+
 			     2 = -/- 
 			  */
-  int Reco_QQ_mupl[100];       // Index of muon plus in onia 
-  int Reco_QQ_mumi[100];       // Index of muon minus in onia
-  int Reco_QQ_mulpt[100];      // Index of lower-pT muon in onia 
-  int Reco_QQ_muhpt[100];      // Index of higher-pT minus in onia
+  int Reco_QQ_trig[100];      // Vector of trigger bits matched to the Onia
   float Reco_QQ_VtxProb[100]; // chi2 probability of vertex fitting 
   float Reco_QQ_ctau[100];    // ctau: flight time
   float Reco_QQ_ctauErr[100]; // error on ctau
@@ -267,7 +267,7 @@ private:
 
  // Triger stuff
   // PUT HERE THE *LAST FILTERS* OF THE BITS YOU LIKE
-  static const unsigned int sNTRIGGERS = 7;
+  static const unsigned int sNTRIGGERS = 10;
   unsigned int NTRIGGERS;
   // MC 8E29
   bool isTriggerMatched[sNTRIGGERS];
@@ -351,9 +351,14 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig):
   HLTLastFilters[1] = "hltHIDoubleMuLevel1PathL1OpenFiltered";  // BIT HLT_HIL1DoubleMuOpen
   HLTLastFilters[2] = "hltHIL2DoubleMu0L2Filtered";             // BIT HLT_HIL2DoubleMu0
   HLTLastFilters[3] = "hltHIL2DoubleMu3L2Filtered";             // BIT HLT_HIL2DoubleMu3
-  HLTLastFilters[4] = "hltHIL2Mu20L2Filtered";                  // BIN_HLT_HIL2Mu20
-  HLTLastFilters[5] = "hltHIL2Mu3L2Filtered";                   // BIN_HLT_HIL2Mu3
-  HLTLastFilters[6] = "hltHIL2Mu5TightFiltered";                // BIN_HLT_HIL2Mu5Tight
+  HLTLastFilters[4] = "hltHIL2Mu20L2Filtered";                  // BIT HLT_HIL2Mu20
+  HLTLastFilters[5] = "hltHIL2Mu3L2Filtered";                   // BIT HLT_HIL2Mu3
+  HLTLastFilters[6] = "hltHIL2Mu5TightFiltered";                // BIT HLT_HIL2Mu5Tight
+  // dummy names for now, there are no filters for these triggers, plain pass through
+  // need to add a different matching for these
+  HLTLastFilters[7] = "hltHIL1SingleMu3";                  // BIT HLT_HIL1SingleMu3
+  HLTLastFilters[8] = "hltHIL1SingleMu5";                  // BIT HLT_HIL1SingleMu5
+  HLTLastFilters[9] = "hltHIL1SingleMu7";                  // BIT HLT_HIL1SingleMu7
 
   theTriggerNames.push_back("NoTrigger");
   theTriggerNames.push_back("HLT_HIL1DoubleMuOpen");
@@ -362,6 +367,10 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig):
   theTriggerNames.push_back("HLT_HIL2Mu20");
   theTriggerNames.push_back("HLT_HIL2Mu3");
   theTriggerNames.push_back("HLT_HIL2Mu5Tight");
+  // not used yet
+  theTriggerNames.push_back("HLT_HIL1SingleMu3");
+  theTriggerNames.push_back("HLT_HIL1SingleMu5");
+  theTriggerNames.push_back("HLT_HIL1SingleMu7");
 
   etaMax = 2.4;
 
@@ -532,10 +541,34 @@ HiOniaAnalyzer::fillTreeJpsi(int iSign, int count) {
   }
 
   const pat::CompositeCandidate* aJpsiCand = _thePassedCands[iSign].at(count);
+  const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(aJpsiCand->daughter("muon1"));
+  const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(aJpsiCand->daughter("muon2"));
+
+
+  int trigBits=0;
+  for (unsigned int iTr=1; iTr<NTRIGGERS; ++iTr) {
+    if (isTriggerMatched[iTr])
+      trigBits += pow(2,iTr-1);
+  }
+
 
   Reco_QQ_sign[Reco_QQ_size] = iSign;
   Reco_QQ_type[Reco_QQ_size] = _thePassedCats[iSign].at(count);
 
+  Reco_QQ_trig[Reco_QQ_size] = trigBits;
+
+  TLorentzVector vMuon1 = lorentzMomentum(muon1->p4());
+  TLorentzVector vMuon2 = lorentzMomentum(muon2->p4());
+
+  if (muon1->charge() > muon2->charge()) {
+    new((*Reco_QQ_mupl_4mom)[Reco_QQ_size])TLorentzVector(vMuon1);
+    new((*Reco_QQ_mumi_4mom)[Reco_QQ_size])TLorentzVector(vMuon2);
+  }
+  else {
+    new((*Reco_QQ_mupl_4mom)[Reco_QQ_size])TLorentzVector(vMuon2);
+    new((*Reco_QQ_mumi_4mom)[Reco_QQ_size])TLorentzVector(vMuon1);
+  }
+  
   TLorentzVector vJpsi = lorentzMomentum(aJpsiCand->p4());
   new((*Reco_QQ_4mom)[Reco_QQ_size])TLorentzVector(vJpsi);
 
@@ -820,6 +853,8 @@ HiOniaAnalyzer::InitEvent()
   Reco_mu_size = 0;
 
   Reco_QQ_4mom->Clear();
+  Reco_QQ_mupl_4mom->Clear();
+  Reco_QQ_mumi_4mom->Clear();
   Reco_mu_4mom->Clear();
   Reco_mu_3vec->Clear();
 
@@ -867,11 +902,11 @@ HiOniaAnalyzer::fillRecoMuons(int iCent)
 	nGoodMuons++;
 
 	int trigBits=0;
-	for (unsigned int iTrig=1; iTrig<NTRIGGERS; ++iTrig) {
-	  const pat::TriggerObjectStandAloneCollection muHLTMatches = muon->triggerObjectMatchesByFilter(  HLTLastFilters[iTrig] );
+	for (unsigned int iTr=1; iTr<NTRIGGERS; ++iTr) {
+	  const pat::TriggerObjectStandAloneCollection muHLTMatches = muon->triggerObjectMatchesByFilter(  HLTLastFilters[iTr] );
 
 	  if (muHLTMatches.size() > 0) {
-	    std::string theLabel = theTriggerNames.at(iTrig) + "_" + theCentralities.at(iCent);
+	    std::string theLabel = theTriggerNames.at(iTr) + "_" + theCentralities.at(iCent);
 
 	    myRecoGlbMuonHistos->Fill(muon, "All_"+theLabel);
 	    if (isBarrel)
@@ -879,11 +914,11 @@ HiOniaAnalyzer::fillRecoMuons(int iCent)
 	    else
 	      myRecoGlbMuonHistos->Fill(muon, "EndCap_"+theLabel);
 
-	    trigBits += pow(2,iTrig-1);
+	    trigBits += pow(2,iTr-1);
 
-	    if (iTrig==1) nL1DoubleMuOpenMuons++;
-	    if (iTrig==3) nL2DoubleMu3Muons++;
-	    if (iTrig==4) nL2Mu20Muons++;
+	    if (iTr==1) nL1DoubleMuOpenMuons++;
+	    if (iTr==3) nL2DoubleMu3Muons++;
+	    if (iTr==4) nL2Mu20Muons++;
 	  }
 	}
 	if (_fillTree)
@@ -907,6 +942,8 @@ HiOniaAnalyzer::InitTree()
   Reco_mu_4mom = new TClonesArray("TLorentzVector", 100);
   Reco_mu_3vec = new TClonesArray("TVector3", 100);
   Reco_QQ_4mom = new TClonesArray("TLorentzVector",10);
+  Reco_QQ_mupl_4mom = new TClonesArray("TLorentzVector",10);
+  Reco_QQ_mumi_4mom = new TClonesArray("TLorentzVector",10);
 
   myTree = new TTree("myTree","My TTree of dimuons");
   
@@ -921,6 +958,9 @@ HiOniaAnalyzer::InitTree()
   myTree->Branch("Reco_QQ_type", Reco_QQ_type,   "Reco_QQ_type[Reco_QQ_size]/I");
   myTree->Branch("Reco_QQ_sign", Reco_QQ_sign,   "Reco_QQ_sign[Reco_QQ_size]/I");
   myTree->Branch("Reco_QQ_4mom", "TClonesArray", &Reco_QQ_4mom, 32000, 0);
+  myTree->Branch("Reco_QQ_mupl_4mom", "TClonesArray", &Reco_QQ_mupl_4mom, 32000, 0);
+  myTree->Branch("Reco_QQ_mumi_4mom", "TClonesArray", &Reco_QQ_mumi_4mom, 32000, 0);
+  myTree->Branch("Reco_QQ_trig", Reco_QQ_trig,   "Reco_QQ_trig[Reco_QQ_size]/I");
   myTree->Branch("Reco_QQ_ctau", Reco_QQ_ctau,   "Reco_QQ_ctau[Reco_QQ_size]/F");
   myTree->Branch("Reco_QQ_ctauErr", Reco_QQ_ctauErr,   "Reco_QQ_ctauErr[Reco_QQ_size]/F");
   myTree->Branch("Reco_QQ_VtxProb", Reco_QQ_VtxProb,   "Reco_QQ_VtxProb[Reco_QQ_size]/F");
@@ -991,7 +1031,7 @@ HiOniaAnalyzer::beginJob()
   }
   
   for (unsigned int i=0; i<theRegions.size(); ++i) {
-    for (unsigned int j=0; j<theTriggerNames.size(); ++j) {
+    for (unsigned int j=0; j<NTRIGGERS; ++j) {
       for (unsigned int k=0; k<theCentralities.size(); ++k) {
 
 	std::string theAppendix = theRegions.at(i) ;

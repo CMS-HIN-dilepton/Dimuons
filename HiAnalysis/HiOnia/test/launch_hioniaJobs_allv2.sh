@@ -1,18 +1,18 @@
 #!/bin/bash                                          
                                                      
 function command(){                                  
-     echo ">>>" $@                                   
-     eval $@                                         
+    echo ">>>" $@
+    eval $@
 }
 
-workDir=$PWD  
-                                                                       
-logDir=${workDir}"/BATCHJOBS/v1.h4/"
+workDir=$PWD
+
+logDir=${workDir}"/BATCHJOBS/v4.h0/"
 command "mkdir -p $logDir"
 
-castorDirIn="/castor/cern.ch/cms/store/caf/user/tdahms/HeavyIons/Onia/Data2010/v1/Skims/Prompt/150256-150619/"
+castorDirIn="/castor/cern.ch/cms/store/caf/user/tdahms/HeavyIons/Onia/Data2010/v4/Skims/Prompt/150256-150619/"
 
-castorDirOut="/castor/cern.ch/cms/store/user/tdahms/HeavyIons/Onia/Data2010/v1/Histos/Prompt/150256-150619/h4/"
+castorDirOut="/castor/cern.ch/cms/store/user/tdahms/HeavyIons/Onia/Data2010/v4/Histos/Prompt/150256-150619/h0/"
 command "rfmkdir -p  $castorDirOut"
 
 inputfiles=""

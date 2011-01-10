@@ -9,7 +9,7 @@ options = VarParsing.VarParsing ('analysis')
 # setup any defaults you want
 options.outputFile = "Jpsi_Histos.root"
 options.secondaryOutputFile = "Jpsi_DataSet.root"
-options.inputFiles = 'rfio:/castor/cern.ch/cms/store/caf/user/tdahms/HeavyIons/Onia/Data2010/v1/Skims/Prompt/150844-152638/onia2MuMuPAT_9_3_Cdi.root'
+options.inputFiles = 'rfio:/castor/cern.ch/cms/store/caf/user/tdahms/HeavyIons/Onia/Data2010/v4/Skims/Prompt/150844-153368/onia2MuMuPAT_9_1_Xvi.root'
 options.maxEvents = -1 # -1 means all events
 
 # get and parse the command line arguments
