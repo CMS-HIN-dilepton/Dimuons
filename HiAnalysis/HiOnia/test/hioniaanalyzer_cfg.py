@@ -52,7 +52,7 @@ process.hltDoubleMuOpen = cms.EDFilter("HLTHighLevel",
 process.hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                                 srcMuon = cms.InputTag("patMuonsWithTrigger"),
                                 srcMuonNoTrig = cms.InputTag("patMuonsWithoutTrigger"),
-                                src = cms.InputTag("onia2MuMuPatTrkTrk"),
+                                src = cms.InputTag("onia2MuMuPatGlbGlb"),
                                 primaryVertexTag = cms.InputTag("hiSelectedVertex"),
 
                                 #-- Reco Details
