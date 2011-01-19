@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.10 2010/12/03 20:48:36 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.11 2011/01/10 10:37:50 tdahms Exp $
 //
 //
 
@@ -356,9 +356,9 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig):
   HLTLastFilters[6] = "hltHIL2Mu5TightFiltered";                // BIT HLT_HIL2Mu5Tight
   // dummy names for now, there are no filters for these triggers, plain pass through
   // need to add a different matching for these
-  HLTLastFilters[7] = "hltHIL1SingleMu3";                  // BIT HLT_HIL1SingleMu3
-  HLTLastFilters[8] = "hltHIL1SingleMu5";                  // BIT HLT_HIL1SingleMu5
-  HLTLastFilters[9] = "hltHIL1SingleMu7";                  // BIT HLT_HIL1SingleMu7
+  HLTLastFilters[7] = "HLT_HIL1SingleMu3";                  // BIT HLT_HIL1SingleMu3
+  HLTLastFilters[8] = "HLT_HIL1SingleMu5";                  // BIT HLT_HIL1SingleMu5
+  HLTLastFilters[9] = "HLT_HIL1SingleMu7";                  // BIT HLT_HIL1SingleMu7
 
   theTriggerNames.push_back("NoTrigger");
   theTriggerNames.push_back("HLT_HIL1DoubleMuOpen");
@@ -515,7 +515,7 @@ HiOniaAnalyzer::fillRecoHistos(int lastSign) {
 void
 HiOniaAnalyzer::fillTreeMuon(const pat::Muon* muon, int iType, int trigBits) {
   if (Reco_mu_size >= Max_mu_size) {
-    std::cout << "Two many muons: " << Reco_mu_size << std::endl;
+    std::cout << "Too many muons: " << Reco_mu_size << std::endl;
     std::cout << "Maximum allowed: " << Max_mu_size << std::endl;
     return;
   }
@@ -535,7 +535,7 @@ HiOniaAnalyzer::fillTreeMuon(const pat::Muon* muon, int iType, int trigBits) {
 void
 HiOniaAnalyzer::fillTreeJpsi(int iSign, int count) {
   if (Reco_QQ_size >= Max_QQ_size) {
-    std::cout << "Two many dimuons: " << Reco_QQ_size << std::endl;
+    std::cout << "Too many dimuons: " << Reco_QQ_size << std::endl;
     std::cout << "Maximum allowed: " << Max_QQ_size << std::endl;
     return;
   }
@@ -672,6 +672,12 @@ HiOniaAnalyzer::checkTriggers(const pat::CompositeCandidate* aJpsiCand) {
   for (unsigned int iTr = 1; iTr<NTRIGGERS; ++iTr) {
     const pat::TriggerObjectStandAloneCollection mu1HLTMatches = muon1->triggerObjectMatchesByFilter( HLTLastFilters[iTr] );
     const pat::TriggerObjectStandAloneCollection mu2HLTMatches = muon2->triggerObjectMatchesByFilter( HLTLastFilters[iTr] );
+
+    if (iTr>6) {
+      const pat::TriggerObjectStandAloneCollection mu1HLTMatches = muon1->triggerObjectMatchesByPath( HLTLastFilters[iTr] );
+      const pat::TriggerObjectStandAloneCollection mu2HLTMatches = muon2->triggerObjectMatchesByPath( HLTLastFilters[iTr] );
+    }
+
     bool pass1 = mu1HLTMatches.size() > 0;
     bool pass2 = mu2HLTMatches.size() > 0;
     if (iTr > 4) {  // single triggers here
@@ -721,8 +727,8 @@ HiOniaAnalyzer::makeCuts(int sign) {
 	  _thePassedCats[sign].push_back(GlbGlb);  _thePassedCands[sign].push_back(cand);
 	  continue;
 	}
-	/*	
 	// for the moment consider only Glb+Glb pairs
+	/*
 	// global + tracker? (x2)    
 	if (checkCuts(cand,muon1,muon2,&HiOniaAnalyzer::selGlobalMuon,&HiOniaAnalyzer::selTrackerMuon)){
 	  _thePassedCats[sign].push_back(GlbTrk);  _thePassedCands[sign].push_back(cand);
@@ -806,8 +812,8 @@ HiOniaAnalyzer::selGlobalMuon(const pat::Muon* aMuon) {
 	  gTrack->chi2()/gTrack->ndof() < 10.0 &&
 	  q.numberOfValidMuonHits() > 0 &&
 	  iTrack->chi2()/iTrack->ndof() < 4.0 &&
-	  aMuon->muonID("TrackerMuonArbitrated") &&
-	  aMuon->muonID("TMLastStationAngTight") &&
+// 	  aMuon->muonID("TrackerMuonArbitrated") &&
+// 	  aMuon->muonID("TMLastStationAngTight") &&
 	  p.pixelLayersWithMeasurement() > 1 &&
 	  fabs(iTrack->dxy(RefVtx)) < 3.0 &&
 	  fabs(iTrack->dz(RefVtx)) < 15.0 );
