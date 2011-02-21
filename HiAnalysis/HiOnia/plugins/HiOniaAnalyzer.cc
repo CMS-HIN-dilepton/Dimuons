@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.11 2011/01/10 10:37:50 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.12 2011/01/19 11:43:24 tdahms Exp $
 //
 //
 
@@ -784,9 +784,10 @@ HiOniaAnalyzer::theBestQQ(int sign) {
 bool
 HiOniaAnalyzer::isMuonInAccept(const pat::Muon* aMuon) {
   return (fabs(aMuon->eta()) < 2.4 &&
-	  ((fabs(aMuon->eta()) < 1.3 && aMuon->pt() >= 3.3) ||
-	   (fabs(aMuon->eta()) >= 1.3 && fabs(aMuon->eta()) < 2.2 && aMuon->p() >= 2.9) ||
-	   (fabs(aMuon->eta()) >= 2.2 && aMuon->pt() >= 0.8)));
+	  ((fabs(aMuon->eta()) < 0.3 && aMuon->pt() >= 4.0) ||
+	   (0.3 <= fabs(aMuon->eta()) && fabs(aMuon->eta()) < 1.0 && aMuon->pt() >= 3.5) ||
+	   (1.0 <= fabs(aMuon->eta()) && fabs(aMuon->eta()) < 1.5 && aMuon->p() > 5.2) ||
+	   (1.5 <= fabs(aMuon->eta()) && aMuon->pt() >= 3.033-5.0/9.0*fabs(aMuon->eta()))));
 }
 
 bool
