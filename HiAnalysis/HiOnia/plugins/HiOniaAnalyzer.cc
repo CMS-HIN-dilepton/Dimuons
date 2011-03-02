@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.12 2011/01/19 11:43:24 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.13 2011/02/21 16:12:43 tdahms Exp $
 //
 //
 
@@ -72,6 +72,8 @@ private:
 
   void makeCuts(int sign) ;
   bool checkCuts(const pat::CompositeCandidate* cand, const pat::Muon* muon1,  const pat::Muon* muon2, bool(HiOniaAnalyzer::* callFunc1)(const pat::Muon*), bool(HiOniaAnalyzer::* callFunc2)(const pat::Muon*)); 
+
+  void fillGenInfo();
 
   void fillRecoMuons(int theCentralityBin);
   bool isMuonInAccept(const pat::Muon* aMuon);
@@ -132,12 +134,26 @@ private:
   TClonesArray* Reco_QQ_mupl_4mom;
   TClonesArray* Reco_QQ_mumi_4mom;
 
+  TClonesArray* Gen_mu_4mom;
+  TClonesArray* Gen_mu_3vec;
+  TClonesArray* Gen_QQ_4mom;
+  TClonesArray* Gen_QQ_mupl_4mom;
+  TClonesArray* Gen_QQ_mumi_4mom;
 
   static const int Max_QQ_size = 100;
   static const int Max_mu_size = 100;
 
+  int Gen_QQ_size; // number of generated Onia
+  int Gen_QQ_type[100]; // Onia type: prompt, non-prompt, unmatched
+  //  float Gen_QQ_ctau[100];    // ctau: flight time
+  
+  
+  int Gen_mu_size; // number of generated muons
+  int Gen_mu_charge[100]; // muon charge
+  int Gen_mu_type[100]; // muon type: prompt, non-prompt, unmatched
+
   int Reco_QQ_size;       // Number of reconstructed Onia 
-  int Reco_QQ_type[100];   // Onia category:
+  int Reco_QQ_type[100];   // Onia category: GG, GT, TT
   int Reco_QQ_sign[100];   /* Mu Mu combinations sign:
 			     0 = +/- (signal)
 			     1 = +/+
@@ -147,6 +163,7 @@ private:
   float Reco_QQ_VtxProb[100]; // chi2 probability of vertex fitting 
   float Reco_QQ_ctau[100];    // ctau: flight time
   float Reco_QQ_ctauErr[100]; // error on ctau
+  float Reco_QQ_ctauTrue[100];    // true ctau
 
   int Reco_mu_size;           // Number of reconstructed muons
   int Reco_mu_trig[100];      // Vector of trigger bits matched to the muons
@@ -210,10 +227,13 @@ private:
   edm::Handle<pat::MuonCollection> collMuon;
   edm::Handle<pat::MuonCollection> collMuonNoTrig;
 
+  edm::Handle<reco::GenParticleCollection> collGenParticles;
+
   // data members
   edm::InputTag       _patMuon;
   edm::InputTag       _patMuonNoTrig;
   edm::InputTag       _patJpsi;
+  edm::InputTag       _genParticle;
   edm::InputTag       _thePVs;
   std::string         _histfilename;
   std::string         _datasetname;
@@ -234,6 +254,10 @@ private:
   bool           _fillTree;
   bool           _theMinimumFlag;
   bool           _fillSingleMuons;
+  bool           _isMC;
+  bool           _isPromptMC;
+
+  int _oniaPDG;
 
   std::vector<unsigned int>                     _thePassedCats[3];
   std::vector<const pat::CompositeCandidate*>   _thePassedCands[3];
@@ -293,6 +317,7 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig):
   _patMuon(iConfig.getParameter<edm::InputTag>("srcMuon")),
   _patMuonNoTrig(iConfig.getParameter<edm::InputTag>("srcMuonNoTrig")),
   _patJpsi(iConfig.getParameter<edm::InputTag>("src")),
+  _genParticle(iConfig.getParameter<edm::InputTag>("genParticles")),
   _thePVs(iConfig.getParameter<edm::InputTag>("primaryVertexTag")),
   _histfilename(iConfig.getParameter<std::string>("histFileName")),		
   _datasetname(iConfig.getParameter<std::string>("dataSetName")),		
@@ -311,7 +336,10 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig):
   _fillRooDataSet(iConfig.getParameter<bool>("fillRooDataSet")),  
   _fillTree(iConfig.getParameter<bool>("fillTree")),  
   _theMinimumFlag(iConfig.getParameter<bool>("minimumFlag")),  
-  _fillSingleMuons(iConfig.getParameter<bool>("fillSingleMuons")),  
+  _fillSingleMuons(iConfig.getParameter<bool>("fillSingleMuons")),
+  _isMC(iConfig.getUntrackedParameter<bool>("isMC",false) ),
+  _isPromptMC(iConfig.getUntrackedParameter<bool>("isPromptMC",true) ),
+  _oniaPDG(iConfig.getParameter<int>("oniaPDG")),
   NTRIGGERS(iConfig.getParameter<uint32_t>("NumberOfTriggers")),
   _iConfig(iConfig)
 {
@@ -457,7 +485,10 @@ HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel(_patMuon,collMuon);
   iEvent.getByLabel(_patMuonNoTrig,collMuonNoTrig);
 
+  iEvent.getByLabel(_genParticle,collGenParticles); 
 
+  if (_isMC)
+    fillGenInfo();
 
   // APPLY CUTS
   int lastSign = 0;
@@ -580,6 +611,7 @@ HiOniaAnalyzer::fillTreeJpsi(int iSign, int count) {
     Reco_QQ_ctau[Reco_QQ_size] = 10.0*aJpsiCand->userFloat("ppdlPV");
     Reco_QQ_ctauErr[Reco_QQ_size] = 10.0*aJpsiCand->userFloat("ppdlErrPV");
   }
+  Reco_QQ_ctauTrue[Reco_QQ_size] = 10.*aJpsiCand->userFloat("ppdlTrue");
 
   Reco_QQ_VtxProb[Reco_QQ_size] = aJpsiCand->userFloat("vProb");
 
@@ -784,10 +816,9 @@ HiOniaAnalyzer::theBestQQ(int sign) {
 bool
 HiOniaAnalyzer::isMuonInAccept(const pat::Muon* aMuon) {
   return (fabs(aMuon->eta()) < 2.4 &&
-	  ((fabs(aMuon->eta()) < 0.3 && aMuon->pt() >= 4.0) ||
-	   (0.3 <= fabs(aMuon->eta()) && fabs(aMuon->eta()) < 1.0 && aMuon->pt() >= 3.5) ||
-	   (1.0 <= fabs(aMuon->eta()) && fabs(aMuon->eta()) < 1.5 && aMuon->p() > 5.2) ||
-	   (1.5 <= fabs(aMuon->eta()) && aMuon->pt() >= 3.033-5.0/9.0*fabs(aMuon->eta()))));
+	  ((fabs(aMuon->eta()) < 1.0 && aMuon->pt() >= 3.4) ||
+	   (1.0 <= fabs(aMuon->eta()) && fabs(aMuon->eta()) < 1.5 && aMuon->pt() >= 5.8-2.4*fabs(aMuon->eta())) ||
+	   (1.5 <= fabs(aMuon->eta()) && aMuon->pt() >= 3.3667-7.0/9.0*fabs(aMuon->eta()))));
 }
 
 bool
@@ -859,12 +890,91 @@ HiOniaAnalyzer::InitEvent()
   Reco_QQ_size = 0;
   Reco_mu_size = 0;
 
+  Gen_QQ_size = 0;
+  Gen_mu_size = 0;
+
   Reco_QQ_4mom->Clear();
   Reco_QQ_mupl_4mom->Clear();
   Reco_QQ_mumi_4mom->Clear();
   Reco_mu_4mom->Clear();
   Reco_mu_3vec->Clear();
 
+
+  Gen_QQ_4mom->Clear();
+  Gen_QQ_mupl_4mom->Clear();
+  Gen_QQ_mumi_4mom->Clear();
+  Gen_mu_4mom->Clear();
+  Gen_mu_3vec->Clear();
+
+  return;
+}
+
+
+
+void
+HiOniaAnalyzer::fillGenInfo()
+{
+  if (Gen_QQ_size >= Max_QQ_size) {
+    std::cout << "Too many dimuons: " << Gen_QQ_size << std::endl;
+    std::cout << "Maximum allowed: " << Max_QQ_size << std::endl;
+    return;
+  }
+
+  if (Gen_mu_size >= Max_mu_size) {
+    std::cout << "Too many muons: " << Gen_mu_size << std::endl;
+    std::cout << "Maximum allowed: " << Max_mu_size << std::endl;
+    return;
+  }
+  
+  if (collGenParticles.isValid()) {
+    for(std::vector<reco::GenParticle>::const_iterator it=collGenParticles->begin();
+	it!=collGenParticles->end();++it) {
+      const reco::GenParticle* gen = &(*it);
+
+      if (abs(gen->pdgId()) == _oniaPDG  && gen->status() == 2) {
+	Gen_QQ_type[Gen_QQ_size] = _isPromptMC ? 0 : 1; // prompt: 0, non-prompt: 1
+	
+	TLorentzVector vJpsi = lorentzMomentum(gen->p4());
+	new((*Gen_QQ_4mom)[Gen_QQ_size])TLorentzVector(vJpsi);
+
+
+	if (gen->numberOfDaughters() == 2) {
+	  const reco::Candidate* genMuon1 = gen->daughter(0);
+	  const reco::Candidate* genMuon2 = gen->daughter(1);
+	  if ( abs(genMuon1->pdgId()) == 13 &&
+	       abs(genMuon2->pdgId()) == 13 &&
+	       genMuon1->status() == 1 &&
+	       genMuon2->status() == 1 ) {
+
+	    TLorentzVector vMuon1 = lorentzMomentum(genMuon1->p4());
+	    TLorentzVector vMuon2 = lorentzMomentum(genMuon2->p4());
+	    
+	    if (genMuon1->charge() > genMuon2->charge()) {
+	      new((*Gen_QQ_mupl_4mom)[Gen_QQ_size])TLorentzVector(vMuon1);
+	      new((*Gen_QQ_mumi_4mom)[Gen_QQ_size])TLorentzVector(vMuon2);
+	    }
+	    else {
+	      new((*Gen_QQ_mupl_4mom)[Gen_QQ_size])TLorentzVector(vMuon2);
+	      new((*Gen_QQ_mumi_4mom)[Gen_QQ_size])TLorentzVector(vMuon1);
+	    }
+	  }
+	}
+	Gen_QQ_size++;
+      }
+
+      if (abs(gen->pdgId()) == 13  && gen->status() == 1) {
+	Gen_mu_type[Gen_mu_size] = _isPromptMC ? 0 : 1; // prompt: 0, non-prompt: 1
+	Gen_mu_charge[Gen_mu_size] = gen->charge();
+
+	TLorentzVector vMuon = lorentzMomentum(gen->p4());
+	new((*Gen_mu_4mom)[Gen_mu_size])TLorentzVector(vMuon);
+
+	Gen_mu_size++;
+      }
+
+    }
+  }
+  
   return;
 }
 
@@ -952,6 +1062,14 @@ HiOniaAnalyzer::InitTree()
   Reco_QQ_mupl_4mom = new TClonesArray("TLorentzVector",10);
   Reco_QQ_mumi_4mom = new TClonesArray("TLorentzVector",10);
 
+  if (_isMC) {
+    Gen_mu_4mom = new TClonesArray("TLorentzVector", 2);
+    Gen_mu_3vec = new TClonesArray("TVector3", 2);
+    Gen_QQ_4mom = new TClonesArray("TLorentzVector", 2);
+    Gen_QQ_mupl_4mom = new TClonesArray("TLorentzVector", 2);
+    Gen_QQ_mumi_4mom = new TClonesArray("TLorentzVector", 2);
+  }
+
   myTree = new TTree("myTree","My TTree of dimuons");
   
   myTree->Branch("eventNb", &eventNb,   "eventNb/i");
@@ -970,6 +1088,7 @@ HiOniaAnalyzer::InitTree()
   myTree->Branch("Reco_QQ_trig", Reco_QQ_trig,   "Reco_QQ_trig[Reco_QQ_size]/I");
   myTree->Branch("Reco_QQ_ctau", Reco_QQ_ctau,   "Reco_QQ_ctau[Reco_QQ_size]/F");
   myTree->Branch("Reco_QQ_ctauErr", Reco_QQ_ctauErr,   "Reco_QQ_ctauErr[Reco_QQ_size]/F");
+  myTree->Branch("Reco_QQ_ctauTrue", Reco_QQ_ctauTrue,   "Reco_QQ_ctauTrue[Reco_QQ_size]/F");
   myTree->Branch("Reco_QQ_VtxProb", Reco_QQ_VtxProb,   "Reco_QQ_VtxProb[Reco_QQ_size]/F");
 
   myTree->Branch("Reco_mu_size", &Reco_mu_size,  "Reco_mu_size/I");
@@ -978,6 +1097,22 @@ HiOniaAnalyzer::InitTree()
   myTree->Branch("Reco_mu_4mom", "TClonesArray", &Reco_mu_4mom, 32000, 0);
   //  myTree->Branch("Reco_mu_3vec", "TClonesArray", &Reco_mu_3vec, 32000, 0);
   myTree->Branch("Reco_mu_trig", Reco_mu_trig,   "Reco_mu_trig[Reco_mu_size]/I");
+
+  if (_isMC) {
+    myTree->Branch("Gen_QQ_size",      &Gen_QQ_size,    "Gen_QQ_size/I");
+    myTree->Branch("Gen_QQ_type",      Gen_QQ_type,    "Gen_QQ_type[Gen_QQ_size]/I");
+    myTree->Branch("Gen_QQ_4mom",      "TClonesArray", &Gen_QQ_4mom, 32000, 0);
+    //    myTree->Branch("Gen_QQ_ctau",      Gen_QQ_ctau,    "Gen_QQ_ctau[Gen_QQ_size]/F");
+    myTree->Branch("Gen_QQ_mupl_4mom", "TClonesArray", &Gen_QQ_mupl_4mom, 32000, 0);
+    myTree->Branch("Gen_QQ_mumi_4mom", "TClonesArray", &Gen_QQ_mumi_4mom, 32000, 0);
+
+    myTree->Branch("Gen_mu_size",   &Gen_mu_size,  "Gen_mu_size/I");
+    myTree->Branch("Gen_mu_type",   Gen_mu_type,   "Gen_mu_type[Gen_mu_size]/I");
+    myTree->Branch("Gen_mu_charge", Gen_mu_charge, "Gen_mu_charge[Gen_mu_size]/I");
+    myTree->Branch("Gen_mu_4mom",   "TClonesArray", &Gen_mu_4mom, 32000, 0);
+    //    myTree->Branch("Gen_mu_3vec",   "TClonesArray", &Gen_QQ_mumi_4mom, 32000, 0);
+  }
+
   if (!_theMinimumFlag) {
     myTree->Branch("Reco_mu_phiErr",   Reco_mu_phiErr,  "Reco_mu_phiErr[Reco_mu_size]/F");
     myTree->Branch("Reco_mu_etaErr",   Reco_mu_etaErr,  "Reco_mu_etaErr[Reco_mu_size]/F");

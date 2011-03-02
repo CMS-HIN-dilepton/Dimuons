@@ -74,6 +74,11 @@ process.hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                                 removeTrueMuons = cms.untracked.bool(False),
                                 storeSameSign = cms.untracked.bool(True),
                                 
+                                #-- Gen Details
+                                oniaPDG = cms.int32(443),
+                                isMC = cms.untracked.bool(False),
+                                isPromptMC = cms.untracked.bool(True),
+
                                 #-- Histogram configuration
                                 combineCategories = cms.bool(False),
                                 fillRooDataSet = cms.bool(False),

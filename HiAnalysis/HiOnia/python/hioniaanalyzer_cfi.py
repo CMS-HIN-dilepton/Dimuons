@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                         src = cms.InputTag("onia2MuMuPatTrkTrk"),
+                        genParticles = cms.InputTag("genMuons"),
                         primaryVertexTag = cms.InputTag("hiSelectedVertex"),
                         
                         #-- Reco Details
@@ -22,6 +23,11 @@ hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                         removeTrueMuons = cms.untracked.bool(False),
                         storeSameSign = cms.untracked.bool(False),
                         
+                        #-- Gen Details
+                        oniaPDG = cms.int32(443),
+                        isMC = cms.untracked.bool(False),
+                        isPromptMC = cms.untracked.bool(True),
+
                         #-- Histogram configuration
                         combineCategories = cms.bool(False),
                         fillRooDataSet = cms.bool(False),
