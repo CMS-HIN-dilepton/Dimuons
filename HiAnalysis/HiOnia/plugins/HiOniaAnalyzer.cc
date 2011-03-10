@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.13 2011/02/21 16:12:43 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.14 2011/03/02 16:56:08 tdahms Exp $
 //
 //
 
@@ -789,7 +789,7 @@ HiOniaAnalyzer::makeCuts(int sign) {
 bool
 HiOniaAnalyzer::checkCuts(const pat::CompositeCandidate* cand, const pat::Muon* muon1,  const pat::Muon* muon2, bool(HiOniaAnalyzer::* callFunc1)(const pat::Muon*), bool(HiOniaAnalyzer::* callFunc2)(const pat::Muon*)) {
   if ( (  (this->*callFunc1)(muon1) &&  (this->*callFunc2)(muon2) ) &&
-       (!_applycuts || cand->userFloat("vProb") > 0.001) )
+       (!_applycuts || cand->userFloat("vProb") > 0.01) )
     return true;
   else
     return false;
@@ -840,13 +840,13 @@ HiOniaAnalyzer::selGlobalMuon(const pat::Muon* aMuon) {
   const reco::HitPattern& q = gTrack->hitPattern();
 
   return (isMuonInAccept(aMuon) &&
-	  iTrack->found() > 11 &&
-	  gTrack->chi2()/gTrack->ndof() < 10.0 &&
-	  q.numberOfValidMuonHits() > 0 &&
+	  iTrack->found() > 10 &&
+	  gTrack->chi2()/gTrack->ndof() < 6.0 &&
+	  q.numberOfValidMuonHits() > 6 &&
 	  iTrack->chi2()/iTrack->ndof() < 4.0 &&
 // 	  aMuon->muonID("TrackerMuonArbitrated") &&
 // 	  aMuon->muonID("TMLastStationAngTight") &&
-	  p.pixelLayersWithMeasurement() > 1 &&
+	  p.pixelLayersWithMeasurement() > 0 &&
 	  fabs(iTrack->dxy(RefVtx)) < 3.0 &&
 	  fabs(iTrack->dz(RefVtx)) < 15.0 );
 }
