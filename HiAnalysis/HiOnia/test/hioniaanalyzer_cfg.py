@@ -9,7 +9,7 @@ options = VarParsing.VarParsing ('analysis')
 # setup any defaults you want
 options.outputFile = "Jpsi_Histos.root"
 options.secondaryOutputFile = "Jpsi_DataSet.root"
-options.inputFiles = 'rfio:/castor/cern.ch/cms/store/caf/user/tdahms/HeavyIons/Onia/Data2010/v4/Skims/Prompt/150844-153368/onia2MuMuPAT_9_1_Xvi.root'
+options.inputFiles = 'rfio:/castor/cern.ch/cms/store/user/tdahms/HeavyIons/Onia/Data2010/v7/Skims/ReReco/onia2MuMuPAT_139.root'
 options.maxEvents = -1 # -1 means all events
 
 # get and parse the command line arguments
@@ -20,7 +20,7 @@ process.MessageLogger.destinations = ['cout', 'cerr']
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'GR10_P_V12::All'
+process.GlobalTag.globaltag = 'GR_R_39X_V6B::All'
 
 from CmsHi.Analysis2010.CommonFunctions_cff import *
 overrideCentrality(process)
@@ -53,6 +53,7 @@ process.hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                                 srcMuon = cms.InputTag("patMuonsWithTrigger"),
                                 srcMuonNoTrig = cms.InputTag("patMuonsWithoutTrigger"),
                                 src = cms.InputTag("onia2MuMuPatGlbGlb"),
+                                genParticles = cms.InputTag("genMuons"),
                                 primaryVertexTag = cms.InputTag("hiSelectedVertex"),
 
                                 #-- Reco Details

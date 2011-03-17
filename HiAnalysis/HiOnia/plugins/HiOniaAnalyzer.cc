@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.15 2011/03/10 13:12:47 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.16 2011/03/17 10:39:02 tdahms Exp $
 //
 //
 
@@ -485,11 +485,11 @@ HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel(_patMuon,collMuon);
   iEvent.getByLabel(_patMuonNoTrig,collMuonNoTrig);
 
-  iEvent.getByLabel(_genParticle,collGenParticles); 
-
-  if (_isMC)
+  if (_isMC) {
+    iEvent.getByLabel(_genParticle,collGenParticles);
     fillGenInfo();
-
+  }
+  
   // APPLY CUTS
   int lastSign = 0;
   makeCuts(0);
@@ -899,12 +899,13 @@ HiOniaAnalyzer::InitEvent()
   Reco_mu_4mom->Clear();
   Reco_mu_3vec->Clear();
 
-
-  Gen_QQ_4mom->Clear();
-  Gen_QQ_mupl_4mom->Clear();
-  Gen_QQ_mumi_4mom->Clear();
-  Gen_mu_4mom->Clear();
-  Gen_mu_3vec->Clear();
+  if (_isMC) {
+    Gen_QQ_4mom->Clear();
+    Gen_QQ_mupl_4mom->Clear();
+    Gen_QQ_mumi_4mom->Clear();
+    Gen_mu_4mom->Clear();
+    Gen_mu_3vec->Clear();
+  }
 
   return;
 }
