@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.14 2011/03/02 16:56:08 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.15 2011/03/10 13:12:47 tdahms Exp $
 //
 //
 
@@ -844,7 +844,7 @@ HiOniaAnalyzer::selGlobalMuon(const pat::Muon* aMuon) {
 	  gTrack->chi2()/gTrack->ndof() < 6.0 &&
 	  q.numberOfValidMuonHits() > 6 &&
 	  iTrack->chi2()/iTrack->ndof() < 4.0 &&
-// 	  aMuon->muonID("TrackerMuonArbitrated") &&
+ 	  aMuon->muonID("TrackerMuonArbitrated") &&
 // 	  aMuon->muonID("TMLastStationAngTight") &&
 	  p.pixelLayersWithMeasurement() > 0 &&
 	  fabs(iTrack->dxy(RefVtx)) < 3.0 &&
