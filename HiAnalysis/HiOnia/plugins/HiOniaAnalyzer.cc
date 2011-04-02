@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.17 2011/03/17 11:18:13 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.18 2011/04/02 18:50:12 tdahms Exp $
 //
 //
 
@@ -702,17 +702,12 @@ HiOniaAnalyzer::checkTriggers(const pat::CompositeCandidate* aJpsiCand) {
 
   // Trigger passed
   for (unsigned int iTr = 1; iTr<NTRIGGERS; ++iTr) {
-    const pat::TriggerObjectStandAloneCollection mu1HLTMatches = muon1->triggerObjectMatchesByFilter( HLTLastFilters[iTr] );
-    const pat::TriggerObjectStandAloneCollection mu2HLTMatches = muon2->triggerObjectMatchesByFilter( HLTLastFilters[iTr] );
-
-    if (iTr>6) {
-      const pat::TriggerObjectStandAloneCollection mu1HLTMatches = muon1->triggerObjectMatchesByPath( HLTLastFilters[iTr] );
-      const pat::TriggerObjectStandAloneCollection mu2HLTMatches = muon2->triggerObjectMatchesByPath( HLTLastFilters[iTr] );
-    }
+    const pat::TriggerObjectStandAloneCollection mu1HLTMatches = muon1->triggerObjectMatchesByPath( theTriggerNames.at(iTr) );
+    const pat::TriggerObjectStandAloneCollection mu2HLTMatches = muon2->triggerObjectMatchesByPath( theTriggerNames.at(iTr) );
 
     bool pass1 = mu1HLTMatches.size() > 0;
     bool pass2 = mu2HLTMatches.size() > 0;
-    if (iTr > 4) {  // single triggers here
+    if (iTr > 3) {  // single triggers here
       isTriggerMatched[iTr] = pass1 || pass2;
     } else {        // double triggers here
       isTriggerMatched[iTr] = pass1 && pass2;
@@ -1217,12 +1212,9 @@ HiOniaAnalyzer::beginJob()
 
   hStats = new TH1F("hStats","hStats;;Number of Events",20,0,20);
   hStats->GetXaxis()->SetBinLabel(1,"All");
-  hStats->GetXaxis()->SetBinLabel(2,"HLT_HIL1DoubleMuOpen");
-  hStats->GetXaxis()->SetBinLabel(3,"HLT_HIL2DoubleMu0");
-  hStats->GetXaxis()->SetBinLabel(4,"HLT_HIL2DoubleMu3");
-  hStats->GetXaxis()->SetBinLabel(4,"HLT_HIL2Mu20");
-  hStats->GetXaxis()->SetBinLabel(4,"HLT_HIL2Mu3");
-  hStats->GetXaxis()->SetBinLabel(4,"HLT_HIL2Mu5Tight");
+  for (int i=2; i< (int) theTriggerNames.size()+1; ++i) {
+    hStats->GetXaxis()->SetBinLabel(i,theTriggerNames.at(i-1).c_str());
+  }
   hStats->Sumw2();
 
   hCent = new TH1F("hCent","hCent;centrality bin;Number of Events",40,0,40);
