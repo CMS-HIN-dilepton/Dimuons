@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.16 2011/03/17 10:39:02 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.17 2011/03/17 11:18:13 tdahms Exp $
 //
 //
 
@@ -838,7 +838,17 @@ HiOniaAnalyzer::selGlobalMuon(const pat::Muon* aMuon) {
 
   reco::TrackRef gTrack = aMuon->globalTrack();
   const reco::HitPattern& q = gTrack->hitPattern();
-
+  /* Z analysis cuts
+  return (isMuonInAccept(aMuon) &&
+	  iTrack->found() > 10 &&
+	  gTrack->chi2()/gTrack->ndof() < 10.0 &&
+	  q.numberOfValidMuonHits() > 0 &&
+	  iTrack->chi2()/iTrack->ndof() < 4.0 &&
+	  iTrack->ptError()/iTrack->pt() <= 0.1 &&
+	  fabs(iTrack->dxy(RefVtx)) < 0.03 &&
+	  fabs(iTrack->dz(RefVtx)) < 0.150 );
+  */
+  // J/psi tuned as of 2011-03-18
   return (isMuonInAccept(aMuon) &&
 	  iTrack->found() > 10 &&
 	  gTrack->chi2()/gTrack->ndof() < 6.0 &&

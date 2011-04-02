@@ -20,13 +20,14 @@ process.MessageLogger.destinations = ['cout', 'cerr']
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'GR_R_39X_V6B::All'
+#process.GlobalTag.globaltag = 'GR_R_39X_V6B::All' #re-reco
+process.GlobalTag.globaltag = 'GR10_P_V12::All' # prompt reco
 
 from CmsHi.Analysis2010.CommonFunctions_cff import *
 overrideCentrality(process)
 
 process.HeavyIonGlobalParameters = cms.PSet(
-    centralityVariable = cms.string("HFhits"),
+    centralityVariable = cms.string("HFtowers"), #HFhits for prompt reco
     nonDefaultGlauberModel = cms.string(""),
     centralitySrc = cms.InputTag("hiCentrality")
     )

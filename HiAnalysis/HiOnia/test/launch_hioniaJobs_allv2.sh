@@ -5,29 +5,30 @@ function command(){
     eval $@
 }
 
-workDir=$PWD
-
-logDir=${workDir}"/BATCHJOBS/v4.h1/"
+workDir=$PWD  
+                                                                       
+logDir=${workDir}"/BATCHJOBS/v4.h4/"
 command "mkdir -p $logDir"
 
-castorDirIn="/castor/cern.ch/cms/store/caf/user/tdahms/HeavyIons/Onia/Data2010/v4/Skims/Prompt/150256-150619/"
-
-castorDirOut="/castor/cern.ch/cms/store/user/tdahms/HeavyIons/Onia/Data2010/v4/Histos/Prompt/150256-150619/h1/"
+#castorDirIn="/castor/cern.ch/cms/store/caf/user/tdahms/HeavyIons/Onia/Data2010/v4/Skims/Prompt/150256-150619/"
+castorDirOut="/castor/cern.ch/cms/store/user/tdahms/HeavyIons/Onia/Data2010/v4/Histos/Prompt/150256-150619/h4/"
 command "rfmkdir -p  $castorDirOut"
 
 inputfiles=""
 j=0
 jobNb=""
 
-for files in `nsls $castorDirIn`
+#for files in `nsls $castorDirIn | grep onia2MuMuPAT`
+for fileList in `ls inputOniaSkim_v2_???`
 do
-	inputfiles="inputFiles=rfio:"$castorDirIn$files;
-	echo $inputfiles;
-	jobNb=${j};
-	let j=${j}+1;
-	name="OniaSkim_allv2_${jobNb}"
-	outfilename="Histos_${name}.root"
-	secoutfilename="DataSet_${name}.root"
+    echo $fileList;
+    #inputfiles="inputFiles=rfio:"$castorDirIn$files;
+    #echo $inputfiles;
+    jobNb=${j};
+    let j=${j}+1;
+    name="OniaSkim_allv2_${jobNb}"
+    outfilename="Histos_${name}.root"
+    secoutfilename="DataSet_${name}.root"
 
 #Start to write the script
 	cat > job_hionia_v2_${jobNb}.sh << EOF
@@ -42,18 +43,19 @@ workDir=$PWD
 logDir="${logDir}"
 castorDirOut="${castorDirOut}"
 
-cd /afs/cern.ch/user/t/tdahms/scratch0/HeavyIons2010/CMSSW_3_9_5/src/
+
+cd /afs/cern.ch/user/t/tdahms/scratch0/HeavyIons2010/CMSSW_3_9_9_patch1/src/
 eval \`scramv1 runtime -sh\`
 cd -
-cp /afs/cern.ch/user/t/tdahms/scratch0/HeavyIons2010/CMSSW_3_9_5/src/HiAnalysis/HiOnia/test/hioniaanalyzer_cfg.py .
+cp /afs/cern.ch/user/t/tdahms/scratch0/HeavyIons2010/CMSSW_3_9_9_patch1/src/HiAnalysis/HiOnia/test/hioniaanalyzer_cfg.py .
+cp /afs/cern.ch/user/t/tdahms/scratch0/HeavyIons2010/CMSSW_3_9_9_patch1/src/HiAnalysis/HiOnia/test/${fileList} .
 echo "before running cmsRun"
 ls -l
 
-command "cmsRun hioniaanalyzer_cfg.py ${inputfiles} outputFile=${outfilename} secondaryOutputFile=${secoutfilename} print 2>&1 | tee -a $logDir${name}.log"
+command "cmsRun hioniaanalyzer_cfg.py inputFiles_clear inputFiles_load=${fileList} outputFile=${outfilename} secondaryOutputFile=${secoutfilename} print 2>&1 | tee -a $logDir${name}.log"
 echo "after running cmsRun"
 ls -l
 command "rfcp ${outfilename} $castorDirOut"
-command "rfcp ${secoutfilename} $castorDirOut"
 command "gzip -f $logDir${name}.log"
 rm -f hioniaanalyzerpat_cfg.py
 
@@ -61,7 +63,7 @@ EOF
 
 	chmod 755 job_hionia_v2_${jobNb}.sh
 	
-	bsub -q 2nw -J $name /afs/cern.ch/user/t/tdahms/scratch0/HeavyIons2010/CMSSW_3_9_5/src/HiAnalysis/HiOnia/test/job_hionia_v2_${jobNb}.sh
+	bsub -q 1nd -J $name /afs/cern.ch/user/t/tdahms/scratch0/HeavyIons2010/CMSSW_3_9_9_patch1/src/HiAnalysis/HiOnia/test/job_hionia_v2_${jobNb}.sh
 
 
 done
