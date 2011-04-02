@@ -91,7 +91,7 @@ process.hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                                 dataSetName = cms.string(options.secondaryOutputFile),
                                 
                                 #--
-                                NumberOfTriggers = cms.uint32(5),
+                                NumberOfTriggers = cms.uint32(10),
                                 )
 
 
