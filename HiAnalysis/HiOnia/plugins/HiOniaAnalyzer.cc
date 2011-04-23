@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.18 2011/04/02 18:50:12 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.19 2011/04/02 22:19:27 tdahms Exp $
 //
 //
 
@@ -702,11 +702,23 @@ HiOniaAnalyzer::checkTriggers(const pat::CompositeCandidate* aJpsiCand) {
 
   // Trigger passed
   for (unsigned int iTr = 1; iTr<NTRIGGERS; ++iTr) {
-    const pat::TriggerObjectStandAloneCollection mu1HLTMatches = muon1->triggerObjectMatchesByPath( theTriggerNames.at(iTr) );
-    const pat::TriggerObjectStandAloneCollection mu2HLTMatches = muon2->triggerObjectMatchesByPath( theTriggerNames.at(iTr) );
+    const pat::TriggerObjectStandAloneCollection mu1HLTMatchesFilter = muon1->triggerObjectMatchesByFilter( HLTLastFilters[iTr] );
+    const pat::TriggerObjectStandAloneCollection mu2HLTMatchesFilter = muon2->triggerObjectMatchesByFilter( HLTLastFilters[iTr] );
+    
+    const pat::TriggerObjectStandAloneCollection mu1HLTMatchesPath = muon1->triggerObjectMatchesByPath( theTriggerNames.at(iTr) );
+    const pat::TriggerObjectStandAloneCollection mu2HLTMatchesPath = muon2->triggerObjectMatchesByPath( theTriggerNames.at(iTr) );
+    
+    bool pass1 = false;
+    bool pass2 = false;
+    if (iTr<7) { // apparently matching by path gives false positives so we use matching by filter for all triggers for which we know the filter name
+      pass1 = mu1HLTMatchesFilter.size() > 0;
+      pass2 = mu2HLTMatchesFilter.size() > 0;
+    }
+    else {
+      pass1 = mu1HLTMatchesPath.size() > 0;
+      pass2 = mu2HLTMatchesPath.size() > 0;
+    }
 
-    bool pass1 = mu1HLTMatches.size() > 0;
-    bool pass2 = mu2HLTMatches.size() > 0;
     if (iTr > 3) {  // single triggers here
       isTriggerMatched[iTr] = pass1 || pass2;
     } else {        // double triggers here
@@ -832,7 +844,7 @@ HiOniaAnalyzer::selGlobalMuon(const pat::Muon* aMuon) {
   const reco::HitPattern& p = iTrack->hitPattern();
 
   reco::TrackRef gTrack = aMuon->globalTrack();
-  const reco::HitPattern& q = gTrack->hitPattern();
+  //  const reco::HitPattern& q = gTrack->hitPattern();
   /* Z analysis cuts
   return (isMuonInAccept(aMuon) &&
 	  iTrack->found() > 10 &&
@@ -846,11 +858,11 @@ HiOniaAnalyzer::selGlobalMuon(const pat::Muon* aMuon) {
   // J/psi tuned as of 2011-03-18
   return (isMuonInAccept(aMuon) &&
 	  iTrack->found() > 10 &&
-	  gTrack->chi2()/gTrack->ndof() < 6.0 &&
-	  q.numberOfValidMuonHits() > 6 &&
+	  gTrack->chi2()/gTrack->ndof() < 20.0 &&
+	  //	  q.numberOfValidMuonHits() > 6 &&
 	  iTrack->chi2()/iTrack->ndof() < 4.0 &&
  	  aMuon->muonID("TrackerMuonArbitrated") &&
-// 	  aMuon->muonID("TMLastStationAngTight") &&
+	  // 	  aMuon->muonID("TMLastStationAngTight") &&
 	  p.pixelLayersWithMeasurement() > 0 &&
 	  fabs(iTrack->dxy(RefVtx)) < 3.0 &&
 	  fabs(iTrack->dz(RefVtx)) < 15.0 );
@@ -870,11 +882,11 @@ HiOniaAnalyzer::selTrackerMuon(const pat::Muon* aMuon) {
   const reco::HitPattern& p = iTrack->hitPattern();
 
   return (isMuonInAccept(aMuon) &&
-	  iTrack->found() > 11 &&
+	  iTrack->found() > 10 &&
 	  iTrack->chi2()/iTrack->ndof() < 4.0 &&
 	  aMuon->muonID("TrackerMuonArbitrated") &&
 	  aMuon->muonID("TMLastStationAngTight") &&
-	  p.pixelLayersWithMeasurement() > 1 &&
+	  p.pixelLayersWithMeasurement() > 0 &&
 	  fabs(iTrack->dxy(RefVtx)) < 3.0 &&
 	  fabs(iTrack->dz(RefVtx)) < 15.0 );
 }
@@ -1026,9 +1038,12 @@ HiOniaAnalyzer::fillRecoMuons(int iCent)
 
 	int trigBits=0;
 	for (unsigned int iTr=1; iTr<NTRIGGERS; ++iTr) {
-	  const pat::TriggerObjectStandAloneCollection muHLTMatches = muon->triggerObjectMatchesByFilter(  HLTLastFilters[iTr] );
+	  const pat::TriggerObjectStandAloneCollection muHLTMatchesFilter = muon->triggerObjectMatchesByFilter(  HLTLastFilters[iTr] );
+	  const pat::TriggerObjectStandAloneCollection muHLTMatchesPath = muon->triggerObjectMatchesByPath( theTriggerNames.at(iTr) );
 
-	  if (muHLTMatches.size() > 0) {
+	  // apparently matching by path gives false positives so we use matching by filter for all triggers for which we know the filter name
+	  if ( (iTr<7 && muHLTMatchesFilter.size() > 0) ||
+	       (muHLTMatchesPath.size()>0) ) {
 	    std::string theLabel = theTriggerNames.at(iTr) + "_" + theCentralities.at(iCent);
 
 	    myRecoGlbMuonHistos->Fill(muon, "All_"+theLabel);
