@@ -2,27 +2,36 @@
 # https://twiki.cern.ch/twiki/bin/view/CMS/Onia2MuMuSamples
 
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing
 
 # set up process
 process = cms.Process("Onia2MuMuPAT")
+
+# setup 'analysis'  options
+options = VarParsing.VarParsing ('analysis')
+
+# setup any defaults you want
+options.inputFiles = 'rfio:/castor/cern.ch/cms/store/user/tdahms/HeavyIons/Onia/MC/v6/MC_NonPromptJpsi_FEVTDEBUGHLT_98.root'
+
+options.maxEvents = -1 # -1 means all events
+
+# get and parse the command line arguments
+options.parseArguments()
 
 process.load('Configuration.StandardSequences.GeometryExtended_cff')
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'GR_R_39X_V6B::All'
-
-# produce missing l1extraParticles
-process.load('Configuration.StandardSequences.L1Reco_cff')
-process.L1Reco_step = cms.Path(process.l1extraParticles)
+process.GlobalTag.globaltag = 'START39_V7HI::All'
+#process.GlobalTag.globaltag = 'START311_V1::All'
 
 from CmsHi.Analysis2010.CommonFunctions_cff import *
 overrideCentrality(process)
 
 process.HeavyIonGlobalParameters = cms.PSet(
-    centralityVariable = cms.string("HFtowers"), #HFhits for prompt reco
-    nonDefaultGlauberModel = cms.string(""),
+    centralityVariable = cms.string("HFhits"),
+    nonDefaultGlauberModel = cms.string("Hydjet_Bass"),
     centralitySrc = cms.InputTag("hiCentrality")
     )
 
@@ -65,58 +74,78 @@ process.hltOniaHI.andOr = True
 process.MinBiasCounterEarly = cms.EDAnalyzer('MinBiasCounter',
                                              TriggerResultsLabel = cms.InputTag("TriggerResults","","HLT"),
                                              triggerName = cms.vstring("HLT_HIMinBiasHF","HLT_HIMinBiasBSC"),
-                                             histFileName = cms.string("MinBiasCentralityEarly_Histo.root")
+                                             histFileName = cms.string("MinBiasCentralityEarly_MC_Histo.root")
                                              )
 
 process.MinBiasCounter = cms.EDAnalyzer('MinBiasCounter',
                                         TriggerResultsLabel = cms.InputTag("TriggerResults","","HLT"),
                                         triggerName = cms.vstring("HLT_HIMinBiasHfOrBSC"),
-                                        histFileName = cms.string("MinBiasCentrality_Histo.root")
+                                        histFileName = cms.string("MinBiasCentrality_MC_Histo.root")
                                         )
 
 process.DoubleMuOpenCounter = cms.EDAnalyzer('MinBiasCounter',
                                              TriggerResultsLabel = cms.InputTag("TriggerResults","","HLT"),
                                              triggerName = cms.vstring("HLT_HIL1DoubleMuOpen"),
-                                             # triggerName = cms.vstring("HLT_HIL1DoubleMuOpen_Core"),
-                                             histFileName = cms.string("DoubleMuOpenCentrality_Histo.root")
+                                             histFileName = cms.string("DoubleMuOpenCentrality_MC_Histo.root")
                                              )
 
-process.MinBiasEarlyPath = cms.Path(process.hltMinBiasHFOrBSCEarly *
-                                    process.collisionEventSelection *
-                                    process.MinBiasCounterEarly
-                                    )
-
-process.MinBiasPath = cms.Path(process.hltMinBiasHFOrBSC *
-                               process.collisionEventSelection *
-                               process.MinBiasCounter
-                               )
+#process.MinBiasEarlyPath = cms.Path(process.hltMinBiasHFOrBSCEarly *
+#                                    process.collisionEventSelection *
+#                                    process.MinBiasCounterEarly
+#                                    )
+#
+#process.MinBiasPath = cms.Path(process.hltMinBiasHFOrBSC *
+#                               process.collisionEventSelection *
+#                               process.MinBiasCounter
+#                               )
 
 from HeavyFlavorAnalysis.Onia2MuMu.onia2MuMuPAT_cff import *
 
-onia2MuMuPAT(process, GlobalTag=process.GlobalTag.globaltag, MC=False, HLT="HLT", Filter=False)#True)
+onia2MuMuPAT(process, GlobalTag=process.GlobalTag.globaltag, MC=True, HLT="HLT", Filter=True)
 
 process.onia2MuMuPatGlbGlb.addMuonlessPrimaryVertex = False
 process.onia2MuMuPatGlbGlb.resolvePileUpAmbiguity = False
 
+process.muonL1Info.matched = "hltL1extraParticles"
+
+process.Onia2MuMuPAT.remove(process.DoubleMuOpenCounter)
+#process.Onia2MuMuPAT.remove(process.hltOniaHI)
+
+process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 process.source.fileNames = cms.untracked.vstring(
-    '/store/hidata/HIRun2010/HIAllPhysics/RECO/SDmaker_3SD_1CS_PDHIAllPhysicsZSv2_SD_MuHI-v1/0054/FED0C648-DE4C-E011-A1EE-003048F1BF7A.root'
+    options.inputFiles
     )
 
+'''
+import os,commands
+# get a list of files from a specified directory
+mydir = "/castor/cern.ch/cms/store/user/tdahms/HeavyIons/Onia/MC/v1/"
 
-# filter on lumisections
-from HeavyFlavorAnalysis.Onia2MuMu.goodLumiSectionListHI_cfi import *
-#process.source.lumisToProcess = goodLumisToProcess
+cmd  = 'nsls %s/ ' % (mydir)
+mylist = ["rfio:%s/%s" % (mydir,j) for j in commands.getoutput(cmd).split('\n')]
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
-process.outOnia2MuMu.fileName = cms.untracked.string( 'onia2MuMuPAT.root' )
+# add a specified number of files from mydir to the list of fileNames
+start=0
+nfiles=94
+for i in range(start,start+nfiles):
+     process.source.fileNames.append('%s' % (mylist[i]))
+     print "process.source.fileNames.append(%s" % (mylist[i])
+print "Number of files to process is %s" % (len(process.source.fileNames))
+'''
 
-# modify stuff!
-process.Onia2MuMuPAT.remove(process.DoubleMuOpenCounter)
-process.e = cms.EndPath(process.outOnia2MuMu)
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
-process.schedule = cms.Schedule(process.L1Reco_step, #process.MinBiasEarlyPath, process.MinBiasPath, 
-process.Onia2MuMuPAT,
-# process.TagAndProbeSta, process.TagAndProbeMuID, process.TagAndProbeTrig,
- process.e)
-#process.schedule = cms.Schedule(process.L1Reco_step, process.Onia2MuMuPAT, process.e)
+process.outOnia2MuMu.fileName = cms.untracked.string( 'onia2MuMuPAT_MC.root' )
+process.outSta.fileName = cms.untracked.string('tnpSta_MC.root')
+process.outMuID.fileName = cms.untracked.string('tnpMuID_MC.root')
+process.outTrig.fileName = cms.untracked.string('tnpTrig_MC.root')
 
+
+#disable TnP path temporarily
+#process.TagAndProbeSta = cms.Path()
+#process.TagAndProbeMuID = cms.Path()
+#process.TagAndProbeTrig = cms.Path()
+#
+#process.e.remove(process.outSta)
+#process.e.remove(process.outMuID)
+#process.e.remove(process.outTrig)
