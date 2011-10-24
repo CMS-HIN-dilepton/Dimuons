@@ -1,5 +1,5 @@
-#ifndef HeavyFlavorAnalysis_Onia2MuMu_interface_VertexReProducer_h
-#define HeavyFlavorAnalysis_Onia2MuMu_interface_VertexReProducer_h
+#ifndef HiSkim_HiOnia2MuMu_VertexReProducer_h
+#define HiSkim_HiOnia2MuMu_VertexReProducer_h
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"

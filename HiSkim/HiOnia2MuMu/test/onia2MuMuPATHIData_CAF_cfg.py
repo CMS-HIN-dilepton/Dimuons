@@ -87,7 +87,7 @@ process.MinBiasPath = cms.Path(process.hltMinBiasHFOrBSC *
                                process.MinBiasCounter
                                )
 
-from HeavyFlavorAnalysis.Onia2MuMu.onia2MuMuPAT_cff import *
+from HiSkim.HiOnia2MuMu.onia2MuMuPAT_cff import *
 
 onia2MuMuPAT(process, GlobalTag=process.GlobalTag.globaltag, MC=False, HLT="HLT", Filter=True)
 
@@ -99,7 +99,7 @@ process.source.fileNames = cms.untracked.vstring(
     )
 
 # filter on lumisections
-from HeavyFlavorAnalysis.Onia2MuMu.goodLumiSectionListHI_cfi import *
+from HiSkim.HiOnia2MuMu.goodLumiSectionListHI_cfi import *
 process.source.lumisToProcess = goodLumisToProcess
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )

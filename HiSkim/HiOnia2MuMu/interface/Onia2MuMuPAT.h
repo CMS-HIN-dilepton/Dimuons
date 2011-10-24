@@ -1,5 +1,5 @@
-#ifndef HeavyFlavorAnalysis_Onia2MuMu_Onia2MuMuPAT_h
-#define HeavyFlavorAnalysis_Onia2MuMu_Onia2MuMuPAT_h
+#ifndef HiSkim_HiOnia2MuMu_Onia2MuMuPAT_h
+#define HiSkim_HiOnia2MuMu_Onia2MuMuPAT_h
 
 
 // system include files

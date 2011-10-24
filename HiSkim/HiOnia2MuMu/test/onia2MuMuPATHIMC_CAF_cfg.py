@@ -99,7 +99,7 @@ process.DoubleMuOpenCounter = cms.EDAnalyzer('MinBiasCounter',
 #                               process.MinBiasCounter
 #                               )
 
-from HeavyFlavorAnalysis.Onia2MuMu.onia2MuMuPAT_cff import *
+from HiSkim.HiOnia2MuMu.onia2MuMuPAT_cff import *
 
 onia2MuMuPAT(process, GlobalTag=process.GlobalTag.globaltag, MC=True, HLT="HLT", Filter=True)
 
