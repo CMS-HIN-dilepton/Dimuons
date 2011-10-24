@@ -1,4 +1,4 @@
-#include "HiSkim/HiOnia2MuMu/interface/Onia2MuMuPAT.h"
+#include "HiSkim/HiOnia2MuMu/interface/HiOnia2MuMuPAT.h"
 
 //Headers for the data items
 #include <DataFormats/TrackReco/interface/TrackFwd.h>
@@ -21,7 +21,7 @@
 #include "HiSkim/HiOnia2MuMu/interface/VertexReProducer.h"
 
 
-Onia2MuMuPAT::Onia2MuMuPAT(const edm::ParameterSet& iConfig):
+HiOnia2MuMuPAT::HiOnia2MuMuPAT(const edm::ParameterSet& iConfig):
   muons_(iConfig.getParameter<edm::InputTag>("muons")),
   thebeamspot_(iConfig.getParameter<edm::InputTag>("beamSpotTag")),
   thePVs_(iConfig.getParameter<edm::InputTag>("primaryVertexTag")),
@@ -37,7 +37,7 @@ Onia2MuMuPAT::Onia2MuMuPAT(const edm::ParameterSet& iConfig):
 }
 
 
-Onia2MuMuPAT::~Onia2MuMuPAT()
+HiOnia2MuMuPAT::~HiOnia2MuMuPAT()
 {
  
    // do anything here that needs to be done at desctruction time
@@ -52,7 +52,7 @@ Onia2MuMuPAT::~Onia2MuMuPAT()
 
 // ------------ method called to produce the data  ------------
 void
-Onia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HiOnia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {  
   using namespace edm;
   using namespace std;
@@ -285,7 +285,7 @@ Onia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 bool 
-Onia2MuMuPAT::isAbHadron(int pdgID) {
+HiOnia2MuMuPAT::isAbHadron(int pdgID) {
 
   if (abs(pdgID) == 511 || abs(pdgID) == 521 || abs(pdgID) == 531 || abs(pdgID) == 5122) return true;
   return false;
@@ -293,7 +293,7 @@ Onia2MuMuPAT::isAbHadron(int pdgID) {
 }
 
 bool 
-Onia2MuMuPAT::isAMixedbHadron(int pdgID, int momPdgID) {
+HiOnia2MuMuPAT::isAMixedbHadron(int pdgID, int momPdgID) {
 
   if ((abs(pdgID) == 511 && abs(momPdgID) == 511 && pdgID*momPdgID < 0) || 
       (abs(pdgID) == 531 && abs(momPdgID) == 531 && pdgID*momPdgID < 0)) 
@@ -303,7 +303,7 @@ Onia2MuMuPAT::isAMixedbHadron(int pdgID, int momPdgID) {
 }
 
 std::pair<int, float>  
-Onia2MuMuPAT::findJpsiMCInfo(reco::GenParticleRef genJpsi) {
+HiOnia2MuMuPAT::findJpsiMCInfo(reco::GenParticleRef genJpsi) {
 
   int momJpsiID = 0;
   float trueLife = -99.;
@@ -362,14 +362,14 @@ Onia2MuMuPAT::findJpsiMCInfo(reco::GenParticleRef genJpsi) {
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-Onia2MuMuPAT::beginJob()
+HiOnia2MuMuPAT::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-Onia2MuMuPAT::endJob() {
+HiOnia2MuMuPAT::endJob() {
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(Onia2MuMuPAT);
+DEFINE_FWK_MODULE(HiOnia2MuMuPAT);

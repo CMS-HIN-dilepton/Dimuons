@@ -244,8 +244,8 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
     
     process.outOnia2MuMu = cms.OutputModule("PoolOutputModule",
         fileName = cms.untracked.string('onia2MuMuPAT.root'),
-        outputCommands = process.RECOEventContent.outputCommands,# cms.untracked.vstring('drop *',
-#        ),
+        outputCommands =  cms.untracked.vstring('drop *'), #process.RECOEventContent.outputCommands,
+                                                
         SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('Onia2MuMuPAT') ) if Filter else cms.untracked.PSet()
     )
 

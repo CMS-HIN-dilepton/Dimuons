@@ -99,7 +99,8 @@ process.onia2MuMuPatGlbGlb.addMuonlessPrimaryVertex = False
 process.onia2MuMuPatGlbGlb.resolvePileUpAmbiguity = False
 
 process.source.fileNames = cms.untracked.vstring(
-    '/store/hidata/HIRun2010/HIAllPhysics/RECO/SDmaker_3SD_1CS_PDHIAllPhysicsZSv2_SD_MuHI-v1/0054/FED0C648-DE4C-E011-A1EE-003048F1BF7A.root'
+    'rfio:/castor/cern.ch/cms/store/data/Run2011A/AllPhysics2760/AOD/PromptReco-v2/000/161/474/FC4C13B1-975A-E011-93F8-0030487C608C.root'
+  #  '/store/hidata/HIRun2010/HIAllPhysics/RECO/SDmaker_3SD_1CS_PDHIAllPhysicsZSv2_SD_MuHI-v1/0054/FED0C648-DE4C-E011-A1EE-003048F1BF7A.root'
     )
 
 # filter on lumisections

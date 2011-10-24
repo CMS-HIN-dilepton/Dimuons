@@ -1,5 +1,5 @@
-#ifndef HiSkim_HiOnia2MuMu_Onia2MuMuPAT_h
-#define HiSkim_HiOnia2MuMu_Onia2MuMuPAT_h
+#ifndef HiSkim_HiOnia2MuMu_HiOnia2MuMuPAT_h
+#define HiSkim_HiOnia2MuMu_HiOnia2MuMuPAT_h
 
 
 // system include files
@@ -22,10 +22,10 @@
 // class decleration
 //
 
-class Onia2MuMuPAT : public edm::EDProducer {
+class HiOnia2MuMuPAT : public edm::EDProducer {
  public:
-  explicit Onia2MuMuPAT(const edm::ParameterSet&);
-  ~Onia2MuMuPAT();
+  explicit HiOnia2MuMuPAT(const edm::ParameterSet&);
+  ~HiOnia2MuMuPAT();
 
  private:
   virtual void beginJob() ;
