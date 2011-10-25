@@ -11,7 +11,8 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'GR_R_39X_V6B::All'
+process.GlobalTag.globaltag = 'START44_V7::All'
+#process.GlobalTag.globaltag = 'STARTHI42_V8::All'
 
 # produce missing l1extraParticles
 process.load('Configuration.StandardSequences.L1Reco_cff')
@@ -93,13 +94,13 @@ process.MinBiasPath = cms.Path(process.hltMinBiasHFOrBSC *
 
 from HiSkim.HiOnia2MuMu.onia2MuMuPAT_cff import *
 
-onia2MuMuPAT(process, GlobalTag=process.GlobalTag.globaltag, MC=False, HLT="HLT", Filter=False)#True)
+onia2MuMuPAT(process, GlobalTag=process.GlobalTag.globaltag, MC=False, HLT="HLT", Filter=True)
 
 process.onia2MuMuPatGlbGlb.addMuonlessPrimaryVertex = False
 process.onia2MuMuPatGlbGlb.resolvePileUpAmbiguity = False
 
 process.source.fileNames = cms.untracked.vstring(
-    '/store/hidata/HIRun2010/HIAllPhysics/RECO/SDmaker_3SD_1CS_PDHIAllPhysicsZSv2_SD_MuHI-v1/0054/FED0C648-DE4C-E011-A1EE-003048F1BF7A.root'
+    'rfio:/castor/cern.ch/user/m/mironov/cmssw440patch10/MC425/jpsi/v3/jpsimc_rawrecohltdebug_50_1_06m.root',
     )
 
 
@@ -111,7 +112,20 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.outOnia2MuMu.fileName = cms.untracked.string( 'onia2MuMuPAT.root' )
 
 # modify stuff!
-process.Onia2MuMuPAT.remove(process.DoubleMuOpenCounter)
+process.Onia2MuMuPAT = cms.Path(
+    process.patMuonSequence *
+#    process.DoubleMuOpenCounter *
+    process.onia2MuMuPatGlbGlb *
+    process.onia2MuMuPatGlbGlbFilter
+    )
+process.Onia2MuMuPAT.remove(process.bscOrHfCoinc)
+process.Onia2MuMuPAT.remove(process.hltOniaHI)
+process.Onia2MuMuPAT.remove(process.collisionEventSelection)
+
+
+
+process.patTrigger.processName = "HLT1"
+
 process.e = cms.EndPath(process.outOnia2MuMu)
 
 process.schedule = cms.Schedule(process.L1Reco_step, #process.MinBiasEarlyPath, process.MinBiasPath, 
@@ -119,4 +133,5 @@ process.Onia2MuMuPAT,
 # process.TagAndProbeSta, process.TagAndProbeMuID, process.TagAndProbeTrig,
  process.e)
 #process.schedule = cms.Schedule(process.L1Reco_step, process.Onia2MuMuPAT, process.e)
+
 

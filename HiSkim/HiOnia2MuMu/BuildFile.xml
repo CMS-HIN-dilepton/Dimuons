@@ -35,6 +35,3 @@
 <use   name="PhysicsTools/PatUtils"/>
 <use   name="PhysicsTools/UtilAlgos"/>
 <use   name="PhysicsTools/Utilities"/>
-<export>
-  <lib   name="1"/>
-</export>

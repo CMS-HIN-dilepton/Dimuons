@@ -162,10 +162,7 @@ HiOnia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	  vtx.SetXYZ(myVertex.position().x(),myVertex.position().y(),0);
 	  TVector3 pperp(jpsi.px(), jpsi.py(), 0);
-	  AlgebraicVector vpperp(3);
-	  vpperp[0] = pperp.x();
-	  vpperp[1] = pperp.y();
-	  vpperp[2] = 0.;
+	  AlgebraicVector3 vpperp(pperp.x(), pperp.y(), 0.);
 
 	  if (resolveAmbiguity_) {
             float minDz = 999999.;
@@ -203,8 +200,8 @@ HiOnia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  double ctauPV = distXY.value()*cosAlpha*3.09688/pperp.Perp();
 	  GlobalError v1e = (Vertex(myVertex)).error();
 	  GlobalError v2e = thePrimaryV.error();
-          AlgebraicSymMatrix vXYe = v1e.matrix()+ v2e.matrix();
-	  double ctauErrPV = sqrt(vXYe.similarity(vpperp))*3.09688/(pperp.Perp2());
+          AlgebraicSymMatrix33 vXYe = v1e.matrix()+ v2e.matrix();
+	  double ctauErrPV = sqrt(ROOT::Math::Similarity(vpperp,vXYe))*3.09688/(pperp.Perp2());
 	  
 	  myCand.addUserFloat("ppdlPV",ctauPV);
           myCand.addUserFloat("ppdlErrPV",ctauErrPV);
@@ -218,8 +215,8 @@ HiOnia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  double ctauBS = distXY.value()*cosAlpha*3.09688/pperp.Perp();
 	  GlobalError v1eB = (Vertex(myVertex)).error();
 	  GlobalError v2eB = theBeamSpotV.error();
-          AlgebraicSymMatrix vXYeB = v1eB.matrix()+ v2eB.matrix();
-	  double ctauErrBS = sqrt(vXYeB.similarity(vpperp))*3.09688/(pperp.Perp2());
+          AlgebraicSymMatrix33 vXYeB = v1eB.matrix()+ v2eB.matrix();
+	  double ctauErrBS = sqrt(ROOT::Math::Similarity(vpperp,vXYeB))*3.09688/(pperp.Perp2());
 	  
 	  myCand.addUserFloat("ppdlBS",ctauBS);
           myCand.addUserFloat("ppdlErrBS",ctauErrBS);
@@ -250,22 +247,25 @@ HiOnia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
  
       // ---- MC Truth, if enabled ----
       if (addMCTruth_) {
-	
 	reco::GenParticleRef genMu1 = it->genParticleRef();
 	reco::GenParticleRef genMu2 = it2->genParticleRef();
 	if (genMu1.isNonnull() && genMu2.isNonnull()) {
-	  reco::GenParticleRef mom1 = genMu1->motherRef();
-	  reco::GenParticleRef mom2 = genMu2->motherRef();
-	  if (mom1.isNonnull() && (mom1 == mom2)) {
-	    myCand.setGenParticleRef(mom1); // set
-	    myCand.embedGenParticle();      // and embed
-	    std::pair<int, float> MCinfo = findJpsiMCInfo(mom1);
-	    myCand.addUserInt("momPDGId",MCinfo.first);
-	    myCand.addUserFloat("ppdlTrue",MCinfo.second);
-	  } else {
-	    myCand.addUserInt("momPDGId",0);
-	    myCand.addUserFloat("ppdlTrue",-99.);
-	  }
+           if (genMu1->numberOfMothers()>0 && genMu2->numberOfMothers()>0){
+	     std::cout << "hello2" << std::endl;
+	     reco::GenParticleRef mom1 = genMu1->motherRef();
+	     reco::GenParticleRef mom2 = genMu2->motherRef();
+	     if (mom1.isNonnull() && (mom1 == mom2)) {
+	       std::cout << "hello3" << std::endl;
+	       myCand.setGenParticleRef(mom1); // set
+	       myCand.embedGenParticle();      // and embed
+	       std::pair<int, float> MCinfo = findJpsiMCInfo(mom1);
+	       myCand.addUserInt("momPDGId",MCinfo.first);
+	       myCand.addUserFloat("ppdlTrue",MCinfo.second);
+	     } else {
+	       myCand.addUserInt("momPDGId",0);
+	       myCand.addUserFloat("ppdlTrue",-99.);
+	     }
+	   }
 	} else {
 	  myCand.addUserInt("momPDGId",0);
 	  myCand.addUserFloat("ppdlTrue",-99.);

@@ -56,6 +56,8 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
     switchOffAmbiguityResolution(process) # Switch off ambiguity resolution: allow multiple reco muons to match to the same trigger muon
     #useL1MatchingWindowForSinglets(process)
 
+    process.patMuonsWithoutTrigger.pvSrc = "hiSelectedVertex"
+
     process.muonL1Info.maxDeltaR = 0.3
     process.muonL1Info.fallbackToME1 = True
     process.muonMatchHLTL1.maxDeltaR = 0.3
@@ -107,7 +109,6 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
     # the onia2MuMu path
     process.Onia2MuMuPAT = cms.Path(
         process.patMuonSequence *
-        process.DoubleMuOpenCounter *
         process.onia2MuMuPatGlbGlb *
         process.onia2MuMuPatGlbGlbFilter
     )
