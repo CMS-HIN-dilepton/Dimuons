@@ -82,7 +82,7 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
         process.patMuonSequence.remove(process.genMuons)
       
     # Make dimuon candidates
-    process.onia2MuMuPatGlbGlb = cms.EDProducer('Onia2MuMuPAT',
+    process.onia2MuMuPatGlbGlb = cms.EDProducer('HiOnia2MuMuPAT',
         muons = cms.InputTag("patMuonsWithTrigger"),
         beamSpotTag = cms.InputTag("offlineBeamSpot"),
         # primaryVertexTag = cms.InputTag("offlinePrimaryVertices"),
