@@ -251,11 +251,9 @@ HiOnia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	reco::GenParticleRef genMu2 = it2->genParticleRef();
 	if (genMu1.isNonnull() && genMu2.isNonnull()) {
            if (genMu1->numberOfMothers()>0 && genMu2->numberOfMothers()>0){
-	     std::cout << "hello2" << std::endl;
 	     reco::GenParticleRef mom1 = genMu1->motherRef();
 	     reco::GenParticleRef mom2 = genMu2->motherRef();
 	     if (mom1.isNonnull() && (mom1 == mom2)) {
-	       std::cout << "hello3" << std::endl;
 	       myCand.setGenParticleRef(mom1); // set
 	       myCand.embedGenParticle();      // and embed
 	       std::pair<int, float> MCinfo = findJpsiMCInfo(mom1);
