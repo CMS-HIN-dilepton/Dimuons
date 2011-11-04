@@ -240,30 +240,48 @@ HiOnia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  } else {
 	    myCand.addUserData("PVwithmuons",Vertex());
 	  }
-
-	}
-	
+	}	
       }
- 
+      
       // ---- MC Truth, if enabled ----
       if (addMCTruth_) {
 	reco::GenParticleRef genMu1 = it->genParticleRef();
 	reco::GenParticleRef genMu2 = it2->genParticleRef();
 	if (genMu1.isNonnull() && genMu2.isNonnull()) {
-           if (genMu1->numberOfMothers()>0 && genMu2->numberOfMothers()>0){
-	     reco::GenParticleRef mom1 = genMu1->motherRef();
-	     reco::GenParticleRef mom2 = genMu2->motherRef();
-	     if (mom1.isNonnull() && (mom1 == mom2)) {
-	       myCand.setGenParticleRef(mom1); // set
-	       myCand.embedGenParticle();      // and embed
-	       std::pair<int, float> MCinfo = findJpsiMCInfo(mom1);
-	       myCand.addUserInt("momPDGId",MCinfo.first);
-	       myCand.addUserFloat("ppdlTrue",MCinfo.second);
-	     } else {
-	       myCand.addUserInt("momPDGId",0);
-	       myCand.addUserFloat("ppdlTrue",-99.);
-	     }
-	   }
+	  if (genMu1->numberOfMothers()>0 && genMu2->numberOfMothers()>0){
+	    reco::GenParticleRef mom1 = genMu1->motherRef();
+	    reco::GenParticleRef mom2 = genMu2->motherRef();
+	    if (mom1.isNonnull() && (mom1 == mom2)) {
+	      myCand.setGenParticleRef(mom1); // set
+	      myCand.embedGenParticle();      // and embed
+	      std::pair<int, float> MCinfo = findJpsiMCInfo(mom1);
+	      myCand.addUserInt("momPDGId",MCinfo.first);
+	      myCand.addUserFloat("ppdlTrue",MCinfo.second);
+	    } else {
+	      myCand.addUserInt("momPDGId",0);
+	      myCand.addUserFloat("ppdlTrue",-99.);
+	    }
+	  } else {
+	    Handle<GenParticleCollection>theGenParticles;
+	    iEvent.getByLabel("genParticles", theGenParticles);
+	    if (theGenParticles.isValid()){
+	      for(size_t iGenParticle=0; iGenParticle<theGenParticles->size();++iGenParticle) {
+		const Candidate & genCand = (*theGenParticles)[iGenParticle];
+		if (genCand.pdgId()==443 || genCand.pdgId()==100443 || 
+		    genCand.pdgId()==553 || genCand.pdgId()==100553 || genCand.pdgId()==200553) {
+		  reco::GenParticleRef mom1(theGenParticles,iGenParticle);
+		  myCand.setGenParticleRef(mom1);
+		  myCand.embedGenParticle();
+		  std::pair<int, float> MCinfo = findJpsiMCInfo(mom1);
+		  myCand.addUserInt("momPDGId",MCinfo.first);
+		  myCand.addUserFloat("ppdlTrue",MCinfo.second);
+		}
+	      }
+	    } else {
+	      myCand.addUserInt("momPDGId",0);
+	      myCand.addUserFloat("ppdlTrue",-99.);
+	    }
+	  }
 	} else {
 	  myCand.addUserInt("momPDGId",0);
 	  myCand.addUserFloat("ppdlTrue",-99.);
