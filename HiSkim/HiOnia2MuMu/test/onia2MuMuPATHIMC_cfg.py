@@ -12,7 +12,7 @@ options = VarParsing.VarParsing ('analysis')
 
 # setup any defaults you want
 options.outputFile = 'onia2MuMuPAT_MC.root'
-#options.inputFiles = 'rfio:/castor/cern.ch/user/m/mironov/cmssw440patch10/MC425/jpsi/v3/jpsimc_rawrecohltdebug_50_1_06m.root'
+options.inputFiles = 'root://eoscms//eos/cms/store/relval/CMSSW_4_4_0/RelValHydjetQ_MinBias_2760GeV/GEN-SIM-RECO/STARTHI44_V4-v2/0045/1A99CD27-1BE6-E011-BC81-001A92971B72.root?svcClass=default'
 options.maxEvents = -1 # -1 means all events
 
 # get and parse the command line arguments
@@ -23,7 +23,7 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'START44_V7::All'
+process.GlobalTag.globaltag = 'STARTHI44_V4::All'
 
 
 # produce missing l1extraParticles
@@ -78,10 +78,9 @@ process.onia2MuMuPatGlbGlb.addMuonlessPrimaryVertex = False
 process.onia2MuMuPatGlbGlb.resolvePileUpAmbiguity = False
 
 # modify stuff!
-process.Onia2MuMuPAT.remove(process.bscOrHfCoinc)
-process.Onia2MuMuPAT.remove(process.hltOniaHI)
-process.Onia2MuMuPAT.remove(process.collisionEventSelection)
-process.patTrigger.processName = "HLT1"
+#process.Onia2MuMuPAT.remove(process.bscOrHfCoinc)
+#process.Onia2MuMuPAT.remove(process.hltOniaHI)
+#process.Onia2MuMuPAT.remove(process.collisionEventSelection)
 
 process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 process.source.fileNames = cms.untracked.vstring(
@@ -95,6 +94,12 @@ process.outSta.fileName = cms.untracked.string('tnpSta_MC.root')
 process.outMuID.fileName = cms.untracked.string('tnpMuID_MC.root')
 process.outTrig.fileName = cms.untracked.string('tnpTrig_MC.root')
 
-process.schedule = cms.Schedule(process.L1Reco_step,process.Onia2MuMuPAT,
-                                #process.TagAndProbeSta, process.TagAndProbeMuID, process.TagAndProbeTrig,
+
+# add event plane information
+process.load("RecoHI.HiEvtPlaneAlgos.HiEvtPlane_cfi")
+process.ProdEvtPlane = cms.Path(process.hiEvtPlane)
+
+
+process.schedule = cms.Schedule(process.L1Reco_step,process.ProdEvtPlane,process.Onia2MuMuPAT,
+                                process.TagAndProbeSta, process.TagAndProbeMuID, process.TagAndProbeTrig,
                                 process.e)
