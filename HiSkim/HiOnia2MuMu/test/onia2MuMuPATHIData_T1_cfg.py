@@ -61,7 +61,7 @@ process.source.fileNames = cms.untracked.vstring(
 #process.source.lumisToProcess = goodLumisToProcess
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
-process.outOnia2MuMu.fileName = cms.untracked.string( '/tmp/tdahms/onia2MuMuPAT.root' )
+process.outOnia2MuMu.fileName = cms.untracked.string( 'onia2MuMuPAT.root' )
 
 # add event plane information
 process.load("RecoHI.HiEvtPlaneAlgos.HiEvtPlane_cfi")
