@@ -12,7 +12,7 @@ options = VarParsing.VarParsing ('analysis')
 
 # setup any defaults you want
 options.outputFile = 'onia2MuMuPAT_MC.root'
-options.inputFiles = 'root://eoscms//eos/cms/store/relval/CMSSW_4_4_0/RelValHydjetQ_MinBias_2760GeV/GEN-SIM-RECO/STARTHI44_V4-v2/0045/1A99CD27-1BE6-E011-BC81-001A92971B72.root?svcClass=default'
+#options.inputFiles = 'root://eoscms//eos/cms/store/relval/CMSSW_4_4_0/RelValHydjetQ_MinBias_2760GeV/GEN-SIM-RECO/STARTHI44_V4-v2/0045/1A99CD27-1BE6-E011-BC81-001A92971B72.root?svcClass=default'
 options.maxEvents = -1 # -1 means all events
 
 # get and parse the command line arguments
@@ -63,24 +63,34 @@ process.hltMinBiasHFOrBSC.throw = False
 
 
 process.hltOniaHI = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-process.hltOniaHI.HLTPaths = ["HLT_HIL1DoubleMuOpen","HLT_HIL2DoubleMu0","HLT_HIL2DoubleMu3",
-                              "HLT_HIL1SingleMu3","HLT_HIL1SingleMu5","HLT_HIL1SingleMu7",
-                              "HLT_HIL2Mu20","HLT_HIL2Mu3","HLT_HIL2Mu5Tight"]
+process.hltOniaHI.HLTPaths = ["HLT_HIL1DoubleMuOpen_v1",
+                              "HLT_HIL1DoubleMu0_HighQ_v1",
+                              "HLT_HIL2Mu3_v1","HLT_HIL2Mu3_NHitQ_v1",
+                              "HLT_HIL2Mu7_v1","HLT_HIL2Mu15_v1",
+                              "HLT_HIL2DoubleMu0_v1","HLT_HIL2DoubleMu0_NHitQ_v1","HLT_HIL2DoubleMu0_L1HighQL2NHitQ_v1",
+                              "HLT_HIL2DoubleMu3_v1",
+                              "HLT_HIL3Mu3_v1",
+                              "HLT_HIL3DoubleMuOpen_v1","HLT_HIL3DoubleMuOpen_Mgt2_v1","HLT_HIL3DoubleMuOpen_Mgt2_SS_v1","HLT_HIL3DoubleMuOpen_Mgt2_OS_v1","HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v1"
+                              ]
+
 process.hltOniaHI.throw = False
 process.hltOniaHI.andOr = True
 
 
 from HiSkim.HiOnia2MuMu.onia2MuMuPAT_cff import *
 
-onia2MuMuPAT(process, GlobalTag=process.GlobalTag.globaltag, MC=True, HLT="HLT", Filter=False)
+onia2MuMuPAT(process, GlobalTag=process.GlobalTag.globaltag, MC=True, HLT="HLT1", Filter=True)
 
 process.onia2MuMuPatGlbGlb.addMuonlessPrimaryVertex = False
 process.onia2MuMuPatGlbGlb.resolvePileUpAmbiguity = False
 
 # modify stuff!
-#process.Onia2MuMuPAT.remove(process.bscOrHfCoinc)
+process.patMuonSequence.remove(process.bscOrHfCoinc)
 #process.Onia2MuMuPAT.remove(process.hltOniaHI)
-#process.Onia2MuMuPAT.remove(process.collisionEventSelection)
+process.patMuonSequence.remove(process.collisionEventSelection)
+
+#process.genMuons.src = "genParticles"
+
 
 process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 process.source.fileNames = cms.untracked.vstring(
@@ -90,9 +100,10 @@ process.source.fileNames = cms.untracked.vstring(
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
 process.outOnia2MuMu.fileName = cms.untracked.string( options.outputFile )
-process.outSta.fileName = cms.untracked.string('tnpSta_MC.root')
-process.outMuID.fileName = cms.untracked.string('tnpMuID_MC.root')
-process.outTrig.fileName = cms.untracked.string('tnpTrig_MC.root')
+process.outTnP.fileName = cms.untracked.string('tnp_MC.root')
+#process.outSta.fileName = cms.untracked.string('tnpSta_MC.root')
+#process.outMuID.fileName = cms.untracked.string('tnpMuID_MC.root')
+#process.outTrig.fileName = cms.untracked.string('tnpTrig_MC.root')
 
 
 # add event plane information

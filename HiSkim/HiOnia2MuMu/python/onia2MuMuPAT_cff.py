@@ -122,7 +122,8 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
     process.tagMuons = cms.EDFilter("PATMuonSelector",
                                     src = cms.InputTag("patMuonsWithTrigger"),
 #                                    cut = cms.string("isGlobalMuon && abs(innerTrack.dxy)<4 && abs(innerTrack.dz)<35")
-                                    cut = cms.string(QUALITY_CUTS + ' && ' + IN_ACCEPTANCE + " && (!triggerObjectMatchesByPath('HLT_HIL2Mu3').empty() || !triggerObjectMatchesByPath('HLT_HIL1SingleMu3').empty())")
+                                    #cut = cms.string(QUALITY_CUTS + ' && ' + IN_ACCEPTANCE)
+                                    cut = cms.string(QUALITY_CUTS + ' && ' + IN_ACCEPTANCE + " && (!triggerObjectMatchesByPath('HLT_HIL2Mu3_NHitQv1').empty() || !triggerObjectMatchesByPath('HLT_HIL2Mu7_v1').empty())")
                                     )
 
 #    process.oneTag = cms.EDFilter("CandViewCountFilter",
@@ -263,77 +264,40 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
         'keep l1extraL1MuonParticles_l1extraParticles_*_*',    # L1 info (cheap)
         'keep *_hiCentrality_*_*',
         'keep *_hiSelectedVertex_*_*',
+        'keep *_hiEvtPlane_*_*',                               # for v2 analysis
         'keep *_hiGlobalPrimTracks_*_*',
         'keep *_standAloneMuons_*_*')
                             ),
 
-    process.outSta = cms.OutputModule("PoolOutputModule",
-        fileName = cms.untracked.string('tnpSta.root'),
+    process.outTnP = cms.OutputModule("PoolOutputModule",
+        fileName = cms.untracked.string('tnp.root'),
         outputCommands = cms.untracked.vstring('drop *',
             'keep *_genMuons_*_Onia2MuMuPAT',                      # generated muons and parents
-            'keep patMuons_patMuonsWithTriggerSta_*_Onia2MuMuPAT',    # All PAT muons including matches to triggers
+            'keep *_tagMuonsMCMatch__Onia2MuMuPAT',                # tagMuons MC matches for efficiency
+            'keep *_probeMuonsMCMatch__Onia2MuMuPAT',              # probeMuons MC matches for efficiency
+            'keep patMuons_patMuonsWithTriggerSta__Onia2MuMuPAT',    # All PAT muons including matches to triggers
             'keep patMuons_tagMuons__Onia2MuMuPAT',                # tagMuons for efficiency
             'keep patMuons_probeMuonsSta__Onia2MuMuPAT',           # probeMuons for efficiency
-            'keep *_tagMuonsMCMatch__Onia2MuMuPAT',                # tagMuons MC matches for efficiency
+            'keep patMuons_probeMuonsTrk__Onia2MuMuPAT',                    # probeTracks for efficiency
+            'keep patMuons_probeMuons__Onia2MuMuPAT',              # probeMuons for efficiency
             'keep *_probeMuonsStaMCMatch__Onia2MuMuPAT',              # probeMuons MC matches for efficiency
+            'keep *_probeMuonsTrkMCMatch__Onia2MuMuPAT',              # probeTacks MC matches for efficiency
             'keep recoCompositeCandidates_tpPairsSta__Onia2MuMuPAT',        # RECO di-muons, tpPairs for tracking efficiency
+            'keep recoCompositeCandidates_tpPairsTracks__Onia2MuMuPAT',        # RECO di-muons, tpPairs for muon ID and reco efficiency
+            'keep recoCompositeCandidates_tpPairsTrig__Onia2MuMuPAT',        # RECO di-muons, tpPairs for trigger efficiency
             'keep *_offlinePrimaryVertices_*_*',                   # Primary vertices: you want these to compute impact parameters
-            'keep *_offlineBeamSpot_*_*',                          # Beam spot: you want this for the same reason                                   
+            'keep *_offlineBeamSpot_*_*',                          # Beam spot: you want this for the same reason   
             'keep edmTriggerResults_TriggerResults_*_*',           # HLT info, per path (cheap)
             'keep l1extraL1MuonParticles_hltL1extraParticles_*_*', # L1 info (cheap)
             'keep l1extraL1MuonParticles_l1extraParticles_*_*',    # L1 info (cheap)
             'keep *_hiCentrality_*_*',
             'keep *_hiSelectedVertex_*_*',
+            'keep *_hiEvtPlane_*_*',                               # for v2 analysis
             'keep *_hiGlobalPrimTracks_*_*',
             'keep *_standAloneMuons_*_*'                           # standAloneMuon track collection, to be on the safe side
         ),
-        SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('TagAndProbeSta') ) if Filter else cms.untracked.PSet()
+        SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('TagAndProbeSta','TagAndProbeMuID','TagAndProbeTrig') ) if Filter else cms.untracked.PSet()
     )
 
-    process.outMuID = cms.OutputModule("PoolOutputModule",
-        fileName = cms.untracked.string('tnpMuID.root'),
-        outputCommands = cms.untracked.vstring('drop *',
-            'keep *_genMuons_*_Onia2MuMuPAT',                      # generated muons and parents
-            'keep patMuons_patMuonsWithTrigger_*_Onia2MuMuPAT',    # All PAT muons including matches to triggers
-            'keep *_tkTracks_*_Onia2MuMuPAT',                      # keep al tkTracks for the matching to muons
-            'keep patMuons_tagMuons__Onia2MuMuPAT',                # tagMuons for efficiency
-            'keep *_probeMuonsTrk__Onia2MuMuPAT',                    # probeTracks for efficiency
-#            'keep *_probeTracks__Onia2MuMuPAT',                    # probeTracks for efficiency
-            'keep *_tagMuonsMCMatch__Onia2MuMuPAT',                # tagMuons MC matches for efficiency
-            'keep *_probeMuonsTrkMCMatch__Onia2MuMuPAT',              # probeTacks MC matches for efficiency
-#            'keep *_probeTracksMCMatch__Onia2MuMuPAT',              # probeTacks MC matches for efficiency
-            'keep recoCompositeCandidates_tpPairsTracks__Onia2MuMuPAT',        # RECO di-muons, tpPairs for muon ID and reco efficiency
-            'keep *_offlinePrimaryVertices_*_*',                   # Primary vertices: you want these to compute impact parameters
-            'keep *_offlineBeamSpot_*_*',                          # Beam spot: you want this for the same reason                                   
-            'keep edmTriggerResults_TriggerResults_*_*',           # HLT info, per path (cheap)
-            'keep l1extraL1MuonParticles_hltL1extraParticles_*_*', # L1 info (cheap)
-            'keep l1extraL1MuonParticles_l1extraParticles_*_*',    # L1 info (cheap)
-            'keep *_hiCentrality_*_*',
-            'keep *_hiSelectedVertex_*_*',
-            'keep *_hiGlobalPrimTracks_*_*'
-        ),
-        SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('TagAndProbeMuID') ) if Filter else cms.untracked.PSet()
-    )
-
-    process.outTrig = cms.OutputModule("PoolOutputModule",
-        fileName = cms.untracked.string('tnpTrig.root'),
-        outputCommands = cms.untracked.vstring('drop *',
-            'keep *_genMuons_*_Onia2MuMuPAT',                      # generated muons and parents
-            'keep patMuons_tagMuons__Onia2MuMuPAT',                # tagMuons for efficiency
-            'keep patMuons_probeMuons__Onia2MuMuPAT',              # probeMuons for efficiency
-            'keep *_tagMuonsMCMatch__Onia2MuMuPAT',                # tagMuons MC matches for efficiency
-            'keep *_probeMuonsMCMatch__Onia2MuMuPAT',              # probeMuons MC matches for efficiency
-            'keep recoCompositeCandidates_tpPairsTrig__Onia2MuMuPAT',        # RECO di-muons, tpPairs for trigger efficiency
-            'keep *_offlinePrimaryVertices_*_*',                   # Primary vertices: you want these to compute impact parameters
-            'keep *_offlineBeamSpot_*_*',                          # Beam spot: you want this for the same reason                                   
-            'keep edmTriggerResults_TriggerResults_*_*',           # HLT info, per path (cheap)
-            'keep l1extraL1MuonParticles_hltL1extraParticles_*_*', # L1 info (cheap)
-            'keep l1extraL1MuonParticles_l1extraParticles_*_*',    # L1 info (cheap)
-            'keep *_hiCentrality_*_*',
-            'keep *_hiSelectedVertex_*_*'
-        ),
-        SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('TagAndProbeTrig') ) if Filter else cms.untracked.PSet()
-    )
-
-    process.e = cms.EndPath(process.outOnia2MuMu + process.outSta + process.outMuID + process.outTrig)
+    process.e = cms.EndPath(process.outOnia2MuMu + process.outTnP) # + process.outSta + process.outMuID + process.outTrig)
 

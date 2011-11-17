@@ -8,13 +8,11 @@ process = cms.Process("Onia2MuMuPAT")
 
 process.load('Configuration.StandardSequences.GeometryExtended_cff')
 process.load("Configuration.StandardSequences.Reconstruction_cff")
+process.load("Configuration.StandardSequences.ReconstructionHeavyIons_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'GR10_P_V12::All'
-
-from CmsHi.Analysis2010.CommonFunctions_cff import *
-overrideCentrality(process)
+process.GlobalTag.globaltag = 'GR_R_44_V10::All'
 
 process.HeavyIonGlobalParameters = cms.PSet(
     centralityVariable = cms.string("HFhits"),
@@ -34,58 +32,19 @@ process.load("HeavyIonsAnalysis.Configuration.collisionEventSelection_cff")
 
 # HLT dimuon trigger
 import HLTrigger.HLTfilters.hltHighLevel_cfi
-# early runs (to be done)
-process.hltMinBiasHFOrBSCEarly = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-process.hltMinBiasHFOrBSCEarly.HLTPaths = ["HLT_HIMinBiasHF","HLT_HIMinBiasBSC"]
-#process.hltMinBiasHFOrBSCEarly.HLTPaths = ["HLT_HIMinBiasHF_Core","HLT_HIMinBiasBSC_Core"]
-process.hltMinBiasHFOrBSCEarly.throw = False
-process.hltMinBiasHFOrBSCEarly.andOr = True
-
-process.hltMinBiasHFOrBSC = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-process.hltMinBiasHFOrBSC.HLTPaths = ["HLT_HIMinBiasHfOrBSC"]
-#process.hltMinBiasHFOrBSC.HLTPaths = ["HLT_HIMinBiasHfOrBSC_Core"]
-process.hltMinBiasHFOrBSC.throw = False
-
-
 process.hltOniaHI = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-process.hltOniaHI.HLTPaths = ["HLT_HIL1DoubleMuOpen","HLT_HIL2DoubleMu0","HLT_HIL2DoubleMu3",
-                              "HLT_HIL1SingleMu3","HLT_HIL1SingleMu5","HLT_HIL1SingleMu7",
-                              "HLT_HIL2Mu20","HLT_HIL2Mu3","HLT_HIL2Mu5Tight"]
-
-#process.hltOniaHI.HLTPaths = ["HLT_HIL1DoubleMuOpen_Core","HLT_HIL2DoubleMu0_Core","HLT_HIL2DoubleMu3_Core",
-#                              "HLT_HIL1SingleMu3_Core","HLT_HIL1SingleMu5_Core","HLT_HIL1SingleMu7_Core",
-#                              "HLT_HIL2Mu20_Core","HLT_HIL2Mu3_Core","HLT_HIL2Mu5Tight_Core"]
+process.hltOniaHI.HLTPaths = ["HLT_HIL1DoubleMuOpen_v1",
+                              "HLT_HIL1DoubleMu0_HighQ_v1",
+                              "HLT_HIL2Mu3_v1","HLT_HIL2Mu3_NHitQ_v1",
+                              "HLT_HIL2Mu7_v1","HLT_HIL2Mu15_v1",
+                              "HLT_HIL2DoubleMu0_v1","HLT_HIL2DoubleMu0_NHitQ_v1","HLT_HIL2DoubleMu0_L1HighQL2NHitQ_v1",
+                              "HLT_HIL2DoubleMu3_v1",
+                              "HLT_HIL3Mu3_v1",
+                              "HLT_HIL3DoubleMuOpen_v1","HLT_HIL3DoubleMuOpen_Mgt2_v1","HLT_HIL3DoubleMuOpen_Mgt2_SS_v1","HLT_HIL3DoubleMuOpen_Mgt2_OS_v1","HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v1"
+                              ]
 process.hltOniaHI.throw = False
 process.hltOniaHI.andOr = True
 
-process.MinBiasCounterEarly = cms.EDAnalyzer('MinBiasCounter',
-                                             TriggerResultsLabel = cms.InputTag("TriggerResults","","HLT"),
-                                             triggerName = cms.vstring("HLT_HIMinBiasHF","HLT_HIMinBiasBSC"),
-                                             histFileName = cms.string("MinBiasCentralityEarly_Histo.root")
-                                             )
-
-process.MinBiasCounter = cms.EDAnalyzer('MinBiasCounter',
-                                        TriggerResultsLabel = cms.InputTag("TriggerResults","","HLT"),
-                                        triggerName = cms.vstring("HLT_HIMinBiasHfOrBSC"),
-                                        histFileName = cms.string("MinBiasCentrality_Histo.root")
-                                        )
-
-process.DoubleMuOpenCounter = cms.EDAnalyzer('MinBiasCounter',
-                                             TriggerResultsLabel = cms.InputTag("TriggerResults","","HLT"),
-                                             triggerName = cms.vstring("HLT_HIL1DoubleMuOpen"),
-                                             # triggerName = cms.vstring("HLT_HIL1DoubleMuOpen_Core"),
-                                             histFileName = cms.string("DoubleMuOpenCentrality_Histo.root")
-                                             )
-
-process.MinBiasEarlyPath = cms.Path(process.hltMinBiasHFOrBSCEarly *
-                                    process.collisionEventSelection *
-                                    process.MinBiasCounterEarly
-                                    )
-
-process.MinBiasPath = cms.Path(process.hltMinBiasHFOrBSC *
-                               process.collisionEventSelection *
-                               process.MinBiasCounter
-                               )
 
 from HiSkim.HiOnia2MuMu.onia2MuMuPAT_cff import *
 
@@ -99,10 +58,19 @@ process.source.fileNames = cms.untracked.vstring(
     )
 
 # filter on lumisections
-from HiSkim.HiOnia2MuMu.goodLumiSectionListHI_cfi import *
-process.source.lumisToProcess = goodLumisToProcess
+#from HiSkim.HiOnia2MuMu.goodLumiSectionListHI_cfi import *
+#process.source.lumisToProcess = goodLumisToProcess
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.outOnia2MuMu.fileName = cms.untracked.string( 'onia2MuMuPAT.root' )
+
+# add event plane information
+process.load("RecoHI.HiEvtPlaneAlgos.HiEvtPlane_cfi")
+process.ProdEvtPlane = cms.Path(process.hiEvtPlane)
+
+
+process.schedule = cms.Schedule(process.ProdEvtPlane,process.Onia2MuMuPAT,
+                                process.TagAndProbeSta, process.TagAndProbeMuID, process.TagAndProbeTrig,
+                                process.e)
 
 
