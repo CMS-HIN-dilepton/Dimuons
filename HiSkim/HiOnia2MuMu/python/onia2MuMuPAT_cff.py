@@ -24,13 +24,6 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
     
     # Merge CaloMuons and General Tracks into the collection of reco::Muons
     IN_ACCEPTANCE = '( (abs(eta)<1.0 && pt>=3.4) || (1.0<=abs(eta)<1.5 && pt>=5.8-2.4*abs(eta)) || (1.5<=abs(eta)<2.4 && pt>=3.3667-7.0/9.0*abs(eta)) )'
-    # IN_ACCEPTANCE = '((abs(eta) < 1.3 && pt >= 3.3) || (1.3 <= abs(eta) < 2.2 && p >= 2.9) || (2.2 <= abs(eta) < 2.4  && pt >= 0.8))'
-    process.load("RecoMuon.MuonIdentification.mergedMuons_cfi")
-    process.mergedMuons.mergeTracks = True
-    process.mergedMuons.tracksCut = IN_ACCEPTANCE
-    process.mergedMuons.caloMuonsCut = process.mergedMuons.tracksCut
-    process.mergedMuons.tracks = 'hiGlobalPrimTracks'
-
     # Prune generated particles to muons and their parents
     process.genMuons = cms.EDProducer("GenParticlePruner",
         src = cms.InputTag("hiGenParticles"),
@@ -51,7 +44,6 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
         process.muonMatch.maxDeltaR = 0.05
         process.muonMatch.resolveByMatchQuality = True
         process.muonMatch.matched = "genMuons"
-    # changeRecoMuonInput(process, "mergedMuons")
     changeTriggerProcessName(process, HLT)
     switchOffAmbiguityResolution(process) # Switch off ambiguity resolution: allow multiple reco muons to match to the same trigger muon
     #useL1MatchingWindowForSinglets(process)
@@ -76,7 +68,6 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
         process.bscOrHfCoinc *
         process.hltOniaHI *
         process.collisionEventSelection *
-        # process.mergedMuons *
         process.genMuons *
         process.patMuonsWithTriggerSequence
     )
@@ -87,7 +78,6 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
     process.onia2MuMuPatGlbGlb = cms.EDProducer('HiOnia2MuMuPAT',
         muons = cms.InputTag("patMuonsWithTrigger"),
         beamSpotTag = cms.InputTag("offlineBeamSpot"),
-        # primaryVertexTag = cms.InputTag("offlinePrimaryVertices"),
         primaryVertexTag = cms.InputTag("hiSelectedVertex"),
         # At least one muon must pass this selection
         higherPuritySelection = cms.string("(isGlobalMuon || (innerTrack.isNonnull && genParticleRef(0).isNonnull)) && abs(innerTrack.dxy)<4 && abs(innerTrack.dz)<35"),
@@ -119,18 +109,16 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
 #    QUALITY_CUTS = TRACK_CUTS + ' && ' + GLB_CUTS
     QUALITY_CUTS =  GLB_CUTS + ' && ' + TRACK_CUTS
 
-    process.tagMuons = cms.EDFilter("PATMuonSelector",
-                                    src = cms.InputTag("patMuonsWithTrigger"),
-#                                    cut = cms.string("isGlobalMuon && abs(innerTrack.dxy)<4 && abs(innerTrack.dz)<35")
-                                    #cut = cms.string(QUALITY_CUTS + ' && ' + IN_ACCEPTANCE)
-                                    cut = cms.string(QUALITY_CUTS + ' && ' + IN_ACCEPTANCE + " && (!triggerObjectMatchesByPath('HLT_HIL2Mu3_NHitQv1').empty() || !triggerObjectMatchesByPath('HLT_HIL2Mu7_v1').empty())")
-                                    )
+    process.tagMuonsSglTrg = cms.EDFilter("PATMuonSelector",
+                                       src = cms.InputTag("patMuonsWithTrigger"),
+                                       cut = cms.string(QUALITY_CUTS + ' && ' + IN_ACCEPTANCE + " && (!triggerObjectMatchesByPath('HLT_HIL2Mu3_NHitQv1').empty() || !triggerObjectMatchesByPath('HLT_HIL2Mu7_v1').empty() || !triggerObjectMatchesByPath('HLT_HIL2Mu15_v1').empty())")
+                                       )
 
-#    process.oneTag = cms.EDFilter("CandViewCountFilter",
-#                                  src = cms.InputTag("tagMuons"),
-#                                  minNumber = cms.uint32(1)
-#                                  )
-#
+    process.tagMuonsDblTrg = cms.EDFilter("PATMuonSelector",
+                                       src = cms.InputTag("patMuonsWithTrigger"),
+                                       cut = cms.string(QUALITY_CUTS + ' && ' + IN_ACCEPTANCE + " && !triggerObjectMatchesByPath('HLT_HIL1DoubleMu0_HighQ_v1').empty()")
+                                       )
+
     # produce patMuons that use the STA momentum information
     process.patMuonsWithTriggerSta = cms.EDProducer("RedefineMuonP4FromTrackPAT",
                                                     src   = cms.InputTag("patMuonsWithTrigger"),
@@ -140,12 +128,12 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
     # must be STA, so we can measure inner tracking efficiency
     process.probeMuonsSta = cms.EDFilter("PATMuonSelector",
                                          src = cms.InputTag("patMuonsWithTriggerSta"),
-                                         cut = cms.string("outerTrack.isNonnull")
+                                         cut = cms.string("outerTrack.isNonnull && !triggerObjectMatchesByPath('HLT_HIL1DoubleMu0_HighQ_v1').empty()")
                                          )
 
     process.tpPairsSta = cms.EDProducer("CandViewShallowCloneCombiner",
                                         cut = cms.string('2.0 < mass < 5.0'),
-                                        decay = cms.string('tagMuons@+ probeMuonsSta@-')
+                                        decay = cms.string('tagMuonsDblTrg@+ probeMuonsSta@-')
                                         )
 
     # must be a GLB to measure trigger efficiency
@@ -156,18 +144,18 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
 
     process.tpPairsTrig = cms.EDProducer("CandViewShallowCloneCombiner",
                                      cut = cms.string('2.6 < mass < 4.0'),
-                                     decay = cms.string('tagMuons@+ probeMuons@-')
+                                     decay = cms.string('tagMuonsSglTrg@+ probeMuons@-')
                                      )
 
     # must be tracker muon, so we can measure the muon reco efficiency
     process.probeMuonsTrk = cms.EDFilter("PATMuonSelector",
                                          src = cms.InputTag("patMuonsWithTrigger"),
-                                         cut = cms.string("isTrackerMuon && " + IN_ACCEPTANCE + " && " + TRACK_CUTS)
+                                         cut = cms.string("isTrackerMuon && " + IN_ACCEPTANCE + " && " + TRACK_CUTS + " && !triggerObjectMatchesByPath('HLT_HIL1DoubleMu0_HighQ_v1').empty()")
                                          )
 
     process.tpPairsTracks = cms.EDProducer("CandViewShallowCloneCombiner",
                                            cut = cms.string('2.6 < mass < 4.0'),
-                                           decay = cms.string('tagMuons@+ probeMuonsTrk@-')
+                                           decay = cms.string('tagMuonsDblTrg@+ probeMuonsTrk@-')
                                            )
 
     # check if there is at least one Tag and Probe pair
@@ -186,10 +174,6 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
                                                minNumber = cms.uint32(1),
                                                )
     
-#    process.patMuonSequenceSta = cms.Sequence(
-#        process.patMuonsWithTriggerSequenceSta
-#    )
-#
     # the Tag and Probe path
     process.tnpSta = cms.Sequence(
         process.probeMuonsSta *
@@ -212,7 +196,7 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
     # inner track reco efficiency
     process.TagAndProbeSta = cms.Path(
         process.patMuonSequence *
-        process.tagMuons *
+        process.tagMuonsDblTrg *
         process.patMuonsWithTriggerSta *
         process.tnpSta
     )
@@ -220,25 +204,26 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
     # muon reco and ID efficiency
     process.TagAndProbeMuID = cms.Path(
         process.patMuonSequence *
-        process.tagMuons *
+        process.tagMuonsDblTrg *
         process.tnpMuID
     )
 
     # muon trigger efficiency
     process.TagAndProbeTrig = cms.Path(
         process.patMuonSequence *
-        process.tagMuons *
+        process.tagMuonsSglTrg *
         process.tnpTrig
     )
     
     if MC:
-        process.tagMuonsMCMatch = process.muonMatch.clone(src = "tagMuons")
-        process.probeMuonsStaMCMatch = process.tagMuonsMCMatch.clone(src = "probeMuonsSta") # inner tracking eff
-        process.probeMuonsTrkMCMatch = process.tagMuonsMCMatch.clone(src = "probeMuonsTrk") # Muon reco and ID eff
-        process.probeMuonsMCMatch = process.tagMuonsMCMatch.clone(src = "probeMuons") # muon trigger eff
-        process.TagAndProbeSta.replace(process.tpPairsSta, process.tagMuonsMCMatch * process.probeMuonsStaMCMatch * process.tpPairsSta)
-        process.TagAndProbeMuID.replace(process.tpPairsTracks, process.tagMuonsMCMatch * process.probeMuonsTrkMCMatch * process.tpPairsTracks)
-        process.TagAndProbeTrig.replace(process.tpPairsTrig, process.tagMuonsMCMatch * process.probeMuonsMCMatch * process.tpPairsTrig)
+        process.tagMuonsDblTrgMCMatch = process.muonMatch.clone(src = "tagMuonsDblTrg")
+        process.tagMuonsSglTrgMCMatch = process.muonMatch.clone(src = "tagMuonsSglTrg")
+        process.probeMuonsStaMCMatch = process.tagMuonsDblTrgMCMatch.clone(src = "probeMuonsSta") # inner tracking eff
+        process.probeMuonsTrkMCMatch = process.tagMuonsDblTrgMCMatch.clone(src = "probeMuonsTrk") # Muon reco and ID eff
+        process.probeMuonsMCMatch = process.tagMuonsSglTrgMCMatch.clone(src = "probeMuons") # muon trigger eff
+        process.TagAndProbeSta.replace(process.tpPairsSta, process.tagMuonsDblTrgMCMatch * process.probeMuonsStaMCMatch * process.tpPairsSta)
+        process.TagAndProbeMuID.replace(process.tpPairsTracks, process.tagMuonsDblTrgMCMatch * process.probeMuonsTrkMCMatch * process.tpPairsTracks)
+        process.TagAndProbeTrig.replace(process.tpPairsTrig, process.tagMuonsSglTrgMCMatch * process.probeMuonsMCMatch * process.tpPairsTrig)
     
     # output
     process.load('Configuration.EventContent.EventContent_cff')
@@ -246,7 +231,7 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
     
     process.outOnia2MuMu = cms.OutputModule("PoolOutputModule",
         fileName = cms.untracked.string('onia2MuMuPAT.root'),
-        outputCommands =  cms.untracked.vstring('drop *'), #process.RECOEventContent.outputCommands,
+        outputCommands =  cms.untracked.vstring('drop *'),
                                                 
         SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('Onia2MuMuPAT') ) if Filter else cms.untracked.PSet()
     )
@@ -265,7 +250,7 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
         'keep *_hiCentrality_*_*',
         'keep *_hiSelectedVertex_*_*',
         'keep *_hiEvtPlane_*_*',                               # for v2 analysis
-        'keep *_hiGlobalPrimTracks_*_*',
+        'keep *_hiSelectedTracks_*_*',
         'keep *_standAloneMuons_*_*')
                             ),
 
@@ -273,10 +258,12 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
         fileName = cms.untracked.string('tnp.root'),
         outputCommands = cms.untracked.vstring('drop *',
             'keep *_genMuons_*_Onia2MuMuPAT',                      # generated muons and parents
-            'keep *_tagMuonsMCMatch__Onia2MuMuPAT',                # tagMuons MC matches for efficiency
+            'keep *_tagMuonsDblTrgMCMatch__Onia2MuMuPAT',                # tagMuons MC matches for efficiency
+            'keep *_tagMuonsSglTrgMCMatch__Onia2MuMuPAT',                # tagMuons MC matches for efficiency
             'keep *_probeMuonsMCMatch__Onia2MuMuPAT',              # probeMuons MC matches for efficiency
             'keep patMuons_patMuonsWithTriggerSta__Onia2MuMuPAT',    # All PAT muons including matches to triggers
-            'keep patMuons_tagMuons__Onia2MuMuPAT',                # tagMuons for efficiency
+            'keep patMuons_tagMuonsDblTrg__Onia2MuMuPAT',                # tagMuons for efficiency
+            'keep patMuons_tagMuonsSglTrg__Onia2MuMuPAT',                # tagMuons for efficiency
             'keep patMuons_probeMuonsSta__Onia2MuMuPAT',           # probeMuons for efficiency
             'keep patMuons_probeMuonsTrk__Onia2MuMuPAT',                    # probeTracks for efficiency
             'keep patMuons_probeMuons__Onia2MuMuPAT',              # probeMuons for efficiency
@@ -293,11 +280,11 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
             'keep *_hiCentrality_*_*',
             'keep *_hiSelectedVertex_*_*',
             'keep *_hiEvtPlane_*_*',                               # for v2 analysis
-            'keep *_hiGlobalPrimTracks_*_*',
+            'keep *_hiSelectedTracks_*_*',
             'keep *_standAloneMuons_*_*'                           # standAloneMuon track collection, to be on the safe side
         ),
         SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('TagAndProbeSta','TagAndProbeMuID','TagAndProbeTrig') ) if Filter else cms.untracked.PSet()
     )
 
-    process.e = cms.EndPath(process.outOnia2MuMu + process.outTnP) # + process.outSta + process.outMuID + process.outTrig)
+    process.e = cms.EndPath(process.outOnia2MuMu + process.outTnP)
 
