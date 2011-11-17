@@ -23,6 +23,7 @@ process.HeavyIonGlobalParameters = cms.PSet(
 # BSC or HF coincidence (masked unprescaled L1 bits)
 process.load('L1Trigger.Skimmer.l1Filter_cfi')
 process.bscOrHfCoinc = process.l1Filter.clone(
+    #    algorithms = cms.vstring('L1_BscMinBiasThreshold1', 'L1_HcalHfCoincidencePm')
     algorithms = cms.vstring('L1_HcalHfCoincPmORBscMinBiasThresh1_BptxAND_instance1', 'L1_NotBsc2_BscMinBiasOR', 'L1_HcalHfCoincidencePm')
     )
     
@@ -33,8 +34,7 @@ process.load("HeavyIonsAnalysis.Configuration.collisionEventSelection_cff")
 # HLT dimuon trigger
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 process.hltOniaHI = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-process.hltOniaHI.HLTPaths = [
-                              "HLT_HIL1DoubleMu0_HighQ_v1",
+process.hltOniaHI.HLTPaths = ["HLT_HIL1DoubleMu0_HighQ_v1",
                               "HLT_HIL2Mu3_NHitQ_v1",
                               "HLT_HIL2Mu7_v1","HLT_HIL2Mu15_v1",
                               "HLT_HIL2DoubleMu0_NHitQ_v1",
@@ -44,7 +44,6 @@ process.hltOniaHI.HLTPaths = [
                               ]
 process.hltOniaHI.throw = False
 process.hltOniaHI.andOr = True
-
 
 from HiSkim.HiOnia2MuMu.onia2MuMuPAT_cff import *
 
@@ -62,12 +61,11 @@ process.source.fileNames = cms.untracked.vstring(
 #process.source.lumisToProcess = goodLumisToProcess
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
-process.outOnia2MuMu.fileName = cms.untracked.string( 'onia2MuMuPAT.root' )
+process.outOnia2MuMu.fileName = cms.untracked.string( '/tmp/tdahms/onia2MuMuPAT.root' )
 
 # add event plane information
 process.load("RecoHI.HiEvtPlaneAlgos.HiEvtPlane_cfi")
 process.ProdEvtPlane = cms.Path(process.hiEvtPlane)
-
 
 process.schedule = cms.Schedule(process.ProdEvtPlane,process.Onia2MuMuPAT,
                                 process.TagAndProbeSta, process.TagAndProbeMuID, process.TagAndProbeTrig,
