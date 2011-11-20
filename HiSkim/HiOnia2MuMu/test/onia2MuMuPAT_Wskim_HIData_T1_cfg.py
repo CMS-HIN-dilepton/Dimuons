@@ -68,12 +68,6 @@ process.ProdEvtPlane = cms.Path(process.hiEvtPlane)
 
 
 # W part
-process.goodMuons = cms.EDFilter("MuonSelector",
-                                 src = cms.InputTag("muons"),
-                                 cut = cms.string('pt > 19.0 && (isGlobalMuon && isTrackerMuon) && abs(innerTrack.dxy)<1.0'),
-                                 filter = cms.bool(True)
-                                 )
-
 process.goodPatMuons = cms.EDFilter("PATMuonSelector",
                                     src = cms.InputTag("patMuonsWithTrigger"),
                                     cut = cms.string("pt > 19.0 && (isGlobalMuon && isTrackerMuon) && abs(dB)<1.0 && !triggerObjectMatchesByPath('HLT_HIL2Mu15_v1').empty()"),
@@ -81,15 +75,13 @@ process.goodPatMuons = cms.EDFilter("PATMuonSelector",
                                     )
 
 
-process.WMuNuSkimPath = cms.Path(process.goodMuons)
 process.WMuNuPATSkimPath = cms.Path(process.patMuonsWithTriggerSequence * process.goodPatMuons)
 
 
 # Choose collections for output
 process.load("Configuration.EventContent.EventContentHeavyIons_cff")
 process.EWK_WMuNuEventContent = cms.PSet(outputCommands = process.RECOEventContent.outputCommands)
-process.EWK_WMuNuEventContent.outputCommands.extend(cms.untracked.vstring('keep *_goodMuons_*_*',
-                                                                          'keep patMuons_goodPatMuons_*_*'))
+process.EWK_WMuNuEventContent.outputCommands.extend(cms.untracked.vstring('keep patMuons_goodPatMuons_*_*'))
 
 process.outWMuNuSkim = cms.OutputModule("PoolOutputModule",
                                         process.EWK_WMuNuEventContent,
@@ -103,7 +95,7 @@ process.e = cms.EndPath(process.outOnia2MuMu + process.outTnP + process.outWMuNu
 
 process.schedule = cms.Schedule(process.ProdEvtPlane,process.Onia2MuMuPAT,
                                 process.TagAndProbeSta, process.TagAndProbeMuID, process.TagAndProbeTrig,
-                                process.WMuNuSkimPath, process.WMuNuPATSkimPath,
+                                process.WMuNuPATSkimPath,
                                 process.e)
 
 
