@@ -23,7 +23,6 @@ process.HeavyIonGlobalParameters = cms.PSet(
 # BSC or HF coincidence (masked unprescaled L1 bits)
 process.load('L1Trigger.Skimmer.l1Filter_cfi')
 process.bscOrHfCoinc = process.l1Filter.clone(
-    #    algorithms = cms.vstring('L1_BscMinBiasThreshold1', 'L1_HcalHfCoincidencePm')
     algorithms = cms.vstring('L1_HcalHfCoincPmORBscMinBiasThresh1_BptxAND_instance1', 'L1_NotBsc2_BscMinBiasOR', 'L1_HcalHfCoincidencePm')
     )
     
