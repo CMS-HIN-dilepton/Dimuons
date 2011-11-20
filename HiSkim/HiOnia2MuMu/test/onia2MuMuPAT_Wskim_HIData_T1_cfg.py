@@ -86,7 +86,7 @@ process.EWK_WMuNuEventContent.outputCommands.extend(cms.untracked.vstring('keep 
 process.outWMuNuSkim = cms.OutputModule("PoolOutputModule",
                                         process.EWK_WMuNuEventContent,
                                         dropMetaData = cms.untracked.string("DROPPED"), 
-                                        SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('WMuNuSkimPath','WMuNuPATSkimPath')),
+                                        SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('WMuNuPATSkimPath')),
                                         fileName = cms.untracked.string('WMuNu_RECO.root')
                                         )
 
