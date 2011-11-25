@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.19 2011/04/02 22:19:27 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.20 2011/04/23 11:47:24 tdahms Exp $
 //
 //
 
@@ -97,12 +97,14 @@ private:
   // ----------member data ---------------------------
   enum StatBins {
     BIN_nEvents = 0,
-    BIN_HLT_HIL1DoubleMuOpen = 1,
-    BIN_HLT_HIL2DoubleMu0 = 2,
-    BIN_HLT_HIL2DoubleMu3 = 3,
-    BIN_HLT_HIL2Mu20 = 4,
-    BIN_HLT_HIL2Mu3 = 5,
-    BIN_HLT_HIL2Mu5Tight = 6
+    BIN_HLT_HIL1DoubleMu0_HighQ = 1,
+    BIN_HLT_HIL2DoubleMu3 = 2,
+    BIN_HLT_HIL3DoubleMuOpen = 3,
+    BIN_HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy = 4,
+    BIN_HLT_HIL2Mu3_NHitQ = 5,
+    BIN_HLT_HIL2Mu7 = 6,
+    BIN_HLT_HIL2Mu15 = 7,
+    BIN_HLT_HIL3Mu3 = 8
   };
 
   enum dimuonCategories {
@@ -376,29 +378,24 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig):
   }
 
   HLTLastFilters[0] = "";
-  HLTLastFilters[1] = "hltHIDoubleMuLevel1PathL1OpenFiltered";  // BIT HLT_HIL1DoubleMuOpen
-  HLTLastFilters[2] = "hltHIL2DoubleMu0L2Filtered";             // BIT HLT_HIL2DoubleMu0
-  HLTLastFilters[3] = "hltHIL2DoubleMu3L2Filtered";             // BIT HLT_HIL2DoubleMu3
-  HLTLastFilters[4] = "hltHIL2Mu20L2Filtered";                  // BIT HLT_HIL2Mu20
-  HLTLastFilters[5] = "hltHIL2Mu3L2Filtered";                   // BIT HLT_HIL2Mu3
-  HLTLastFilters[6] = "hltHIL2Mu5TightFiltered";                // BIT HLT_HIL2Mu5Tight
-  // dummy names for now, there are no filters for these triggers, plain pass through
-  // need to add a different matching for these
-  HLTLastFilters[7] = "HLT_HIL1SingleMu3";                  // BIT HLT_HIL1SingleMu3
-  HLTLastFilters[8] = "HLT_HIL1SingleMu5";                  // BIT HLT_HIL1SingleMu5
-  HLTLastFilters[9] = "HLT_HIL1SingleMu7";                  // BIT HLT_HIL1SingleMu7
+  HLTLastFilters[1] = "hltHIDoubleMuLevel1PathL1HighQFiltered"; // BIT HLT_HIL1DoubleMu0_HighQ
+  HLTLastFilters[2] = "hltHIL2DoubleMu3L2Filtered";             // BIT HLT_HIL2DoubleMu3
+  HLTLastFilters[3] = "hltHIDimuonL3FilteredOpen";              // BIT HLT_HIL3DoubleMuOpen
+  HLTLastFilters[4] = "hltHIDimuonL3FilteredMg2OSnoCowboy";    // BIT HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy
+  HLTLastFilters[5] = "hltHIL2Mu3NHitL2Filtered";               // BIT HLT_HIL2Mu3_NHitQ
+  HLTLastFilters[6] = "hltHIL2Mu7L2Filtered";                   // BIT HLT_HIL2Mu7
+  HLTLastFilters[7] = "hltHIL2Mu15L2Filtered";                  // BIT HLT_HIL2Mu15
+  HLTLastFilters[8] = "hltHISingleMu3L3Filtered";               // BIT HLT_HIL3Mu3
 
   theTriggerNames.push_back("NoTrigger");
-  theTriggerNames.push_back("HLT_HIL1DoubleMuOpen");
-  theTriggerNames.push_back("HLT_HIL2DoubleMu0");
+  theTriggerNames.push_back("HLT_HIL1DoubleMu0_HighQ");
   theTriggerNames.push_back("HLT_HIL2DoubleMu3");
-  theTriggerNames.push_back("HLT_HIL2Mu20");
-  theTriggerNames.push_back("HLT_HIL2Mu3");
-  theTriggerNames.push_back("HLT_HIL2Mu5Tight");
-  // not used yet
-  theTriggerNames.push_back("HLT_HIL1SingleMu3");
-  theTriggerNames.push_back("HLT_HIL1SingleMu5");
-  theTriggerNames.push_back("HLT_HIL1SingleMu7");
+  theTriggerNames.push_back("HLT_HIL3DoubleMuOpen");
+  theTriggerNames.push_back("HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy");
+  theTriggerNames.push_back("HLT_HIL2Mu3_NHitQ");
+  theTriggerNames.push_back("HLT_HIL2Mu7");
+  theTriggerNames.push_back("HLT_HIL2Mu15");
+  theTriggerNames.push_back("HLT_HIL3Mu3");
 
   etaMax = 2.4;
 
@@ -710,16 +707,16 @@ HiOniaAnalyzer::checkTriggers(const pat::CompositeCandidate* aJpsiCand) {
     
     bool pass1 = false;
     bool pass2 = false;
-    if (iTr<7) { // apparently matching by path gives false positives so we use matching by filter for all triggers for which we know the filter name
-      pass1 = mu1HLTMatchesFilter.size() > 0;
-      pass2 = mu2HLTMatchesFilter.size() > 0;
-    }
-    else {
-      pass1 = mu1HLTMatchesPath.size() > 0;
-      pass2 = mu2HLTMatchesPath.size() > 0;
-    }
+    //    if (iTr<7) { // apparently matching by path gives false positives so we use matching by filter for all triggers for which we know the filter name
+    pass1 = mu1HLTMatchesFilter.size() > 0;
+    pass2 = mu2HLTMatchesFilter.size() > 0;
+    //    }
+    //    else {
+    //   pass1 = mu1HLTMatchesPath.size() > 0;
+    //   pass2 = mu2HLTMatchesPath.size() > 0;
+    // }
 
-    if (iTr > 3) {  // single triggers here
+    if (iTr > 4) {  // single triggers here
       isTriggerMatched[iTr] = pass1 || pass2;
     } else {        // double triggers here
       isTriggerMatched[iTr] = pass1 && pass2;
@@ -1042,8 +1039,7 @@ HiOniaAnalyzer::fillRecoMuons(int iCent)
 	  const pat::TriggerObjectStandAloneCollection muHLTMatchesPath = muon->triggerObjectMatchesByPath( theTriggerNames.at(iTr) );
 
 	  // apparently matching by path gives false positives so we use matching by filter for all triggers for which we know the filter name
-	  if ( (iTr<7 && muHLTMatchesFilter.size() > 0) ||
-	       (muHLTMatchesPath.size()>0) ) {
+	  if ( muHLTMatchesFilter.size() > 0 ) {
 	    std::string theLabel = theTriggerNames.at(iTr) + "_" + theCentralities.at(iCent);
 
 	    myRecoGlbMuonHistos->Fill(muon, "All_"+theLabel);
