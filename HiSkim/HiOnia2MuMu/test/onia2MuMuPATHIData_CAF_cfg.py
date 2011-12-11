@@ -15,7 +15,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = 'GR_R_44_V10::All'
 
 process.HeavyIonGlobalParameters = cms.PSet(
-    centralityVariable = cms.string("HFhits"),
+    centralityVariable = cms.string("HFtowers"),
     nonDefaultGlauberModel = cms.string(""),
     centralitySrc = cms.InputTag("hiCentrality")
     )

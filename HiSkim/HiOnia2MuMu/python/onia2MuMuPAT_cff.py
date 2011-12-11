@@ -18,7 +18,7 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
 
     # Drop the DQM stuff on input
     process.source = cms.Source("PoolSource",
-        inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*"),
+        inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop *_hiEvtPlane_*_*"),
         fileNames = cms.untracked.vstring()
     )
     
@@ -62,6 +62,9 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
     process.muonMatchHLTCtfTrack.maxDPtRel = 10.0
     process.muonMatchHLTTrackMu.maxDeltaR = 0.1
     process.muonMatchHLTTrackMu.maxDPtRel = 10.0
+
+
+    process.muonMatchHLTL3.matchedCuts = cms.string('coll("hltHIL3MuonCandidates")')
 
     # Make a sequence
     process.patMuonSequence = cms.Sequence(
@@ -111,12 +114,12 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
 
     process.tagMuonsSglTrg = cms.EDFilter("PATMuonSelector",
                                        src = cms.InputTag("patMuonsWithTrigger"),
-                                       cut = cms.string(QUALITY_CUTS + ' && ' + IN_ACCEPTANCE + " && (!triggerObjectMatchesByPath('HLT_HIL2Mu3_NHitQv1').empty() || !triggerObjectMatchesByPath('HLT_HIL2Mu7_v1').empty() || !triggerObjectMatchesByPath('HLT_HIL2Mu15_v1').empty())")
+                                       cut = cms.string(QUALITY_CUTS + ' && ' + IN_ACCEPTANCE + " && (!triggerObjectMatchesByPath('HLT_HIL2Mu3_NHitQ_v2').empty() || !triggerObjectMatchesByPath('HLT_HIL2Mu7_v2').empty() || !triggerObjectMatchesByPath('HLT_HIL2Mu15_v2').empty())")
                                        )
 
     process.tagMuonsDblTrg = cms.EDFilter("PATMuonSelector",
                                        src = cms.InputTag("patMuonsWithTrigger"),
-                                       cut = cms.string(QUALITY_CUTS + ' && ' + IN_ACCEPTANCE + " && !triggerObjectMatchesByPath('HLT_HIL1DoubleMu0_HighQ_v1').empty()")
+                                       cut = cms.string(QUALITY_CUTS + ' && ' + IN_ACCEPTANCE + " && !triggerObjectMatchesByPath('HLT_HIL1DoubleMu0_HighQ_v2').empty()")
                                        )
 
     # produce patMuons that use the STA momentum information
@@ -128,7 +131,7 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
     # must be STA, so we can measure inner tracking efficiency
     process.probeMuonsSta = cms.EDFilter("PATMuonSelector",
                                          src = cms.InputTag("patMuonsWithTriggerSta"),
-                                         cut = cms.string("outerTrack.isNonnull && !triggerObjectMatchesByPath('HLT_HIL1DoubleMu0_HighQ_v1').empty()")
+                                         cut = cms.string("outerTrack.isNonnull && !triggerObjectMatchesByPath('HLT_HIL1DoubleMu0_HighQ_v2').empty()")
                                          )
 
     process.tpPairsSta = cms.EDProducer("CandViewShallowCloneCombiner",
@@ -150,7 +153,7 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
     # must be tracker muon, so we can measure the muon reco efficiency
     process.probeMuonsTrk = cms.EDFilter("PATMuonSelector",
                                          src = cms.InputTag("patMuonsWithTrigger"),
-                                         cut = cms.string("isTrackerMuon && " + IN_ACCEPTANCE + " && " + TRACK_CUTS + " && !triggerObjectMatchesByPath('HLT_HIL1DoubleMu0_HighQ_v1').empty()")
+                                         cut = cms.string("isTrackerMuon && " + IN_ACCEPTANCE + " && " + TRACK_CUTS + " && !triggerObjectMatchesByPath('HLT_HIL1DoubleMu0_HighQ_v2').empty()")
                                          )
 
     process.tpPairsTracks = cms.EDProducer("CandViewShallowCloneCombiner",
