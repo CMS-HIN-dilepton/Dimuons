@@ -9,7 +9,7 @@ options = VarParsing.VarParsing ('analysis')
 # setup any defaults you want
 options.outputFile = "Jpsi_Histos_MC.root"
 options.secondaryOutputFile = "Jpsi_DataSet_MC.root"
-options.inputFiles = 'rfio:/castor/cern.ch/cms/store/user/tdahms/HeavyIons/Onia/MC/v6/MC_NonPromptJpsi_FEVTDEBUGHLT_98.root'
+#options.inputFiles = 'rfio:/castor/cern.ch/cms/store/user/tdahms/HeavyIons/Onia/MC/v6/MC_NonPromptJpsi_FEVTDEBUGHLT_98.root'
 options.maxEvents = -1 # -1 means all events
 
 # get and parse the command line arguments
@@ -20,13 +20,13 @@ process.MessageLogger.destinations = ['cout', 'cerr']
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'START39_V7HI::All'
+process.GlobalTag.globaltag = 'STARTHI44_V7::All'
 
 from CmsHi.Analysis2010.CommonFunctions_cff import *
 overrideCentrality(process)
 
 process.HeavyIonGlobalParameters = cms.PSet(
-    centralityVariable = cms.string("HFhits"),
+    centralityVariable = cms.string("HFtowers"),
     nonDefaultGlauberModel = cms.string("Hydjet_Bass"), # different from data!
     centralitySrc = cms.InputTag("hiCentrality")
     )
@@ -43,7 +43,7 @@ process.source = cms.Source("PoolSource",
 
 process.hltDoubleMuOpen = cms.EDFilter("HLTHighLevel",
                                        TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
-                                       HLTPaths = cms.vstring("HLT_HIL1DoubleMuOpen"),
+                                       HLTPaths = cms.vstring("HLT_HIL1DoubleMu0_HighQ_v1"),
                                        eventSetupPathsKey = cms.string(''),
                                        andOr = cms.bool(True),
                                        throw = cms.bool(False)
@@ -77,8 +77,9 @@ process.hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                                 
                                 #-- Gen Details
                                 oniaPDG = cms.int32(443),
+                                isHI = cms.untracked.bool(True),
                                 isMC = cms.untracked.bool(True),
-                                isPromptMC = cms.untracked.bool(False),
+                                isPromptMC = cms.untracked.bool(True),
 
                                 #-- Histogram configuration
                                 combineCategories = cms.bool(False),
@@ -90,8 +91,9 @@ process.hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                                 dataSetName = cms.string(options.secondaryOutputFile),
                                 
                                 #--
-                                NumberOfTriggers = cms.uint32(10),
+                                NumberOfTriggers = cms.uint32(9),
                                 )
 
 
-process.p = cms.Path(process.hltDoubleMuOpen + process.hionia)
+#process.p = cms.Path(process.hltDoubleMuOpen + process.hionia)
+process.p = cms.Path(process.hionia)

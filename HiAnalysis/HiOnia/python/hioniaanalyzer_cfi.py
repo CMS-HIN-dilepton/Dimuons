@@ -25,6 +25,7 @@ hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                         
                         #-- Gen Details
                         oniaPDG = cms.int32(443),
+                        isHI = cms.untracked.bool(True),
                         isMC = cms.untracked.bool(False),
                         isPromptMC = cms.untracked.bool(True),
 

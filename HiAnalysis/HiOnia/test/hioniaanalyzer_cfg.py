@@ -9,7 +9,7 @@ options = VarParsing.VarParsing ('analysis')
 # setup any defaults you want
 options.outputFile = "Jpsi_Histos.root"
 options.secondaryOutputFile = "Jpsi_DataSet.root"
-options.inputFiles = 'rfio:/castor/cern.ch/cms/store/user/tdahms/HeavyIons/Onia/Data2010/v7/Skims/ReReco/onia2MuMuPAT_139.root'
+#options.inputFiles = 'rfio:/castor/cern.ch/cms/store/user/tdahms/HeavyIons/Onia/Data2010/v7/Skims/ReReco/onia2MuMuPAT_139.root'
 options.maxEvents = -1 # -1 means all events
 
 # get and parse the command line arguments
@@ -21,10 +21,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 #process.GlobalTag.globaltag = 'GR_R_39X_V6B::All' #re-reco
-process.GlobalTag.globaltag = 'GR10_P_V12::All' # prompt reco
-
-from CmsHi.Analysis2010.CommonFunctions_cff import *
-overrideCentrality(process)
+process.GlobalTag.globaltag = 'GR_R_44_V10::All' # prompt reco
 
 process.HeavyIonGlobalParameters = cms.PSet(
     centralityVariable = cms.string("HFtowers"), #HFhits for prompt reco
@@ -78,6 +75,7 @@ process.hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                                 
                                 #-- Gen Details
                                 oniaPDG = cms.int32(443),
+                                isHI = cms.untracked.bool(True),
                                 isMC = cms.untracked.bool(False),
                                 isPromptMC = cms.untracked.bool(True),
 
@@ -91,8 +89,9 @@ process.hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                                 dataSetName = cms.string(options.secondaryOutputFile),
                                 
                                 #--
-                                NumberOfTriggers = cms.uint32(10),
+                                NumberOfTriggers = cms.uint32(9),
                                 )
 
 
-process.p = cms.Path(process.hltDoubleMuOpen + process.hionia)
+#process.p = cms.Path(process.hltDoubleMuOpen + process.hionia)
+process.p = cms.Path(process.hionia)

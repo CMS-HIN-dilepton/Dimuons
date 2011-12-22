@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.20 2011/04/23 11:47:24 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.21 2011/11/25 21:03:35 tdahms Exp $
 //
 //
 
@@ -50,6 +50,9 @@
 #include "DataFormats/HeavyIonEvent/interface/CentralityProvider.h"
 
 #include "HiAnalysis/HiOnia/interface/MyCommonHistoManager.h"
+
+// adding Event Plane by dmoon 
+#include "DataFormats/HeavyIonEvent/interface/EvtPlane.h"
 
 //
 // class declaration
@@ -191,6 +194,15 @@ private:
   int Reco_mu_nhitsPix1Hit[100];
   int Reco_mu_nhitsPix1HitBE[100];
 
+  // Event Plane variables
+  int nEP;
+  int nNfEP;
+  float rpAng[100];
+  float rpCos[100];
+  float rpSin[100];
+  float NfRpAng[100];
+  float NfRpCos[100];
+  float NfRpSin[100];
 
   // histos
   TH1F* hGoodMuonsNoTrig;
@@ -256,6 +268,7 @@ private:
   bool           _fillTree;
   bool           _theMinimumFlag;
   bool           _fillSingleMuons;
+  bool           _isHI;
   bool           _isMC;
   bool           _isPromptMC;
 
@@ -339,6 +352,7 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig):
   _fillTree(iConfig.getParameter<bool>("fillTree")),  
   _theMinimumFlag(iConfig.getParameter<bool>("minimumFlag")),  
   _fillSingleMuons(iConfig.getParameter<bool>("fillSingleMuons")),
+  _isHI(iConfig.getUntrackedParameter<bool>("isHI",true) ),
   _isMC(iConfig.getUntrackedParameter<bool>("isMC",false) ),
   _isPromptMC(iConfig.getUntrackedParameter<bool>("isPromptMC",true) ),
   _oniaPDG(iConfig.getParameter<int>("oniaPDG")),
@@ -475,6 +489,37 @@ HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (centBin<_centralityranges.at(iCent)/2.5) {
       theCentralityBin=iCent;
       break;
+    }
+  }
+
+  if (_isHI) {
+    edm::Handle<reco::EvtPlaneCollection> FlatEvtPlanes;
+    edm::Handle<reco::EvtPlaneCollection> NoFlatEvtPlanes;
+    iEvent.getByLabel("hiEvtPlaneFlat",FlatEvtPlanes);
+    iEvent.getByLabel("hiEvtPlane","recoLevel",NoFlatEvtPlanes);
+
+    if(!FlatEvtPlanes.isValid()) {
+      cout << "Error! Can't get flattened hiEvtPlane product!" << endl;
+      return ;
+    }
+
+    for (reco::EvtPlaneCollection::const_iterator rp = FlatEvtPlanes->begin(); rp!=FlatEvtPlanes->end(); rp++) {
+      rpAng[nEP] = rp->angle();
+      rpSin[nEP] = rp->sumSin();
+      rpCos[nEP] = rp->sumCos();
+      nEP++;
+    }
+
+    if(!NoFlatEvtPlanes.isValid()){
+      cout << "Error! Can't get hiEvtPlane product!" << endl;
+      return ;
+    }
+
+    for (reco::EvtPlaneCollection::const_iterator rp = NoFlatEvtPlanes->begin();rp !=NoFlatEvtPlanes->end(); rp++) {
+      NfRpAng[nNfEP] = rp->angle();
+      NfRpSin[nNfEP] = rp->sumSin();
+      NfRpCos[nNfEP] = rp->sumCos();
+      nNfEP++;
     }
   }
 
@@ -897,6 +942,9 @@ HiOniaAnalyzer::InitEvent()
   }
   HLTriggers = 0;
 
+  nEP = 0;
+  nNfEP = 0;
+
   _thePassedCats[0].clear();      _thePassedCands[0].clear();
   _thePassedCats[1].clear();      _thePassedCands[1].clear();
   _thePassedCats[2].clear();      _thePassedCands[2].clear();
@@ -1095,6 +1143,15 @@ HiOniaAnalyzer::InitTree()
   myTree->Branch("zVtx",    &zVtx,        "zVtx/F"); 
   myTree->Branch("HLTriggers", &HLTriggers, "HLTriggers/I");
   myTree->Branch("Centrality", &centBin, "Centrality/I");
+
+  myTree->Branch("nEP", &nEP, "nEP/I");
+  myTree->Branch("nNfEP", &nNfEP, "nNfEP/I");
+  myTree->Branch("rpAng", &rpAng, "rpAng[nEP]/F");
+  myTree->Branch("rpSin", &rpSin, "rpSin[nEP]/F");
+  myTree->Branch("rpCos", &rpCos, "rpCos[nEP]/F");
+  myTree->Branch("NfRpAng", &NfRpAng, "NfRpAng[nNfEP]/F");
+  myTree->Branch("NfRpSin", &NfRpSin, "NfRpSin[nNfEP]/F");
+  myTree->Branch("NfRpCos", &NfRpCos, "NfRpCos[nNfEP]/F");
 
   myTree->Branch("Reco_QQ_size", &Reco_QQ_size,  "Reco_QQ_size/I");
   myTree->Branch("Reco_QQ_type", Reco_QQ_type,   "Reco_QQ_type[Reco_QQ_size]/I");
