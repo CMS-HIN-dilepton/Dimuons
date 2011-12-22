@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.21 2011/11/25 21:03:35 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.22 2011/12/22 13:20:14 tdahms Exp $
 //
 //
 
@@ -498,29 +498,28 @@ HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.getByLabel("hiEvtPlaneFlat",FlatEvtPlanes);
     iEvent.getByLabel("hiEvtPlane","recoLevel",NoFlatEvtPlanes);
 
-    if(!FlatEvtPlanes.isValid()) {
-      cout << "Error! Can't get flattened hiEvtPlane product!" << endl;
-      return ;
+    if(FlatEvtPlanes.isValid()) {
+      for (reco::EvtPlaneCollection::const_iterator rp = FlatEvtPlanes->begin(); rp!=FlatEvtPlanes->end(); rp++) {
+	rpAng[nEP] = rp->angle();
+	rpSin[nEP] = rp->sumSin();
+	rpCos[nEP] = rp->sumCos();
+	nEP++;
+      }
     }
+    else if (!_isMC) 
+      cout << "Warning! Can't get flattened hiEvtPlane product!" << endl;
 
-    for (reco::EvtPlaneCollection::const_iterator rp = FlatEvtPlanes->begin(); rp!=FlatEvtPlanes->end(); rp++) {
-      rpAng[nEP] = rp->angle();
-      rpSin[nEP] = rp->sumSin();
-      rpCos[nEP] = rp->sumCos();
-      nEP++;
-    }
 
-    if(!NoFlatEvtPlanes.isValid()){
-      cout << "Error! Can't get hiEvtPlane product!" << endl;
-      return ;
+    if(NoFlatEvtPlanes.isValid()){
+      for (reco::EvtPlaneCollection::const_iterator rp = NoFlatEvtPlanes->begin();rp !=NoFlatEvtPlanes->end(); rp++) {
+	NfRpAng[nNfEP] = rp->angle();
+	NfRpSin[nNfEP] = rp->sumSin();
+	NfRpCos[nNfEP] = rp->sumCos();
+	nNfEP++;
+      }
     }
-
-    for (reco::EvtPlaneCollection::const_iterator rp = NoFlatEvtPlanes->begin();rp !=NoFlatEvtPlanes->end(); rp++) {
-      NfRpAng[nNfEP] = rp->angle();
-      NfRpSin[nNfEP] = rp->sumSin();
-      NfRpCos[nNfEP] = rp->sumCos();
-      nNfEP++;
-    }
+    else if (!_isMC)
+      cout << "Warning! Can't get hiEvtPlane product!" << endl;
   }
 
   iEvent.getByLabel(_patJpsi,collJpsi); 
