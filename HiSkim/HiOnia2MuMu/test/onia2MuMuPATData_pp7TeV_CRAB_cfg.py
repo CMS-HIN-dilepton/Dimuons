@@ -21,7 +21,7 @@ process.L1Reco_step = cms.Path(process.l1extraParticles)
 # BSC or HF coincidence (masked unprescaled L1 bits)
 process.load('L1Trigger.Skimmer.l1Filter_cfi')
 process.bscOrHfCoinc = process.l1Filter.clone(
-    algorithms = cms.vstring('L1_BscMinBiasThreshold1', 'L1_HcalHfCoincidencePm')
+    algorithms = cms.vstring('L1Tech_BSC_minBias_OR.v*', 'L1Tech_HCAL_HF_coincidence_PM.v*', 'L1Tech_BPTX_plus_AND_minus.v*')
     )
     
 
@@ -31,7 +31,7 @@ process.load("HeavyIonsAnalysis.Configuration.collisionEventSelection_cff")
 # HLT dimuon trigger
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 process.hltOniaHI = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-process.hltOniaHI.HLTPaths = ["HLT_DoubleMu3_Upsilon_v*","HLT_L1DoubleMu0_v*"]
+process.hltOniaHI.HLTPaths = ["HLT_DoubleMu3_Upsilon_v*","HLT_L1DoubleMu0_v"]
 process.hltOniaHI.throw = False
 process.hltOniaHI.andOr = True
 
@@ -39,11 +39,20 @@ from HiSkim.HiOnia2MuMu.onia2MuMuPAT_cff import *
 
 onia2MuMuPAT(process, GlobalTag=process.GlobalTag.globaltag, MC=False, HLT="HLT", Filter=True)
 
-process.onia2MuMuPatGlbGlb.addMuonlessPrimaryVertex = True
-process.onia2MuMuPatGlbGlb.resolvePileUpAmbiguity = True
+process.onia2MuMuPatTrkTrk.addMuonlessPrimaryVertex = False
+process.onia2MuMuPatTrkTrk.resolvePileUpAmbiguity = False
+
+process.primaryVertexFilter.src = "offlinePrimaryVertices"
+
+process.collisionEventSelection = cms.Sequence(process.hfCoincFilter *
+                                               process.primaryVertexFilter
+                                               #process.siPixelRecHits *
+                                               #process.hltPixelClusterShapeFilter
+                                               )
 
 process.source.fileNames = cms.untracked.vstring(
-    '/store/data/Run2011A/AllPhysics2760/AOD/PromptReco-v2/000/161/474/FC4C13B1-975A-E011-93F8-0030487C608C.root'
+    '/dpm/in2p3.fr/home/cms/trivcat/store/user/nfilipov/MuOnia/UpsilonSkim_pp7TeV_v1_ReRecoNov08/aba00261b8d7670688292e001ea3f1e1/
+    onia2MuMuPAT_79_1_fMk.root'
     )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
