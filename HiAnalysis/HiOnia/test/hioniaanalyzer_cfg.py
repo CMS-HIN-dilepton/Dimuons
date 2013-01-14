@@ -20,13 +20,16 @@ process.MessageLogger.destinations = ['cout', 'cerr']
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-#process.GlobalTag.globaltag = 'GR_R_39X_V6B::All' #re-reco
-process.GlobalTag.globaltag = 'GR_R_44_V10::All' # prompt reco
+process.GlobalTag.globaltag = 'GR_E_V33A::All' # express reco
+process.GlobalTag.globaltag = 'GR_P_V43D::All' # prompt reco
+
+from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import *
+overrideCentrality(process)
 
 process.HeavyIonGlobalParameters = cms.PSet(
-    centralityVariable = cms.string("HFtowers"), #HFhits for prompt reco
+    centralityVariable = cms.string("HFtowersPlusTrunc"),
     nonDefaultGlauberModel = cms.string(""),
-    centralitySrc = cms.InputTag("hiCentrality")
+    centralitySrc = cms.InputTag("pACentrality")
     )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
@@ -41,7 +44,7 @@ process.source = cms.Source("PoolSource",
 
 process.hltDoubleMuOpen = cms.EDFilter("HLTHighLevel",
                  TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
-                 HLTPaths = cms.vstring("HLT_HIL1DoubleMuOpen"),
+                 HLTPaths = cms.vstring("HLT_PAL1DoubleMuOpen_v*"),
                  eventSetupPathsKey = cms.string(''),
                  andOr = cms.bool(True),
                  throw = cms.bool(False)
@@ -50,9 +53,9 @@ process.hltDoubleMuOpen = cms.EDFilter("HLTHighLevel",
 process.hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                                 srcMuon = cms.InputTag("patMuonsWithTrigger"),
                                 srcMuonNoTrig = cms.InputTag("patMuonsWithoutTrigger"),
-                                src = cms.InputTag("onia2MuMuPatGlbGlb"),
-                                genParticles = cms.InputTag("genMuons"),
-                                primaryVertexTag = cms.InputTag("hiSelectedVertex"),
+                                src = cms.InputTag("onia2MuMuPatTrkTrk"),
+                                genParticles = cms.InputTag("genParticles"),
+                                primaryVertexTag = cms.InputTag("offlinePrimaryVertices"),
 
                                 #-- Reco Details
                                 useBeamSpot = cms.bool(False),
@@ -63,7 +66,7 @@ process.hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                                 
                                 pTBinRanges = cms.vdouble(0.0, 6.0, 8.0, 9.0, 10.0, 12.0, 15.0, 40.0),
                                 etaBinRanges = cms.vdouble(0.0, 2.5),
-                                centralityRanges = cms.vdouble(10,20,40,60,100),
+                                centralityRanges = cms.vdouble(20,40,100),
 
                                 onlyTheBest = cms.bool(False),		
                                 applyCuts = cms.bool(True),			
@@ -75,21 +78,23 @@ process.hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                                 
                                 #-- Gen Details
                                 oniaPDG = cms.int32(443),
-                                isHI = cms.untracked.bool(True),
+                                isHI = cms.untracked.bool(False),
+                                isPA = cms.untracked.bool(True),
                                 isMC = cms.untracked.bool(False),
-                                isPromptMC = cms.untracked.bool(True),
+                                isPromptMC = cms.untracked.bool(False),
 
                                 #-- Histogram configuration
                                 combineCategories = cms.bool(False),
                                 fillRooDataSet = cms.bool(False),
                                 fillTree = cms.bool(True),
+                                fillHistos = cms.bool(False),
                                 minimumFlag = cms.bool(True),
                                 fillSingleMuons = cms.bool(True),
                                 histFileName = cms.string(options.outputFile),		
                                 dataSetName = cms.string(options.secondaryOutputFile),
                                 
                                 #--
-                                NumberOfTriggers = cms.uint32(9),
+                                NumberOfTriggers = cms.uint32(6),
                                 )
 
 
