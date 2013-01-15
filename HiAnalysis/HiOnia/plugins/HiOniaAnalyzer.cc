@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.23.2.1 2013/01/14 21:47:15 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.23.2.2 2013/01/15 13:16:25 tdahms Exp $
 //
 //
 
@@ -423,12 +423,12 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig):
   HLTLastFilters[6] = "hltL3fL2sMu12L3Filtered12";                  // BIT HLT_PAMu12
 
   theTriggerNames.push_back("NoTrigger");
-  theTriggerNames.push_back("HLT_PAL1DoubleMuOpen");
-  theTriggerNames.push_back("HLT_PAL1DoubleMu0_HighQ");
-  theTriggerNames.push_back("HLT_PAL2DoubleMu3");
-  theTriggerNames.push_back("HLT_PAMu3");
-  theTriggerNames.push_back("HLT_PAMu7");
-  theTriggerNames.push_back("HLT_PAMu12");
+  theTriggerNames.push_back("HLT_PAL1DoubleMuOpen_v1");
+  theTriggerNames.push_back("HLT_PAL1DoubleMu0_HighQ_v1");
+  theTriggerNames.push_back("HLT_PAL2DoubleMu3_v1");
+  theTriggerNames.push_back("HLT_PAMu3_v1");
+  theTriggerNames.push_back("HLT_PAMu7_v1");
+  theTriggerNames.push_back("HLT_PAMu12_v1");
 
   etaMax = 2.4;
 
@@ -450,6 +450,10 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig):
   JpsiRapMax = _etabinranges[_etabinranges.size()-1];
   std::cout << "Rap max = " << JpsiRapMax << std::endl;
   
+
+  for(std::vector<std::string>::iterator it = theTriggerNames.begin(); it != theTriggerNames.end(); ++it){
+      mapTriggerNameToIntFired_[*it] = -9999;
+  }
 }
 
 
@@ -501,7 +505,7 @@ HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   this->hltReport(iEvent, iSetup);
 
-  for (unsigned int iTr = 0 ; iTr < theTriggerNames.size() ; iTr++) {
+  for (unsigned int iTr = 1 ; iTr < theTriggerNames.size() ; iTr++) {
     if (mapTriggerNameToIntFired_[theTriggerNames.at(iTr)] == 3) {
       HLTriggers += pow(2,iTr-1);
       hStats->Fill(iTr); // event info
@@ -1007,6 +1011,13 @@ HiOniaAnalyzer::InitEvent()
     Gen_mu_3vec->Clear();
   }
 
+  for(std::map< std::string, int >::iterator clearIt= mapTriggerNameToIntFired_.begin(); clearIt != mapTriggerNameToIntFired_.end(); clearIt++){
+    clearIt->second=0;
+  }
+  for(std::map< std::string, int >::iterator clearIt= mapTriggerNameToPrescaleFac_.begin(); clearIt != mapTriggerNameToPrescaleFac_.end(); clearIt++){
+    clearIt->second=-1;
+  }
+
   return;
 }
 
@@ -1408,7 +1419,6 @@ void
 HiOniaAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   //init HLTConfigProvider
   const std::string pro = _tagTriggerResults.process();
-  cout << pro << endl;
   bool changed = true;
 
   //bool init(const edm::Run& iRun, const edm::EventSetup& iSetup, const std::string& processName, bool& changed);
@@ -1487,11 +1497,11 @@ HiOniaAnalyzer::hltReport(const edm::Event &iEvent ,const edm::EventSetup& iSetu
     for (std::map<std::string, unsigned int>::iterator it = mapTriggernameToHLTbit.begin(); it != mapTriggernameToHLTbit.end(); it++) {
       unsigned int triggerIndex= hltConfig.triggerIndex( it->first );
       if (triggerIndex >= n) {
-	std::cout << "[HiOniaAnalyzer::hltReport] --- TriggerName " << it->first << " not available in config!" << std::endl;
+	//	std::cout << "[HiOniaAnalyzer::hltReport] --- TriggerName " << it->first << " not available in config!" << std::endl;
       }
       else {
 	it->second= triggerIndex;
-	std::cout << "[HiOniaAnalyzer::hltReport] --- TriggerName " << it->first << " available in config!" << std::endl;
+	//	std::cout << "[HiOniaAnalyzer::hltReport] --- TriggerName " << it->first << " available in config!" << std::endl;
       }
     }
   }
@@ -1516,10 +1526,12 @@ HiOniaAnalyzer::hltReport(const edm::Event &iEvent ,const edm::EventSetup& iSetu
 	}
 
 	//-------prescale factor------------
+	/*
 	if (!_isMC) {
 	  const std::pair<int,int> prescales(hltConfig.prescaleValues(iEvent,iSetup,triggerPathName));
 	  mapTriggerNameToPrescaleFac_[triggerPathName] = prescales.first * prescales.second;
 	}
+	*/
       }
     }
   } else cout << "[HiOniaAnalyzer::hltReport] --- TriggerResults NOT valid in current event" << endl;

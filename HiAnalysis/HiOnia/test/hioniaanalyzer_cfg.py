@@ -16,9 +16,8 @@ options.maxEvents = -1 # -1 means all events
 options.parseArguments()
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.destinations = ['cout', 'cerr','detailedInfo']
+process.MessageLogger.destinations = ['cout', 'cerr']
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
-process.MessageLogger.detailedInfo = cms.untracked.PSet(threshold  = cms.untracked.string('INFO'))
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 #process.GlobalTag.globaltag = 'GR_E_V33A::All' # express reco
@@ -43,9 +42,49 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.hltDoubleMuOpen = cms.EDFilter("HLTHighLevel",
-                 TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
+process.hltDblMuOpen = cms.EDFilter("HLTHighLevel",
+                 TriggerResultsTag = cms.InputTag("TriggerResults","","RECO"),
                  HLTPaths = cms.vstring("HLT_PAL1DoubleMuOpen_v*"),
+                 eventSetupPathsKey = cms.string(''),
+                 andOr = cms.bool(True),
+                 throw = cms.bool(False)
+)
+
+process.hltDblMu0 = cms.EDFilter("HLTHighLevel",
+                 TriggerResultsTag = cms.InputTag("TriggerResults","","RECO"),
+                 HLTPaths = cms.vstring("HLT_PAL1DoubleMu0_HighQ_v*"),
+                 eventSetupPathsKey = cms.string(''),
+                 andOr = cms.bool(True),
+                 throw = cms.bool(False)
+)
+
+process.hltDblMu3 = cms.EDFilter("HLTHighLevel",
+                 TriggerResultsTag = cms.InputTag("TriggerResults","","RECO"),
+                 HLTPaths = cms.vstring("HLT_PAL2DoubleMu3_v*"),
+                 eventSetupPathsKey = cms.string(''),
+                 andOr = cms.bool(True),
+                 throw = cms.bool(False)
+)
+
+process.hltMu3 = cms.EDFilter("HLTHighLevel",
+                 TriggerResultsTag = cms.InputTag("TriggerResults","","RECO"),
+                 HLTPaths = cms.vstring("HLT_PAMu3_v*"),
+                 eventSetupPathsKey = cms.string(''),
+                 andOr = cms.bool(True),
+                 throw = cms.bool(False)
+)
+
+process.hltMu7 = cms.EDFilter("HLTHighLevel",
+                 TriggerResultsTag = cms.InputTag("TriggerResults","","RECO"),
+                 HLTPaths = cms.vstring("HLT_PAMu7_v*"),
+                 eventSetupPathsKey = cms.string(''),
+                 andOr = cms.bool(True),
+                 throw = cms.bool(False)
+)
+
+process.hltMu12 = cms.EDFilter("HLTHighLevel",
+                 TriggerResultsTag = cms.InputTag("TriggerResults","","RECO"),
+                 HLTPaths = cms.vstring("HLT_PAMu12_v*"),
                  eventSetupPathsKey = cms.string(''),
                  andOr = cms.bool(True),
                  throw = cms.bool(False)
@@ -100,5 +139,5 @@ process.hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                                 )
 
 
-#process.p = cms.Path(process.hltDoubleMuOpen + process.hionia)
+#process.p = cms.Path(process.hltDblMuOpen*process.hionia)
 process.p = cms.Path(process.hionia)
