@@ -178,7 +178,7 @@ HiOnia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	  muonLess.clear();
 	  muonLess.reserve(thePrimaryV.tracksSize());
-	  if( addMuonlessPrimaryVertex_  && thePrimaryV.tracksSize()>2) {
+	  if( addMuonlessPrimaryVertex_ && thePrimaryV.tracksSize()>2) {
 	    // Primary vertex matched to the dimuon, now refit it removing the two muons
 	    VertexReProducer revertex(priVtxs, iEvent);
 	    Handle<TrackCollection> pvtracks;

@@ -10,7 +10,7 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
     )
     process.load("FWCore.MessageService.MessageLogger_cfi")
     process.MessageLogger.cerr.FwkReport.reportEvery = 100
-    process.load('Configuration.StandardSequences.GeometryExtended_cff')
+    process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
     process.load("Configuration.StandardSequences.Reconstruction_cff")
     process.load("Configuration.StandardSequences.MagneticField_cff")
     process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
