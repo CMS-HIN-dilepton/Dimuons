@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.23 2011/12/22 13:33:12 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.23.2.1 2013/01/14 21:47:15 tdahms Exp $
 //
 //
 
@@ -354,6 +354,7 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig):
   _patJpsi(iConfig.getParameter<edm::InputTag>("src")),
   _genParticle(iConfig.getParameter<edm::InputTag>("genParticles")),
   _thePVs(iConfig.getParameter<edm::InputTag>("primaryVertexTag")),
+  _tagTriggerResults(iConfig.getParameter<edm::InputTag>("triggerResultsLabel")),
   _histfilename(iConfig.getParameter<std::string>("histFileName")),		
   _datasetname(iConfig.getParameter<std::string>("dataSetName")),		
   _ptbinranges(iConfig.getParameter< std::vector<double> >("pTBinRanges")),	
@@ -370,7 +371,7 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig):
   _combineCategories(iConfig.getParameter<bool>("combineCategories")),
   _fillRooDataSet(iConfig.getParameter<bool>("fillRooDataSet")),  
   _fillTree(iConfig.getParameter<bool>("fillTree")),  
-  _fillHistos(iConfig.getUntrackedParameter<bool>("fillHistos",true) ),
+  _fillHistos(iConfig.getParameter<bool>("fillHistos")),
   _theMinimumFlag(iConfig.getParameter<bool>("minimumFlag")),  
   _fillSingleMuons(iConfig.getParameter<bool>("fillSingleMuons")),
   _isHI(iConfig.getUntrackedParameter<bool>("isHI",false) ),
@@ -836,23 +837,24 @@ HiOniaAnalyzer::makeCuts(int sign) {
 			(sign == 2 && muon1->charge() + muon2->charge() == -2) );
 
       if (thisSign) {
-	
+	/*	
 	// global + global?
 	if (checkCuts(cand,muon1,muon2,&HiOniaAnalyzer::selGlobalMuon,&HiOniaAnalyzer::selGlobalMuon)){
-	  _thePassedCats[sign].push_back(GlbGlb);  _thePassedCands[sign].push_back(cand);
-	  continue;
+	_thePassedCats[sign].push_back(GlbGlb);  _thePassedCands[sign].push_back(cand);
+	//	  continue;
 	}
 
 	// global + tracker? (x2)    
 	if (checkCuts(cand,muon1,muon2,&HiOniaAnalyzer::selGlobalMuon,&HiOniaAnalyzer::selTrackerMuon)){
-	  _thePassedCats[sign].push_back(GlbTrk);  _thePassedCands[sign].push_back(cand);
-	  continue;
+	_thePassedCats[sign].push_back(GlbTrk);  _thePassedCands[sign].push_back(cand);
+	//	  continue;
 	}
 
 	if (checkCuts(cand,muon2,muon1,&HiOniaAnalyzer::selGlobalMuon,&HiOniaAnalyzer::selTrackerMuon)){
-	  _thePassedCats[sign].push_back(GlbTrk);  _thePassedCands[sign].push_back(cand);
-	  continue;
+	_thePassedCats[sign].push_back(GlbTrk);  _thePassedCands[sign].push_back(cand);
+	//	  continue;
 	}
+	*/
 
 	// tracker + tracker?  
 	if (checkCuts(cand,muon1,muon2,&HiOniaAnalyzer::selTrackerMuon,&HiOniaAnalyzer::selTrackerMuon)){
@@ -1144,7 +1146,7 @@ HiOniaAnalyzer::fillRecoMuons(int iCent)
       else if (muon->isTrackerMuon() && selTrackerMuon(muon)) muType = 1;
       else muType = -1;
 
-      if ( muType==0 ||
+      if ( //muType==0 ||
 	   muType==1 ) {
 	nGoodMuons++;
 
@@ -1406,6 +1408,7 @@ void
 HiOniaAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   //init HLTConfigProvider
   const std::string pro = _tagTriggerResults.process();
+  cout << pro << endl;
   bool changed = true;
 
   //bool init(const edm::Run& iRun, const edm::EventSetup& iSetup, const std::string& processName, bool& changed);

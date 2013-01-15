@@ -16,11 +16,12 @@ options.maxEvents = -1 # -1 means all events
 options.parseArguments()
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.destinations = ['cout', 'cerr']
+process.MessageLogger.destinations = ['cout', 'cerr','detailedInfo']
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
+process.MessageLogger.detailedInfo = cms.untracked.PSet(threshold  = cms.untracked.string('INFO'))
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'GR_E_V33A::All' # express reco
+#process.GlobalTag.globaltag = 'GR_E_V33A::All' # express reco
 process.GlobalTag.globaltag = 'GR_P_V43D::All' # prompt reco
 
 from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import *
@@ -56,6 +57,7 @@ process.hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                                 src = cms.InputTag("onia2MuMuPatTrkTrk"),
                                 genParticles = cms.InputTag("genParticles"),
                                 primaryVertexTag = cms.InputTag("offlinePrimaryVertices"),
+                                triggerResultsLabel = cms.InputTag("TriggerResults","","RECO"),
 
                                 #-- Reco Details
                                 useBeamSpot = cms.bool(False),

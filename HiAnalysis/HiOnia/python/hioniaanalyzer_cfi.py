@@ -4,7 +4,8 @@ hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                         src = cms.InputTag("onia2MuMuPatTrkTrk"),
                         genParticles = cms.InputTag("genMuons"),
                         primaryVertexTag = cms.InputTag("hiSelectedVertex"),
-                        
+                        triggerResultsLabel = cms.InputTag("TriggerResults"),
+
                         #-- Reco Details
                         useBeamSpot = cms.bool(False),
                         useRapidity = cms.bool(True),
