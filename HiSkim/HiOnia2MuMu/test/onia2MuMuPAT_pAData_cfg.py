@@ -30,17 +30,18 @@ process.hltOniaHI.HLTPaths = ["HLT_PAL1DoubleMuOpen_v*",
                               ]
 process.hltOniaHI.throw = False
 process.hltOniaHI.andOr = True
-process.hltOniaHI.TriggerResultsTag = cms.InputTag("TriggerResults","","RECO")
+process.hltOniaHI.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
 
 
 from HiSkim.HiOnia2MuMu.onia2MuMuPAT_cff import *
-onia2MuMuPAT(process, GlobalTag=process.GlobalTag.globaltag, MC=False, HLT="RECO", Filter=True)
+onia2MuMuPAT(process, GlobalTag=process.GlobalTag.globaltag, MC=False, HLT="HLT", Filter=True)
 
-process.onia2MuMuPatTrkTrk.addMuonlessPrimaryVertex = False
+#process.onia2MuMuPatTrkTrk.addMuonlessPrimaryVertex = False
 #process.onia2MuMuPatTrkTrk.resolvePileUpAmbiguity = False
 
 process.source.fileNames = cms.untracked.vstring(
-    '/store/group/phys_heavyions/icali/PAPhysics/pAPilotRun_Run202792GoodLumis_RAWRECO_L1Em_PrescaleActiveBitsSkimNoZB_CMSSW538HI_V94_FinalWorkflow_2MHz_v2_v1_v2/8737906f1c367f1d51881c1e107110a2/PAPhysics_RAWRECO_inRECO_10_1_V8P.root'    )
+    '/store/group/phys_heavyions/icali/PAPhysics/pAPilotRun_Run202792GoodLumis_RAWRECO_L1Em_PrescaleActiveBitsSkimNoZB_CMSSW538HI_V94_FinalWorkflow_2MHz_v2_v1_v2/8737906f1c367f1d51881c1e107110a2/PAPhysics_RAWRECO_inRECO_10_1_V8P.root'
+    )
 
 # filter on lumisections
 #from HiSkim.HiOnia2MuMu.goodLumiSectionListHI_cfi import *
