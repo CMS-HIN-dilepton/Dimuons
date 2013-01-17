@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.23.2.3 2013/01/15 14:52:07 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.23.2.4 2013/01/17 10:55:59 tdahms Exp $
 //
 //
 
@@ -179,30 +179,79 @@ private:
   float Reco_QQ_dca[100];
   float Reco_QQ_MassErr[100];
 
+  int Reco_QQ_mupl_nMuValHits[100];  // Number of valid muon hits in plus sta muons
+  int Reco_QQ_mumi_nMuValHits[100];  // Number of valid muon hits in minus sta muons
+  int Reco_QQ_mupl_nTrkHits[100];  // track hits plus global muons
+  int Reco_QQ_mumi_nTrkHits[100];  // track hits minus global muons
+  int Reco_QQ_mupl_nPixWMea[100];  // pixel layers with measurement for plus inner track muons
+  int Reco_QQ_mumi_nPixWMea[100];  // pixel layers with measurement for minus inner track muons
+  int Reco_QQ_mupl_nTrkWMea[100];  // track layers with measurement for plus inner track muons
+  int Reco_QQ_mumi_nTrkWMea[100];  // track layers with measurement for minus inner track muons
+  int Reco_QQ_mupl_StationsMatched[100];  // number of stations matched for plus inner track muons
+  int Reco_QQ_mumi_StationsMatched[100];  // number of stations matched for minus inner track muons
+  float Reco_QQ_mupl_normChi2_inner[100];  // chi2/ndof for plus inner track muons
+  float Reco_QQ_mumi_normChi2_inner[100];  // chi2/ndof for minus inner track muons
+  float Reco_QQ_mupl_normChi2_global[100];  // chi2/ndof for plus global muons
+  float Reco_QQ_mumi_normChi2_global[100];  // chi2/ndof for minus global muons
+  float Reco_QQ_mupl_dxy[100];  // dxy for plus inner track muons
+  float Reco_QQ_mumi_dxy[100];  // dxy for minus inner track muons
+  float Reco_QQ_mupl_dxyErr[100];  // dxy error for plus inner track muons
+  float Reco_QQ_mumi_dxyErr[100];  // dxy error for minus inner track muons
+  float Reco_QQ_mupl_dz[100];  // dz for plus inner track muons
+  float Reco_QQ_mumi_dz[100];  // dz for minus inner track muons
+  float Reco_QQ_mupl_dzErr[100];  // dz error for plus inner track muons
+  float Reco_QQ_mumi_dzErr[100];  // dz error for minus inner track muons
+  float Reco_QQ_mupl_pt_inner[100];  // pT for plus inner track muons
+  float Reco_QQ_mumi_pt_inner[100];  // pT for minus inner track muons
+  float Reco_QQ_mupl_pt_global[100];  // pT for plus global muons
+  float Reco_QQ_mumi_pt_global[100];  // pT for minus global muons
+  float Reco_QQ_mupl_ptErr_inner[100];  // pT error for plus inner track muons
+  float Reco_QQ_mumi_ptErr_inner[100];  // pT error for minus inner track muons
+  float Reco_QQ_mupl_ptErr_global[100];  // pT error for plus global muons
+  float Reco_QQ_mumi_ptErr_global[100];  // pT error for minus global muons
+
   int Reco_mu_size;           // Number of reconstructed muons
   int Reco_mu_trig[100];      // Vector of trigger bits matched to the muons
-  float Reco_mu_ptErr[100];   // Vector of err on pt of muons
-  float Reco_mu_phiErr[100];  // Vector of err on phi of muons
-  float Reco_mu_etaErr[100];  // Vector of err on eta of muons
-  float Reco_mu_d0[100];      // Vector of d0 of muons
-  float Reco_mu_d0err[100];   // Vector of d0err of muons
-  float Reco_mu_dz[100];      // Vector of dz of muons
-  float Reco_mu_dzerr[100];   // Vector of dzerr of muons
   int Reco_mu_charge[100];  // Vector of charge of muons
   int Reco_mu_type[100];  // Vector of type of muon (global=0, tracker=1, calo=2)  
-  float Reco_mu_normChi2[100];   // Vector of chi2/ndof of muons
-  int Reco_mu_nhitsCSC[100];    // Vector of number of valid hits of muons
-  int Reco_mu_nhitsDT[100];    // Vector of number of valid hits of muons
-  int Reco_mu_nhitsTrack[100];    // Vector of number of valid hits of muons
-  float Reco_mu_caloComp[100];    // Vector of calorimeter compatibilities
-  float Reco_mu_segmComp[100];    // Vector of muon segment compatibilities 
-  float Reco_mu_iso[100];    // Vector of isolations (NOW ONLY SUMPt OF TRACKS) 
-  int Reco_mu_nhitsStrip[100];  // Vectors of strip/pixel hits
-  int Reco_mu_nhitsPixB[100];
-  int Reco_mu_nhitsPixE[100];
-  int Reco_mu_nhitsPix1Hit[100];
-  int Reco_mu_nhitsPix1HitBE[100];
 
+  int Reco_mu_nMuValHits[100];  // Number of valid muon hits in sta muons
+  int Reco_mu_nTrkHits[100];  // track hits global muons
+  int Reco_mu_nPixWMea[100];  // pixel layers with measurement for inner track muons
+  int Reco_mu_nTrkWMea[100];  // track layers with measurement for inner track muons
+  int Reco_mu_StationsMatched[100];  // number of stations matched for inner track muons
+  float Reco_mu_normChi2_inner[100];  // chi2/ndof for inner track muons
+  float Reco_mu_normChi2_global[100];  // chi2/ndof for global muons
+  float Reco_mu_dxy[100];  // dxy for inner track muons
+  float Reco_mu_dxyErr[100];  // dxy error for inner track muons
+  float Reco_mu_dz[100];  // dz for inner track muons
+  float Reco_mu_dzErr[100];  // dz error for inner track muons
+  float Reco_mu_pt_inner[100];  // pT for inner track muons
+  float Reco_mu_pt_global[100];  // pT for global muons
+  float Reco_mu_ptErr_inner[100];  // pT error for inner track muons
+  float Reco_mu_ptErr_global[100];  // pT error for global muons
+  
+  /*
+    float Reco_mu_ptErr[100];   // Vector of err on pt of muons
+    float Reco_mu_phiErr[100];  // Vector of err on phi of muons
+    float Reco_mu_etaErr[100];  // Vector of err on eta of muons
+    float Reco_mu_d0[100];      // Vector of d0 of muons
+    float Reco_mu_d0err[100];   // Vector of d0err of muons
+    float Reco_mu_dz[100];      // Vector of dz of muons
+    float Reco_mu_dzerr[100];   // Vector of dzerr of muons
+    float Reco_mu_normChi2[100];   // Vector of chi2/ndof of muons
+    int Reco_mu_nhitsCSC[100];    // Vector of number of valid hits of muons
+    int Reco_mu_nhitsDT[100];    // Vector of number of valid hits of muons
+    int Reco_mu_nhitsTrack[100];    // Vector of number of valid hits of muons
+    float Reco_mu_caloComp[100];    // Vector of calorimeter compatibilities
+    float Reco_mu_segmComp[100];    // Vector of muon segment compatibilities 
+    float Reco_mu_iso[100];    // Vector of isolations (NOW ONLY SUMPt OF TRACKS) 
+    int Reco_mu_nhitsStrip[100];  // Vectors of strip/pixel hits
+    int Reco_mu_nhitsPixB[100];
+    int Reco_mu_nhitsPixE[100];
+    int Reco_mu_nhitsPix1Hit[100];
+    int Reco_mu_nhitsPix1HitBE[100];
+  */
   int muType; // type of muon (global=0, tracker=1, calo=2, none=-1) 
 
   // Event Plane variables
@@ -635,6 +684,36 @@ HiOniaAnalyzer::fillTreeMuon(const pat::Muon* muon, int iType, int trigBits) {
 
   Reco_mu_trig[Reco_mu_size] = trigBits;
 
+  reco::TrackRef iTrack = muon->innerTrack();
+  
+  if (!_theMinimumFlag) {
+    Reco_mu_nTrkHits[Reco_mu_size] = iTrack->found();
+    Reco_mu_normChi2_inner[Reco_mu_size] = iTrack->normalizedChi2();
+    Reco_mu_nPixWMea[Reco_mu_size] = iTrack->hitPattern().pixelLayersWithMeasurement();
+    Reco_mu_nTrkWMea[Reco_mu_size] = iTrack->hitPattern().trackerLayersWithMeasurement();
+    Reco_mu_StationsMatched[Reco_mu_size] = muon->numberOfMatchedStations();
+    Reco_mu_dxy[Reco_mu_size] = iTrack->dxy(RefVtx);
+    Reco_mu_dxyErr[Reco_mu_size] = iTrack->dxyError();
+    Reco_mu_dz[Reco_mu_size] = iTrack->dz(RefVtx);
+    Reco_mu_dzErr[Reco_mu_size] = iTrack->dzError();
+    Reco_mu_pt_inner[Reco_mu_size] = iTrack->pt();
+    Reco_mu_ptErr_inner[Reco_mu_size] = iTrack->ptError();
+    
+    if (muon->isGlobalMuon()) {
+      reco::TrackRef gTrack = muon->globalTrack();
+      Reco_mu_nMuValHits[Reco_mu_size] = gTrack->hitPattern().numberOfValidMuonHits();
+      Reco_mu_normChi2_global[Reco_mu_size] = gTrack->normalizedChi2();
+      Reco_mu_pt_global[Reco_mu_size] = gTrack->pt();
+      Reco_mu_ptErr_global[Reco_mu_size] = gTrack->ptError();
+    }
+    else {
+      Reco_mu_nMuValHits[Reco_mu_size] = -1;
+      Reco_mu_normChi2_global[Reco_mu_size] = 999;
+      Reco_mu_pt_global[Reco_mu_size] = -1;
+      Reco_mu_ptErr_global[Reco_mu_size] = -1;
+    }
+  }
+
   Reco_mu_size++;
   return;
 }
@@ -667,14 +746,94 @@ HiOniaAnalyzer::fillTreeJpsi(int iSign, int count) {
   TLorentzVector vMuon1 = lorentzMomentum(muon1->p4());
   TLorentzVector vMuon2 = lorentzMomentum(muon2->p4());
 
+  reco::TrackRef iTrack_mupl;
+  reco::TrackRef gTrack_mupl;
+
+  reco::TrackRef iTrack_mumi;
+  reco::TrackRef gTrack_mumi;
+
   if (muon1->charge() > muon2->charge()) {
     new((*Reco_QQ_mupl_4mom)[Reco_QQ_size])TLorentzVector(vMuon1);
     new((*Reco_QQ_mumi_4mom)[Reco_QQ_size])TLorentzVector(vMuon2);
+
+    Reco_QQ_mupl_StationsMatched[Reco_QQ_size] = muon1->numberOfMatchedStations();
+    Reco_QQ_mumi_StationsMatched[Reco_QQ_size] = muon2->numberOfMatchedStations();
+
+    iTrack_mupl = muon1->innerTrack();
+    iTrack_mumi = muon2->innerTrack();
+
+    if (muon1->isGlobalMuon())
+      gTrack_mupl = muon1->globalTrack();
+
+    if (muon2->isGlobalMuon())
+      gTrack_mumi = muon2->globalTrack();
   }
   else {
     new((*Reco_QQ_mupl_4mom)[Reco_QQ_size])TLorentzVector(vMuon2);
     new((*Reco_QQ_mumi_4mom)[Reco_QQ_size])TLorentzVector(vMuon1);
+
+    Reco_QQ_mupl_StationsMatched[Reco_QQ_size] = muon2->numberOfMatchedStations();
+    Reco_QQ_mumi_StationsMatched[Reco_QQ_size] = muon1->numberOfMatchedStations();
+
+    iTrack_mupl = muon2->innerTrack();
+    iTrack_mumi = muon1->innerTrack();
+
+    if (muon2->isGlobalMuon())
+      gTrack_mupl = muon2->globalTrack();
+
+    if (muon1->isGlobalMuon())
+      gTrack_mumi = muon1->globalTrack();
   }
+
+  if (!_theMinimumFlag) {
+    Reco_QQ_mupl_nTrkHits[Reco_QQ_size] = iTrack_mupl->found();
+    Reco_QQ_mumi_nTrkHits[Reco_QQ_size] = iTrack_mumi->found();
+    Reco_QQ_mupl_normChi2_inner[Reco_QQ_size] = iTrack_mupl->normalizedChi2();
+    Reco_QQ_mumi_normChi2_inner[Reco_QQ_size] = iTrack_mumi->normalizedChi2();
+    Reco_QQ_mupl_nPixWMea[Reco_QQ_size] = iTrack_mupl->hitPattern().pixelLayersWithMeasurement();
+    Reco_QQ_mumi_nPixWMea[Reco_QQ_size] = iTrack_mumi->hitPattern().pixelLayersWithMeasurement();
+    Reco_QQ_mupl_nTrkWMea[Reco_QQ_size] = iTrack_mupl->hitPattern().trackerLayersWithMeasurement();
+    Reco_QQ_mumi_nTrkWMea[Reco_QQ_size] = iTrack_mumi->hitPattern().trackerLayersWithMeasurement();
+    Reco_QQ_mupl_dxy[Reco_QQ_size] = iTrack_mupl->dxy(RefVtx);
+    Reco_QQ_mumi_dxy[Reco_QQ_size] = iTrack_mumi->dxy(RefVtx);
+    Reco_QQ_mupl_dxyErr[Reco_QQ_size] = iTrack_mupl->dxyError();
+    Reco_QQ_mumi_dxyErr[Reco_QQ_size] = iTrack_mumi->dxyError();
+    Reco_QQ_mupl_dz[Reco_QQ_size] = iTrack_mupl->dz(RefVtx);
+    Reco_QQ_mumi_dz[Reco_QQ_size] = iTrack_mumi->dz(RefVtx);
+    Reco_QQ_mupl_dzErr[Reco_QQ_size] = iTrack_mupl->dzError();
+    Reco_QQ_mumi_dzErr[Reco_QQ_size] = iTrack_mumi->dzError();
+    Reco_QQ_mupl_pt_inner[Reco_QQ_size] = iTrack_mupl->pt();
+    Reco_QQ_mumi_pt_inner[Reco_QQ_size] = iTrack_mumi->pt();
+    Reco_QQ_mupl_ptErr_inner[Reco_QQ_size] = iTrack_mupl->ptError();
+    Reco_QQ_mumi_ptErr_inner[Reco_QQ_size] = iTrack_mumi->ptError();
+    
+    if (gTrack_mupl.isNonnull()) {
+      Reco_QQ_mupl_nMuValHits[Reco_QQ_size] = gTrack_mupl->hitPattern().numberOfValidMuonHits();
+      Reco_QQ_mupl_normChi2_global[Reco_QQ_size] = gTrack_mupl->normalizedChi2();
+      Reco_QQ_mupl_pt_global[Reco_QQ_size] = gTrack_mupl->pt();
+      Reco_QQ_mupl_ptErr_global[Reco_QQ_size] = gTrack_mupl->ptError();
+    }
+    else {
+      Reco_QQ_mupl_nMuValHits[Reco_QQ_size] = -1;
+      Reco_QQ_mupl_normChi2_global[Reco_QQ_size] = 999;
+      Reco_QQ_mupl_pt_global[Reco_QQ_size] = -1;
+      Reco_QQ_mupl_ptErr_global[Reco_QQ_size] = -1;
+    }
+
+    if (gTrack_mumi.isNonnull()) {
+      Reco_QQ_mumi_nMuValHits[Reco_QQ_size] = gTrack_mumi->hitPattern().numberOfValidMuonHits();
+      Reco_QQ_mumi_normChi2_global[Reco_QQ_size] = gTrack_mumi->normalizedChi2();
+      Reco_QQ_mumi_pt_global[Reco_QQ_size] = gTrack_mumi->pt();
+      Reco_QQ_mumi_ptErr_global[Reco_QQ_size] = gTrack_mumi->ptError();
+    }
+    else {
+      Reco_QQ_mumi_nMuValHits[Reco_QQ_size] = -1;
+      Reco_QQ_mumi_normChi2_global[Reco_QQ_size] = 999;
+      Reco_QQ_mumi_pt_global[Reco_QQ_size] = -1;
+      Reco_QQ_mumi_ptErr_global[Reco_QQ_size] = -1;
+    }
+  }
+
   
   TLorentzVector vJpsi = lorentzMomentum(aJpsiCand->p4());
   new((*Reco_QQ_4mom)[Reco_QQ_size])TLorentzVector(vJpsi);
@@ -1268,12 +1427,63 @@ HiOniaAnalyzer::InitTree()
   myTree->Branch("Reco_QQ_dca", Reco_QQ_dca,   "Reco_QQ_dca[Reco_QQ_size]/F");
   myTree->Branch("Reco_QQ_MassErr", Reco_QQ_MassErr,   "Reco_QQ_MassErr[Reco_QQ_size]/F");
 
+  if (!_theMinimumFlag) {
+    myTree->Branch("Reco_QQ_mupl_nMuValHits", Reco_QQ_mupl_nMuValHits,   "Reco_QQ_mupl_nMuValHits[Reco_QQ_size]/I");
+    myTree->Branch("Reco_QQ_mumi_nMuValHits", Reco_QQ_mumi_nMuValHits,   "Reco_QQ_mumi_nMuValHits[Reco_QQ_size]/I");
+    myTree->Branch("Reco_QQ_mupl_nTrkHits",Reco_QQ_mupl_nTrkHits, "Reco_QQ_mupl_nTrkHits[Reco_QQ_size]/I");
+    myTree->Branch("Reco_QQ_mumi_nTrkHits",Reco_QQ_mumi_nTrkHits, "Reco_QQ_mumi_nTrkHits[Reco_QQ_size]/I");
+    myTree->Branch("Reco_QQ_mupl_normChi2_inner",Reco_QQ_mupl_normChi2_inner, "Reco_QQ_mupl_normChi2_inner[Reco_QQ_size]/F");
+    myTree->Branch("Reco_QQ_mumi_normChi2_inner",Reco_QQ_mumi_normChi2_inner, "Reco_QQ_mumi_normChi2_inner[Reco_QQ_size]/F");
+    myTree->Branch("Reco_QQ_mupl_normChi2_global",Reco_QQ_mupl_normChi2_global, "Reco_QQ_mupl_normChi2_global[Reco_QQ_size]/F");
+    myTree->Branch("Reco_QQ_mumi_normChi2_global",Reco_QQ_mumi_normChi2_global, "Reco_QQ_mumi_normChi2_global[Reco_QQ_size]/F");
+    myTree->Branch("Reco_QQ_mupl_nPixWMea",Reco_QQ_mupl_nPixWMea, "Reco_QQ_mupl_nPixWMea[Reco_QQ_size]/I");
+    myTree->Branch("Reco_QQ_mumi_nPixWMea",Reco_QQ_mumi_nPixWMea, "Reco_QQ_mumi_nPixWMea[Reco_QQ_size]/I");
+    myTree->Branch("Reco_QQ_mupl_nTrkWMea",Reco_QQ_mupl_nTrkWMea, "Reco_QQ_mupl_nTrkWMea[Reco_QQ_size]/I");
+    myTree->Branch("Reco_QQ_mumi_nTrkWMea",Reco_QQ_mumi_nTrkWMea, "Reco_QQ_mumi_nTrkWMea[Reco_QQ_size]/I");
+    myTree->Branch("Reco_QQ_mupl_StationsMatched",Reco_QQ_mupl_StationsMatched, "Reco_QQ_mupl_StationsMatched[Reco_QQ_size]/I");
+    myTree->Branch("Reco_QQ_mumi_StationsMatched",Reco_QQ_mumi_StationsMatched, "Reco_QQ_mumi_StationsMatched[Reco_QQ_size]/I");
+    myTree->Branch("Reco_QQ_mupl_dxy",Reco_QQ_mupl_dxy, "Reco_QQ_mupl_dxy[Reco_QQ_size]/F");
+    myTree->Branch("Reco_QQ_mumi_dxy",Reco_QQ_mumi_dxy, "Reco_QQ_mumi_dxy[Reco_QQ_size]/F");
+    myTree->Branch("Reco_QQ_mupl_dxyErr",Reco_QQ_mupl_dxyErr, "Reco_QQ_mupl_dxyErr[Reco_QQ_size]/F");
+    myTree->Branch("Reco_QQ_mumi_dxyErr",Reco_QQ_mumi_dxyErr, "Reco_QQ_mumi_dxyErr[Reco_QQ_size]/F");
+    myTree->Branch("Reco_QQ_mupl_dz",Reco_QQ_mupl_dz, "Reco_QQ_mupl_dz[Reco_QQ_size]/F");
+    myTree->Branch("Reco_QQ_mumi_dz",Reco_QQ_mumi_dz, "Reco_QQ_mumi_dz[Reco_QQ_size]/F");
+    myTree->Branch("Reco_QQ_mupl_dzErr",Reco_QQ_mupl_dzErr, "Reco_QQ_mupl_dzErr[Reco_QQ_size]/F");
+    myTree->Branch("Reco_QQ_mumi_dzErr",Reco_QQ_mumi_dzErr, "Reco_QQ_mumi_dzErr[Reco_QQ_size]/F");
+    myTree->Branch("Reco_QQ_mupl_pt_inner",Reco_QQ_mupl_pt_inner, "Reco_QQ_mupl_pt_inner[Reco_QQ_size]/F");
+    myTree->Branch("Reco_QQ_mumi_pt_inner",Reco_QQ_mumi_pt_inner, "Reco_QQ_mumi_pt_inner[Reco_QQ_size]/F");
+    myTree->Branch("Reco_QQ_mupl_pt_global",Reco_QQ_mupl_pt_global, "Reco_QQ_mupl_pt_global[Reco_QQ_size]/F");
+    myTree->Branch("Reco_QQ_mumi_pt_global",Reco_QQ_mumi_pt_global, "Reco_QQ_mumi_pt_global[Reco_QQ_size]/F");
+    myTree->Branch("Reco_QQ_mupl_ptErr_inner",Reco_QQ_mupl_ptErr_inner, "Reco_QQ_mupl_ptErr_inner[Reco_QQ_size]/F");
+    myTree->Branch("Reco_QQ_mumi_ptErr_inner",Reco_QQ_mumi_ptErr_inner, "Reco_QQ_mumi_ptErr_inner[Reco_QQ_size]/F");
+    myTree->Branch("Reco_QQ_mupl_ptErr_global",Reco_QQ_mupl_ptErr_global, "Reco_QQ_mupl_ptErr_global[Reco_QQ_size]/F");
+    myTree->Branch("Reco_QQ_mumi_ptErr_global",Reco_QQ_mumi_ptErr_global, "Reco_QQ_mumi_ptErr_global[Reco_QQ_size]/F");
+  }
+
   myTree->Branch("Reco_mu_size", &Reco_mu_size,  "Reco_mu_size/I");
   myTree->Branch("Reco_mu_type", Reco_mu_type,   "Reco_mu_type[Reco_mu_size]/I");
   myTree->Branch("Reco_mu_charge", Reco_mu_charge,   "Reco_mu_charge[Reco_mu_size]/I");
   myTree->Branch("Reco_mu_4mom", "TClonesArray", &Reco_mu_4mom, 32000, 0);
   //  myTree->Branch("Reco_mu_3vec", "TClonesArray", &Reco_mu_3vec, 32000, 0);
   myTree->Branch("Reco_mu_trig", Reco_mu_trig,   "Reco_mu_trig[Reco_mu_size]/I");
+
+  if (!_theMinimumFlag) {
+    myTree->Branch("Reco_mu_nMuValHits", Reco_mu_nMuValHits,   "Reco_mu_nMuValHits[Reco_mu_size]/I");
+    myTree->Branch("Reco_mu_nTrkHits",Reco_mu_nTrkHits, "Reco_mu_nTrkHits[Reco_mu_size]/I");
+    myTree->Branch("Reco_mu_normChi2_inner",Reco_mu_normChi2_inner, "Reco_mu_normChi2_inner[Reco_mu_size]/F");
+    myTree->Branch("Reco_mu_normChi2_global",Reco_mu_normChi2_global, "Reco_mu_normChi2_global[Reco_mu_size]/F");
+    myTree->Branch("Reco_mu_nPixWMea",Reco_mu_nPixWMea, "Reco_mu_nPixWMea[Reco_mu_size]/I");
+    myTree->Branch("Reco_mu_nTrkWMea",Reco_mu_nTrkWMea, "Reco_mu_nTrkWMea[Reco_mu_size]/I");
+    myTree->Branch("Reco_mu_StationsMatched",Reco_mu_StationsMatched, "Reco_mu_StationsMatched[Reco_mu_size]/I");
+    myTree->Branch("Reco_mu_dxy",Reco_mu_dxy, "Reco_mu_dxy[Reco_mu_size]/F");
+    myTree->Branch("Reco_mu_dxyErr",Reco_mu_dxyErr, "Reco_mu_dxyErr[Reco_mu_size]/F");
+    myTree->Branch("Reco_mu_dz",Reco_mu_dz, "Reco_mu_dz[Reco_mu_size]/F");
+    myTree->Branch("Reco_mu_dzErr",Reco_mu_dzErr, "Reco_mu_dzErr[Reco_mu_size]/F");
+    myTree->Branch("Reco_mu_pt_inner",Reco_mu_pt_inner, "Reco_mu_pt_inner[Reco_mu_size]/F");
+    myTree->Branch("Reco_mu_pt_global",Reco_mu_pt_global, "Reco_mu_pt_global[Reco_mu_size]/F");
+    myTree->Branch("Reco_mu_ptErr_inner",Reco_mu_ptErr_inner, "Reco_mu_ptErr_inner[Reco_mu_size]/F");
+    myTree->Branch("Reco_mu_ptErr_global",Reco_mu_ptErr_global, "Reco_mu_ptErr_global[Reco_mu_size]/F");
+  }
 
   if (_isMC) {
     myTree->Branch("Gen_QQ_size",      &Gen_QQ_size,    "Gen_QQ_size/I");
@@ -1290,29 +1500,7 @@ HiOniaAnalyzer::InitTree()
     //    myTree->Branch("Gen_mu_3vec",   "TClonesArray", &Gen_QQ_mumi_4mom, 32000, 0);
   }
 
-  if (!_theMinimumFlag) {
-    myTree->Branch("Reco_mu_phiErr",   Reco_mu_phiErr,  "Reco_mu_phiErr[Reco_mu_size]/F");
-    myTree->Branch("Reco_mu_etaErr",   Reco_mu_etaErr,  "Reco_mu_etaErr[Reco_mu_size]/F");
-    myTree->Branch("Reco_mu_ptErr",    Reco_mu_ptErr,   "Reco_mu_ptErr[Reco_mu_size]/F");
-    myTree->Branch("Reco_mu_d0",       Reco_mu_d0,      "Reco_mu_d0[Reco_mu_size]/F");
-    myTree->Branch("Reco_mu_d0err",    Reco_mu_d0err,   "Reco_mu_d0err[Reco_mu_size]/F");
-    myTree->Branch("Reco_mu_dz",       Reco_mu_dz,      "Reco_mu_dz[Reco_mu_size]/F");
-    myTree->Branch("Reco_mu_dzerr",    Reco_mu_dzerr,   "Reco_mu_dzerr[Reco_mu_size]/F");
-    myTree->Branch("Reco_mu_normChi2",     Reco_mu_normChi2,    "Reco_mu_normChi2[Reco_mu_size]/F");
-    myTree->Branch("Reco_mu_nhitsTrack",    Reco_mu_nhitsTrack,   "Reco_mu_nhitsTrack[Reco_mu_size]/I");      
-    myTree->Branch("Reco_mu_nhitsStrip",    Reco_mu_nhitsStrip,   "Reco_mu_nhitsStrip[Reco_mu_size]/I");
-    myTree->Branch("Reco_mu_nhitsPixB",    Reco_mu_nhitsPixB,   "Reco_mu_nhitsPixB[Reco_mu_size]/I");
-    myTree->Branch("Reco_mu_nhitsPixE",    Reco_mu_nhitsPixE,   "Reco_mu_nhitsPixE[Reco_mu_size]/I");
-    myTree->Branch("Reco_mu_nhitsPix1Hit",    Reco_mu_nhitsPix1Hit,   "Reco_mu_nhitsPix1Hit[Reco_mu_size]/I");
-    myTree->Branch("Reco_mu_nhitsPix1HitBE",    Reco_mu_nhitsPix1HitBE,   "Reco_mu_nhitsPix1HitBE[Reco_mu_size]/I");
-    myTree->Branch("Reco_mu_nhitsDT",    Reco_mu_nhitsDT,   "Reco_mu_nhitsDT[Reco_mu_size]/I");
-    myTree->Branch("Reco_mu_nhitsCSC",    Reco_mu_nhitsCSC,   "Reco_mu_nhitsCSC[Reco_mu_size]/I");
-    myTree->Branch("Reco_mu_caloComp",   Reco_mu_caloComp,  "Reco_mu_caloComp[Reco_mu_size]/F"); 
-    myTree->Branch("Reco_mu_segmComp",   Reco_mu_segmComp,  "Reco_mu_segmComp[Reco_mu_size]/F"); 
-    myTree->Branch("Reco_mu_iso",   Reco_mu_iso,  "Reco_mu_iso[Reco_mu_size]/F");  
-  }
-
-
+  return;
 }
 
 // ------------ method called once each job just before starting event loop  ------------
