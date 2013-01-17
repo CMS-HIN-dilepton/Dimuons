@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.23.2.2 2013/01/15 13:16:25 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.23.2.3 2013/01/15 14:52:07 tdahms Exp $
 //
 //
 
@@ -1043,34 +1043,35 @@ HiOniaAnalyzer::fillGenInfo()
 	it!=collGenParticles->end();++it) {
       const reco::GenParticle* gen = &(*it);
 
-      if (abs(gen->pdgId()) == _oniaPDG  && gen->status() == 2) {
-	Gen_QQ_type[Gen_QQ_size] = _isPromptMC ? 0 : 1; // prompt: 0, non-prompt: 1
-	
-	TLorentzVector vJpsi = lorentzMomentum(gen->p4());
-	new((*Gen_QQ_4mom)[Gen_QQ_size])TLorentzVector(vJpsi);
+      if (abs(gen->pdgId()) == _oniaPDG  && gen->status() == 2 &&
+	  gen->numberOfDaughters() == 2) {
+
+	const reco::Candidate* genMuon1 = gen->daughter(0);
+	const reco::Candidate* genMuon2 = gen->daughter(1);
+	if ( abs(genMuon1->pdgId()) == 13 &&
+	     abs(genMuon2->pdgId()) == 13 &&
+	     genMuon1->status() == 1 &&
+	     genMuon2->status() == 1 ) {
+	  
+	  Gen_QQ_type[Gen_QQ_size] = _isPromptMC ? 0 : 1; // prompt: 0, non-prompt: 1
+	  
+	  TLorentzVector vJpsi = lorentzMomentum(gen->p4());
+	  new((*Gen_QQ_4mom)[Gen_QQ_size])TLorentzVector(vJpsi);
 
 
-	if (gen->numberOfDaughters() == 2) {
-	  const reco::Candidate* genMuon1 = gen->daughter(0);
-	  const reco::Candidate* genMuon2 = gen->daughter(1);
-	  if ( abs(genMuon1->pdgId()) == 13 &&
-	       abs(genMuon2->pdgId()) == 13 &&
-	       genMuon1->status() == 1 &&
-	       genMuon2->status() == 1 ) {
-
-	    TLorentzVector vMuon1 = lorentzMomentum(genMuon1->p4());
-	    TLorentzVector vMuon2 = lorentzMomentum(genMuon2->p4());
+	  TLorentzVector vMuon1 = lorentzMomentum(genMuon1->p4());
+	  TLorentzVector vMuon2 = lorentzMomentum(genMuon2->p4());
 	    
-	    if (genMuon1->charge() > genMuon2->charge()) {
-	      new((*Gen_QQ_mupl_4mom)[Gen_QQ_size])TLorentzVector(vMuon1);
-	      new((*Gen_QQ_mumi_4mom)[Gen_QQ_size])TLorentzVector(vMuon2);
-	    }
-	    else {
-	      new((*Gen_QQ_mupl_4mom)[Gen_QQ_size])TLorentzVector(vMuon2);
-	      new((*Gen_QQ_mumi_4mom)[Gen_QQ_size])TLorentzVector(vMuon1);
-	    }
+	  if (genMuon1->charge() > genMuon2->charge()) {
+	    new((*Gen_QQ_mupl_4mom)[Gen_QQ_size])TLorentzVector(vMuon1);
+	    new((*Gen_QQ_mumi_4mom)[Gen_QQ_size])TLorentzVector(vMuon2);
+	  }
+	  else {
+	    new((*Gen_QQ_mupl_4mom)[Gen_QQ_size])TLorentzVector(vMuon2);
+	    new((*Gen_QQ_mumi_4mom)[Gen_QQ_size])TLorentzVector(vMuon1);
 	  }
 	}
+	
 	Gen_QQ_size++;
       }
 
