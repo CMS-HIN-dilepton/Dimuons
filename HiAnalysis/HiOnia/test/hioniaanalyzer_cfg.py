@@ -110,7 +110,7 @@ process.hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                                 centralityRanges = cms.vdouble(20,40,100),
 
                                 onlyTheBest = cms.bool(False),		
-                                applyCuts = cms.bool(True),			
+                                applyCuts = cms.bool(True),
                                 storeEfficiency = cms.bool(False),
                       
                                 removeSignalEvents = cms.untracked.bool(False),

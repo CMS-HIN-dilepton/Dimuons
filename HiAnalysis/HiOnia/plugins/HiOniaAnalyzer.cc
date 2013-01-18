@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.23.2.4 2013/01/17 10:55:59 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.23.2.5 2013/01/17 16:28:43 tdahms Exp $
 //
 //
 
@@ -179,6 +179,11 @@ private:
   float Reco_QQ_dca[100];
   float Reco_QQ_MassErr[100];
 
+  bool Reco_QQ_mupl_TrkMuArb[100];      // Vector of TrackerMuonArbitrated for plus muon
+  bool Reco_QQ_mumi_TrkMuArb[100];      // Vector of TrackerMuonArbitrated for minus muon
+  bool Reco_QQ_mupl_TMOneStaTight[100]; // Vector of TMOneStationTight for plus muon
+  bool Reco_QQ_mumi_TMOneStaTight[100]; // Vector of TMOneStationTight for minus muon
+
   int Reco_QQ_mupl_nMuValHits[100];  // Number of valid muon hits in plus sta muons
   int Reco_QQ_mumi_nMuValHits[100];  // Number of valid muon hits in minus sta muons
   int Reco_QQ_mupl_nTrkHits[100];  // track hits plus global muons
@@ -214,6 +219,9 @@ private:
   int Reco_mu_trig[100];      // Vector of trigger bits matched to the muons
   int Reco_mu_charge[100];  // Vector of charge of muons
   int Reco_mu_type[100];  // Vector of type of muon (global=0, tracker=1, calo=2)  
+
+  bool Reco_mu_TrkMuArb[100];      // Vector of TrackerMuonArbitrated
+  bool Reco_mu_TMOneStaTight[100]; // Vector of TMOneStationTight
 
   int Reco_mu_nMuValHits[100];  // Number of valid muon hits in sta muons
   int Reco_mu_nTrkHits[100];  // track hits global muons
@@ -687,6 +695,8 @@ HiOniaAnalyzer::fillTreeMuon(const pat::Muon* muon, int iType, int trigBits) {
   reco::TrackRef iTrack = muon->innerTrack();
   
   if (!_theMinimumFlag) {
+    Reco_mu_TrkMuArb[Reco_mu_size] = muon->muonID("TrackerMuonArbitrated");
+    Reco_mu_TMOneStaTight[Reco_mu_size] = muon->muonID("TMOneStationTight");
     Reco_mu_nTrkHits[Reco_mu_size] = iTrack->found();
     Reco_mu_normChi2_inner[Reco_mu_size] = iTrack->normalizedChi2();
     Reco_mu_nPixWMea[Reco_mu_size] = iTrack->hitPattern().pixelLayersWithMeasurement();
@@ -759,6 +769,12 @@ HiOniaAnalyzer::fillTreeJpsi(int iSign, int count) {
     Reco_QQ_mupl_StationsMatched[Reco_QQ_size] = muon1->numberOfMatchedStations();
     Reco_QQ_mumi_StationsMatched[Reco_QQ_size] = muon2->numberOfMatchedStations();
 
+    Reco_QQ_mupl_TrkMuArb[Reco_QQ_size] = muon1->muonID("TrackerMuonArbitrated");
+    Reco_QQ_mupl_TMOneStaTight[Reco_QQ_size] = muon1->muonID("TMOneStationTight");
+
+    Reco_QQ_mumi_TrkMuArb[Reco_QQ_size] = muon2->muonID("TrackerMuonArbitrated");
+    Reco_QQ_mumi_TMOneStaTight[Reco_QQ_size] = muon2->muonID("TMOneStationTight");
+
     iTrack_mupl = muon1->innerTrack();
     iTrack_mumi = muon2->innerTrack();
 
@@ -774,6 +790,13 @@ HiOniaAnalyzer::fillTreeJpsi(int iSign, int count) {
 
     Reco_QQ_mupl_StationsMatched[Reco_QQ_size] = muon2->numberOfMatchedStations();
     Reco_QQ_mumi_StationsMatched[Reco_QQ_size] = muon1->numberOfMatchedStations();
+
+    Reco_QQ_mupl_TrkMuArb[Reco_QQ_size] = muon2->muonID("TrackerMuonArbitrated");
+    Reco_QQ_mupl_TMOneStaTight[Reco_QQ_size] = muon2->muonID("TMOneStationTight");
+
+    Reco_QQ_mumi_TrkMuArb[Reco_QQ_size] = muon1->muonID("TrackerMuonArbitrated");
+    Reco_QQ_mumi_TMOneStaTight[Reco_QQ_size] = muon1->muonID("TMOneStationTight");
+
 
     iTrack_mupl = muon2->innerTrack();
     iTrack_mumi = muon1->innerTrack();
@@ -1428,6 +1451,10 @@ HiOniaAnalyzer::InitTree()
   myTree->Branch("Reco_QQ_MassErr", Reco_QQ_MassErr,   "Reco_QQ_MassErr[Reco_QQ_size]/F");
 
   if (!_theMinimumFlag) {
+    myTree->Branch("Reco_QQ_mupl_TrkMuArb", Reco_QQ_mupl_TrkMuArb,   "Reco_QQ_mupl_TrkMuArb[Reco_QQ_size]/O");
+    myTree->Branch("Reco_QQ_mumi_TrkMuArb", Reco_QQ_mumi_TrkMuArb,   "Reco_QQ_mumi_TrkMuArb[Reco_QQ_size]/O");
+    myTree->Branch("Reco_QQ_mupl_TMOneStaTight", Reco_QQ_mupl_TMOneStaTight, "Reco_QQ_mupl_TMOneStaTight[Reco_QQ_size]/O");
+    myTree->Branch("Reco_QQ_mumi_TMOneStaTight", Reco_QQ_mumi_TMOneStaTight, "Reco_QQ_mumi_TMOneStaTight[Reco_QQ_size]/O");
     myTree->Branch("Reco_QQ_mupl_nMuValHits", Reco_QQ_mupl_nMuValHits,   "Reco_QQ_mupl_nMuValHits[Reco_QQ_size]/I");
     myTree->Branch("Reco_QQ_mumi_nMuValHits", Reco_QQ_mumi_nMuValHits,   "Reco_QQ_mumi_nMuValHits[Reco_QQ_size]/I");
     myTree->Branch("Reco_QQ_mupl_nTrkHits",Reco_QQ_mupl_nTrkHits, "Reco_QQ_mupl_nTrkHits[Reco_QQ_size]/I");
@@ -1468,6 +1495,8 @@ HiOniaAnalyzer::InitTree()
   myTree->Branch("Reco_mu_trig", Reco_mu_trig,   "Reco_mu_trig[Reco_mu_size]/I");
 
   if (!_theMinimumFlag) {
+    myTree->Branch("Reco_mu_TrkMuArb", Reco_mu_TrkMuArb,   "Reco_mu_TrkMuArb[Reco_mu_size]/O");
+    myTree->Branch("Reco_mu_TMOneStaTight", Reco_mu_TMOneStaTight, "Reco_mu_TMOneStaTight[Reco_mu_size]/O");
     myTree->Branch("Reco_mu_nMuValHits", Reco_mu_nMuValHits,   "Reco_mu_nMuValHits[Reco_mu_size]/I");
     myTree->Branch("Reco_mu_nTrkHits",Reco_mu_nTrkHits, "Reco_mu_nTrkHits[Reco_mu_size]/I");
     myTree->Branch("Reco_mu_normChi2_inner",Reco_mu_normChi2_inner, "Reco_mu_normChi2_inner[Reco_mu_size]/F");
