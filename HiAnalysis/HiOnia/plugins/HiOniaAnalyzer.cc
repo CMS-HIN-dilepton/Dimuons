@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.23.2.5 2013/01/17 16:28:43 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.23.2.6 2013/01/18 14:37:55 tdahms Exp $
 //
 //
 
@@ -583,6 +583,8 @@ HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
     }
   }
+  else 
+    theCentralityBin=0;
 
   if (_isHI) {
     edm::Handle<reco::EvtPlaneCollection> FlatEvtPlanes;
