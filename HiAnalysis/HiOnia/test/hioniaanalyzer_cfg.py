@@ -96,7 +96,7 @@ process.hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                                 src = cms.InputTag("onia2MuMuPatTrkTrk"),
                                 genParticles = cms.InputTag("genParticles"),
                                 primaryVertexTag = cms.InputTag("offlinePrimaryVertices"),
-                                triggerResultsLabel = cms.InputTag("TriggerResults","","RECO"),
+                                triggerResultsLabel = cms.InputTag("TriggerResults","","HLT"),
 
                                 #-- Reco Details
                                 useBeamSpot = cms.bool(False),
@@ -135,7 +135,7 @@ process.hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                                 dataSetName = cms.string(options.secondaryOutputFile),
                                 
                                 #--
-                                NumberOfTriggers = cms.uint32(6),
+                                NumberOfTriggers = cms.uint32(6)
                                 )
 
 
