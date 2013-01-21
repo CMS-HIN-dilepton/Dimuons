@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.23.2.7 2013/01/20 11:55:17 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.23.2.8 2013/01/21 10:23:52 tdahms Exp $
 //
 //
 
@@ -111,7 +111,8 @@ private:
     BIN_HLT_PAL2DoubleMu3 = 3,
     BIN_HLT_PAMu3 = 4,
     BIN_HLT_PAMu7 = 5,
-    BIN_HLT_PAMu12 = 6
+    BIN_HLT_PAMu12 = 6,
+    BIN_HLT_PAPixelTrackMultiplicity100_L2DoubleMu3 = 7
   };
 
   enum dimuonCategories {
