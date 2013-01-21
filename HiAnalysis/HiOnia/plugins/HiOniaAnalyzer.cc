@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.23.2.8 2013/01/21 10:23:52 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.23.2.9 2013/01/21 11:30:39 tdahms Exp $
 //
 //
 
@@ -1626,7 +1626,7 @@ HiOniaAnalyzer::beginJob()
   }
   hStats->Sumw2();
 
-  hCent = new TH1F("hCent","hCent;centrality bin;Number of Events",40,0,40);
+  hCent = new TH1F("hCent","hCent;centrality bin;Number of Events",100,0,100);
   hCent->Sumw2();
 
   hPileUp = new TH1F("hPileUp","Number of Primary Vertices;n_{PV};counts", 50, 0, 50);
