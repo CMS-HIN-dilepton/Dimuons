@@ -43,7 +43,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.hltDblMuOpen = cms.EDFilter("HLTHighLevel",
-                 TriggerResultsTag = cms.InputTag("TriggerResults","","RECO"),
+                 TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
                  HLTPaths = cms.vstring("HLT_PAL1DoubleMuOpen_v*"),
                  eventSetupPathsKey = cms.string(''),
                  andOr = cms.bool(True),
@@ -51,7 +51,7 @@ process.hltDblMuOpen = cms.EDFilter("HLTHighLevel",
 )
 
 process.hltDblMu0 = cms.EDFilter("HLTHighLevel",
-                 TriggerResultsTag = cms.InputTag("TriggerResults","","RECO"),
+                 TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
                  HLTPaths = cms.vstring("HLT_PAL1DoubleMu0_HighQ_v*"),
                  eventSetupPathsKey = cms.string(''),
                  andOr = cms.bool(True),
@@ -59,7 +59,7 @@ process.hltDblMu0 = cms.EDFilter("HLTHighLevel",
 )
 
 process.hltDblMu3 = cms.EDFilter("HLTHighLevel",
-                 TriggerResultsTag = cms.InputTag("TriggerResults","","RECO"),
+                 TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
                  HLTPaths = cms.vstring("HLT_PAL2DoubleMu3_v*"),
                  eventSetupPathsKey = cms.string(''),
                  andOr = cms.bool(True),
@@ -67,7 +67,7 @@ process.hltDblMu3 = cms.EDFilter("HLTHighLevel",
 )
 
 process.hltMu3 = cms.EDFilter("HLTHighLevel",
-                 TriggerResultsTag = cms.InputTag("TriggerResults","","RECO"),
+                 TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
                  HLTPaths = cms.vstring("HLT_PAMu3_v*"),
                  eventSetupPathsKey = cms.string(''),
                  andOr = cms.bool(True),
@@ -75,7 +75,7 @@ process.hltMu3 = cms.EDFilter("HLTHighLevel",
 )
 
 process.hltMu7 = cms.EDFilter("HLTHighLevel",
-                 TriggerResultsTag = cms.InputTag("TriggerResults","","RECO"),
+                 TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
                  HLTPaths = cms.vstring("HLT_PAMu7_v*"),
                  eventSetupPathsKey = cms.string(''),
                  andOr = cms.bool(True),
@@ -83,8 +83,16 @@ process.hltMu7 = cms.EDFilter("HLTHighLevel",
 )
 
 process.hltMu12 = cms.EDFilter("HLTHighLevel",
-                 TriggerResultsTag = cms.InputTag("TriggerResults","","RECO"),
+                 TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
                  HLTPaths = cms.vstring("HLT_PAMu12_v*"),
+                 eventSetupPathsKey = cms.string(''),
+                 andOr = cms.bool(True),
+                 throw = cms.bool(False)
+)
+
+process.hltMult100DblMu3 = cms.EDFilter("HLTHighLevel",
+                 TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
+                 HLTPaths = cms.vstring("HLT_PAPixelTrackMultiplicity100_L2DoubleMu3_v*"),
                  eventSetupPathsKey = cms.string(''),
                  andOr = cms.bool(True),
                  throw = cms.bool(False)
@@ -135,7 +143,7 @@ process.hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                                 dataSetName = cms.string(options.secondaryOutputFile),
                                 
                                 #--
-                                NumberOfTriggers = cms.uint32(6)
+                                NumberOfTriggers = cms.uint32(7)
                                 )
 
 

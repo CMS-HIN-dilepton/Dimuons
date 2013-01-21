@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.23.2.6 2013/01/18 14:37:55 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.23.2.7 2013/01/20 11:55:17 tdahms Exp $
 //
 //
 
@@ -478,6 +478,7 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig):
   HLTLastFilters[4] = "hltL3fL2sMu3L3Filtered3";                    // BIT HLT_PAMu3
   HLTLastFilters[5] = "hltL3fL2sMu7L3Filtered7";                    // BIT HLT_PAMu7
   HLTLastFilters[6] = "hltL3fL2sMu12L3Filtered12";                  // BIT HLT_PAMu12
+  HLTLastFilters[7] = "hltL2fL1sPAL2DoubleMu3L2Filtered3";          // BIT HLT_PAL2DoubleMu3
 
   theTriggerNames.push_back("NoTrigger");
   theTriggerNames.push_back("HLT_PAL1DoubleMuOpen_v1");
@@ -486,6 +487,7 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig):
   theTriggerNames.push_back("HLT_PAMu3_v1");
   theTriggerNames.push_back("HLT_PAMu7_v1");
   theTriggerNames.push_back("HLT_PAMu12_v1");
+  theTriggerNames.push_back("HLT_PAPixelTrackMultiplicity100_L2DoubleMu3_v1");
 
   etaMax = 2.4;
 
@@ -974,16 +976,16 @@ HiOniaAnalyzer::checkTriggers(const pat::CompositeCandidate* aJpsiCand) {
     
     bool pass1 = false;
     bool pass2 = false;
-    //    if (iTr<7) { // apparently matching by path gives false positives so we use matching by filter for all triggers for which we know the filter name
-    pass1 = mu1HLTMatchesFilter.size() > 0;
-    pass2 = mu2HLTMatchesFilter.size() > 0;
-    //    }
-    //    else {
-    //   pass1 = mu1HLTMatchesPath.size() > 0;
-    //   pass2 = mu2HLTMatchesPath.size() > 0;
-    // }
+    if (iTr<7) { // not sure the Multiplicity100_DoubleMu3 has the right filter name, so match by path for that one.
+      pass1 = mu1HLTMatchesFilter.size() > 0;
+      pass2 = mu2HLTMatchesFilter.size() > 0;
+    }
+    else {
+      pass1 = mu1HLTMatchesPath.size() > 0;
+      pass2 = mu2HLTMatchesPath.size() > 0;
+    }
 
-    if (iTr > 3) {  // single triggers here
+    if (iTr > 3 && iTr<7) {  // single triggers here
       isTriggerMatched[iTr] = pass1 || pass2;
     } else {        // double triggers here
       isTriggerMatched[iTr] = pass1 && pass2;
