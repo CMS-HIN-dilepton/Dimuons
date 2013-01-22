@@ -10,7 +10,8 @@ process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'GR_P_V43D::All'
+process.GlobalTag.globaltag = 'GR_E_V33::All'
+#process.GlobalTag.globaltag = 'GR_P_V43D::All'
 
 # Common offline event selection
 process.load("HeavyIonsAnalysis.Configuration.collisionEventSelection_cff")
@@ -26,7 +27,8 @@ process.hltOniaHI.HLTPaths = ["HLT_PAL1DoubleMuOpen_v*",
                               "HLT_PAL2DoubleMu3_v*",
                               "HLT_PAMu3_v*",
                               "HLT_PAMu7_v*",
-                              "HLT_PAMu12_v*"
+                              "HLT_PAMu12_v*",
+                              "HLT_PAPixelTrackMultiplicity100_L2DoubleMu3_v*"
                               ]
 process.hltOniaHI.throw = False
 process.hltOniaHI.andOr = True
@@ -40,7 +42,7 @@ onia2MuMuPAT(process, GlobalTag=process.GlobalTag.globaltag, MC=False, HLT="HLT"
 #process.onia2MuMuPatTrkTrk.resolvePileUpAmbiguity = False
 
 process.source.fileNames = cms.untracked.vstring(
-    '/store/group/phys_heavyions/icali/PAPhysics/pAPilotRun_Run202792GoodLumis_RAWRECO_L1Em_PrescaleActiveBitsSkimNoZB_CMSSW538HI_V94_FinalWorkflow_2MHz_v2_v1_v2/8737906f1c367f1d51881c1e107110a2/PAPhysics_RAWRECO_inRECO_10_1_V8P.root'
+    '/store/caf/user/tdahms/Data2013/pPb/ExpressSkims/Run_210498/pAMuonDimuon.root'
     )
 
 # filter on lumisections
