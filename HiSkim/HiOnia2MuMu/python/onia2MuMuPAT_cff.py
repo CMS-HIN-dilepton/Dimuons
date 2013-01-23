@@ -18,11 +18,34 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
 
     # Drop the DQM stuff on input
     process.source = cms.Source("PoolSource",
-        inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop *_hiEvtPlane_*_*"),
+        inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*"),
         fileNames = cms.untracked.vstring()
     )
-    # Merge CaloMuons and General Tracks into the collection of reco::Muons
+
+    # Scraping filter
+    process.scrapingFilter = cms.EDFilter("FilterOutScraping",
+        applyfilter = cms.untracked.bool(True),
+        debugOn = cms.untracked.bool(False),
+        numtrack = cms.untracked.uint32(10),
+        thresh = cms.untracked.double(0.25)
+    )
+
     IN_ACCEPTANCE = '(abs(eta) <= 1.3 && pt > 3.3) || (1.3 < abs(eta) <= 2.2 && p > 2.9) || (2.2 < abs(eta) <= 2.4 && pt > 0.8)'
+
+    # Merge muons, calomuons in a single collection for T&P
+    process.mergedMuons = cms.EDProducer("CaloMuonMerger",
+        muons     = cms.InputTag("muons"), 
+        muonsCut = cms.string(""),
+        mergeCaloMuons = cms.bool(True),  ### NEEDED TO RUN ON AOD
+        caloMuons = cms.InputTag("calomuons"),
+        caloMuonsCut = cms.string(IN_ACCEPTANCE),
+        minCaloCompatibility = cms.double(0.6),
+        mergeTracks = cms.bool(False),
+        tracks = cms.InputTag("generalTracks"),
+	tracksCut = cms.string(IN_ACCEPTANCE),
+    )
+
+
     # Prune generated particles to muons and their parents
     process.genMuons = cms.EDProducer("GenParticlePruner",
         src = cms.InputTag("genParticles"),
@@ -101,14 +124,13 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
     )
 
     # Make Tag and Probe pairs for efficiency measurements
-    TRACK_CUTS = "track.hitPattern.trackerLayersWithMeasurement > 1 && track.normalizedChi2 < 1.8 && track.hitPattern.pixelLayersWithMeasurement > 1"
-    GLB_CUTS = "isTrackerMuon && globalTrack.normalizedChi2 < 20 && abs(dB) < 3 && abs(track.dz) < 15  && muonID('TrackerMuonArbitrated') && muonID('TMOneStationTight')"
-#    QUALITY_CUTS = TRACK_CUTS + ' && ' + GLB_CUTS
+    TRACK_CUTS = "track.hitPattern.trackerLayersWithMeasurement > 5 && track.normalizedChi2 < 1.8 && track.hitPattern.pixelLayersWithMeasurement > 1 && abs(dB) < 3 && abs(track.dz) < 15"
+    GLB_CUTS = "isTrackerMuon && muonID('TrackerMuonArbitrated') && muonID('TMOneStationTight')"
     QUALITY_CUTS =  GLB_CUTS + ' && ' + TRACK_CUTS
 
     process.tagMuonsSglTrg = cms.EDFilter("PATMuonSelector",
                                        src = cms.InputTag("patMuonsWithTrigger"),
-                                       cut = cms.string(QUALITY_CUTS + ' && ' + IN_ACCEPTANCE + " && (!triggerObjectMatchesByPath('HLT_PAMu3_v*').empty() || !triggerObjectMatchesByPath('HLT_PAMu3_v*').empty() || !triggerObjectMatchesByPath('HLT_PAMu3_v*').empty())")
+                                       cut = cms.string(QUALITY_CUTS + ' && ' + IN_ACCEPTANCE + " && (!triggerObjectMatchesByPath('HLT_PAMu3_v*').empty() || !triggerObjectMatchesByPath('HLT_PAMu7_v*').empty() || !triggerObjectMatchesByPath('HLT_PAMu12_v*').empty())")
                                        )
 
     process.tagMuonsDblTrg = cms.EDFilter("PATMuonSelector",
@@ -125,7 +147,7 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
     # must be STA, so we can measure inner tracking efficiency
     process.probeMuonsSta = cms.EDFilter("PATMuonSelector",
                                          src = cms.InputTag("patMuonsWithTriggerSta"),
-                                         cut = cms.string("outerTrack.isNonnull && !triggerObjectMatchesByPath('HLT_PAL1DoubleMuOpen_v*').empty()")
+                                         cut = cms.string("outerTrack.isNonnull")
                                          )
 
     process.tpPairsSta = cms.EDProducer("CandViewShallowCloneCombiner",
@@ -148,7 +170,7 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
     # since we're using tracker muons this year, we should use calo muons as probes here
     process.probeMuonsTrk = cms.EDFilter("PATMuonSelector",
                                          src = cms.InputTag("patMuonsWithTrigger"),
-                                         cut = cms.string("isTrackerMuon && " + IN_ACCEPTANCE + " && " + TRACK_CUTS + " && !triggerObjectMatchesByPath('HLT_PAL1DoubleMuOpen_v*').empty()")
+                                         cut = cms.string("isCaloMuon && " + TRACK_CUTS)
                                          )
 
     process.tpPairsTracks = cms.EDProducer("CandViewShallowCloneCombiner",
