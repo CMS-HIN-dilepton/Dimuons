@@ -30,7 +30,7 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
         thresh = cms.untracked.double(0.25)
     )
 
-    IN_ACCEPTANCE = '(abs(eta) <= 1.3 && pt > 3.3) || (1.3 < abs(eta) <= 2.2 && p > 2.9) || (2.2 < abs(eta) <= 2.4 && pt > 0.8)'
+    IN_ACCEPTANCE = '((abs(eta) <= 1.3 && pt > 3.3) || (1.3 < abs(eta) <= 2.2 && p > 2.9) || (2.2 < abs(eta) <= 2.4 && pt > 0.8))'
 
     # Merge muons, calomuons in a single collection for T&P
     process.mergedMuons = cms.EDProducer("CaloMuonMerger",
@@ -124,9 +124,9 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
     )
 
     # Make Tag and Probe pairs for efficiency measurements
-    TRACK_CUTS = "track.hitPattern.trackerLayersWithMeasurement > 5 && track.normalizedChi2 < 1.8 && track.hitPattern.pixelLayersWithMeasurement > 1 && abs(dB) < 3 && abs(track.dz) < 15"
-    GLB_CUTS = "isTrackerMuon && muonID('TrackerMuonArbitrated') && muonID('TMOneStationTight')"
-    QUALITY_CUTS =  GLB_CUTS + ' && ' + TRACK_CUTS
+    TRACK_CUTS = "(track.hitPattern.trackerLayersWithMeasurement > 5 && track.normalizedChi2 < 1.8 && track.hitPattern.pixelLayersWithMeasurement > 1 && abs(dB) < 3 && abs(track.dz) < 15)"
+    GLB_CUTS = "(isTrackerMuon && muonID('TrackerMuonArbitrated') && muonID('TMOneStationTight'))"
+    QUALITY_CUTS =  "(" + GLB_CUTS + ' && ' + TRACK_CUTS + ")"
 
     process.tagMuonsSglTrg = cms.EDFilter("PATMuonSelector",
                                        src = cms.InputTag("patMuonsWithTrigger"),
