@@ -143,7 +143,23 @@ process.hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                                 dataSetName = cms.string(options.secondaryOutputFile),
                                 
                                 #--
-                                NumberOfTriggers = cms.uint32(8)
+                                # NumberOfTriggers = cms.uint32(8),
+                                dblTriggerPathNames = cms.vstring("HLT_PAL1DoubleMuOpen_v1",
+                                                                  "HLT_PAL1DoubleMu0_HighQ_v1",
+                                                                  "HLT_PAL2DoubleMu3_v1",
+                                                                  "HLT_PAPixelTrackMultiplicity100_L2DoubleMu3_v1"),
+                                dblTriggerFilterNames = cms.vstring("hltL1fL1sPAL1DoubleMuOpenL1Filtered0",
+                                                                    "hltL1fL1sPAL1DoubleMu0HighQL1FilteredHighQ",
+                                                                    "hltL2fL1sPAL2DoubleMu3L2Filtered3",
+                                                                    "hltL2fL1sPAL2DoubleMu3L2Filtered3"),
+                                sglTriggerPathNames = cms.vstring("HLT_PAMu3_v1",
+                                                                  "HLT_PAMu7_v1",
+                                                                  "HLT_PAMu12_v1"),
+                                sglTriggerFilterNames = cms.vstring("hltL3fL2sMu3L3Filtered3",
+                                                                    "hltL3fL2sMu7L3Filtered7",
+                                                                    "hltL3fL2sMu12L3Filtered12")
+
+
                                 )
 
 

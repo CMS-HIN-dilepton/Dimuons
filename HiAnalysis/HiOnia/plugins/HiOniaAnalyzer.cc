@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.23.2.9 2013/01/21 11:30:39 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.23.2.10 2013/01/21 13:29:59 tdahms Exp $
 //
 //
 
@@ -328,6 +328,10 @@ private:
   std::vector<double> _ptbinranges;
   std::vector<double> _etabinranges;
   std::vector<double> _centralityranges;
+  std::vector<string> _dblTriggerPathNames;
+  std::vector<string> _dblTriggerFilterNames;
+  std::vector<string> _sglTriggerPathNames;
+  std::vector<string> _sglTriggerFilterNames;
   bool           _onlythebest;
   bool           _applycuts;
   bool           _storeefficiency;
@@ -381,8 +385,10 @@ private:
 
  // Triger stuff
   // PUT HERE THE *LAST FILTERS* OF THE BITS YOU LIKE
-  static const unsigned int sNTRIGGERS = 10;
+  static const unsigned int sNTRIGGERS = 20;
   unsigned int NTRIGGERS;
+  unsigned int NTRIGGERS_DBL;
+
   // MC 8E29
   bool isTriggerMatched[sNTRIGGERS];
   std::string HLTLastFilters[sNTRIGGERS];
@@ -418,6 +424,10 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig):
   _ptbinranges(iConfig.getParameter< std::vector<double> >("pTBinRanges")),	
   _etabinranges(iConfig.getParameter< std::vector<double> >("etaBinRanges")),
   _centralityranges(iConfig.getParameter< std::vector<double> >("centralityRanges")),	
+  _dblTriggerPathNames(iConfig.getParameter< std::vector<string> >("dblTriggerPathNames")),
+  _dblTriggerFilterNames(iConfig.getParameter< std::vector<string> >("dblTriggerFilterNames")),
+  _sglTriggerPathNames(iConfig.getParameter< std::vector<string> >("sglTriggerPathNames")),
+  _sglTriggerFilterNames(iConfig.getParameter< std::vector<string> >("sglTriggerFilterNames")),
   _onlythebest(iConfig.getParameter<bool>("onlyTheBest")),		
   _applycuts(iConfig.getParameter<bool>("applyCuts")),			
   _storeefficiency(iConfig.getParameter<bool>("storeEfficiency")),	
@@ -437,7 +447,6 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig):
   _isMC(iConfig.getUntrackedParameter<bool>("isMC",false) ),
   _isPromptMC(iConfig.getUntrackedParameter<bool>("isPromptMC",true) ),
   _oniaPDG(iConfig.getParameter<int>("oniaPDG")),
-  NTRIGGERS(iConfig.getParameter<uint32_t>("NumberOfTriggers")),
   _iConfig(iConfig)
 {
    //now do what ever initialization is needed
@@ -467,28 +476,27 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig):
     theSign.push_back("mm");
   }
 
+  NTRIGGERS_DBL = _dblTriggerPathNames.size();
+  NTRIGGERS = NTRIGGERS_DBL + _sglTriggerPathNames.size() + 1; // + 1 for "NoTrigger"
+  cout << "NTRIGGERS_DBL = " << NTRIGGERS_DBL << "\t NTRIGGERS_SGL = " << _sglTriggerPathNames.size() << "\t NTRIGGERS = " << NTRIGGERS << endl;
+
   isTriggerMatched[0]=true; // first entry 'hardcoded' true to accept "all" events
+  HLTLastFilters[0] = "";
+  theTriggerNames.push_back("NoTrigger");
+
   for (unsigned int iTr = 1; iTr<NTRIGGERS; ++iTr) {
     isTriggerMatched[iTr] = false;
+
+    if (iTr<=NTRIGGERS_DBL) {
+      HLTLastFilters[iTr] = _dblTriggerFilterNames.at(iTr-1);
+      theTriggerNames.push_back(_dblTriggerPathNames.at(iTr-1));
+    }
+    else {
+      HLTLastFilters[iTr] = _sglTriggerFilterNames.at(iTr-NTRIGGERS_DBL-1);
+      theTriggerNames.push_back(_sglTriggerPathNames.at(iTr-NTRIGGERS_DBL-1));
+    }
+    cout<<" Trigger "<<iTr<<"\t"<<HLTLastFilters[iTr]<<endl;
   }
-
-  HLTLastFilters[0] = "";
-  HLTLastFilters[1] = "hltL1fL1sPAL1DoubleMuOpenL1Filtered0";       // BIT HLT_PAL1DoubleMuOpen
-  HLTLastFilters[2] = "hltL1fL1sPAL1DoubleMu0HighQL1FilteredHighQ"; // BIT HLT_PAL1DoubleMu0_HighQ
-  HLTLastFilters[3] = "hltL2fL1sPAL2DoubleMu3L2Filtered3";          // BIT HLT_PAL2DoubleMu3
-  HLTLastFilters[4] = "hltL3fL2sMu3L3Filtered3";                    // BIT HLT_PAMu3
-  HLTLastFilters[5] = "hltL3fL2sMu7L3Filtered7";                    // BIT HLT_PAMu7
-  HLTLastFilters[6] = "hltL3fL2sMu12L3Filtered12";                  // BIT HLT_PAMu12
-  HLTLastFilters[7] = "hltL2fL1sPAL2DoubleMu3L2Filtered3";          // BIT HLT_PAL2DoubleMu3
-
-  theTriggerNames.push_back("NoTrigger");
-  theTriggerNames.push_back("HLT_PAL1DoubleMuOpen_v1");
-  theTriggerNames.push_back("HLT_PAL1DoubleMu0_HighQ_v1");
-  theTriggerNames.push_back("HLT_PAL2DoubleMu3_v1");
-  theTriggerNames.push_back("HLT_PAMu3_v1");
-  theTriggerNames.push_back("HLT_PAMu7_v1");
-  theTriggerNames.push_back("HLT_PAMu12_v1");
-  theTriggerNames.push_back("HLT_PAPixelTrackMultiplicity100_L2DoubleMu3_v1");
 
   etaMax = 2.4;
 
@@ -986,7 +994,7 @@ HiOniaAnalyzer::checkTriggers(const pat::CompositeCandidate* aJpsiCand) {
       pass2 = mu2HLTMatchesPath.size() > 0;
     }
 
-    if (iTr > 3 && iTr<7) {  // single triggers here
+    if (iTr > NTRIGGERS_DBL) {  // single triggers here
       isTriggerMatched[iTr] = pass1 || pass2;
     } else {        // double triggers here
       isTriggerMatched[iTr] = pass1 && pass2;
@@ -1618,7 +1626,7 @@ HiOniaAnalyzer::beginJob()
   else
     myRecoGlbMuonHistos->Print();
 
-  hStats = new TH1F("hStats","hStats;;Number of Events",20,0,20);
+  hStats = new TH1F("hStats","hStats;;Number of Events",2*NTRIGGERS+1,0,2*NTRIGGERS+1);
   hStats->GetXaxis()->SetBinLabel(1,"All");
   for (int i=2; i< (int) theTriggerNames.size()+1; ++i) {
     hStats->GetXaxis()->SetBinLabel(i,theTriggerNames.at(i-1).c_str()); // event info

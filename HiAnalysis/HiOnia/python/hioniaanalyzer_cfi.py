@@ -40,5 +40,8 @@ hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                         dataSetName = cms.string("Jpsi_DataSet.root"),
                         
                         #--
-                        NumberOfTriggers = cms.uint32(2),
+                        dblTriggerPathNames    = cms.vstring(),
+                        dblTriggerFilterNames = cms.vstring(),
+                        sglTriggerPathNames    = cms.vstring(),
+                        sglTriggerFilterNames = cms.vstring()
                         )
