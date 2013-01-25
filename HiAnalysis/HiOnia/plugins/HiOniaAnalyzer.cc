@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.23.2.11 2013/01/24 19:11:35 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.23.2.12 2013/01/25 20:52:57 tdahms Exp $
 //
 //
 
@@ -105,14 +105,7 @@ private:
   TLorentzVector lorentzMomentum(const reco::Candidate::LorentzVector& p);
   // ----------member data ---------------------------
   enum StatBins {
-    BIN_nEvents = 0,
-    BIN_HLT_PAL1DoubleMuOpen = 1,
-    BIN_HLT_PAL1DoubleMu0_HighQ = 2,
-    BIN_HLT_PAL2DoubleMu3 = 3,
-    BIN_HLT_PAMu3 = 4,
-    BIN_HLT_PAMu7 = 5,
-    BIN_HLT_PAMu12 = 6,
-    BIN_HLT_PAPixelTrackMultiplicity100_L2DoubleMu3 = 7
+    BIN_nEvents = 0
   };
 
   enum dimuonCategories {
