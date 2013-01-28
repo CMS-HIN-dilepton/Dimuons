@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.23.2.12 2013/01/25 20:52:57 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.23.2.13 2013/01/25 20:57:30 tdahms Exp $
 //
 //
 
@@ -298,6 +298,7 @@ private:
   CentralityProvider* centrality_;
   int centBin;
   int theCentralityBin;
+  int Ntracks;
 
   // handles
   edm::Handle<pat::CompositeCandidateCollection> collJpsi;
@@ -315,6 +316,7 @@ private:
   edm::InputTag       _genParticle;
   edm::InputTag       _thePVs;
   edm::InputTag       _tagTriggerResults;
+  edm::InputTag       _tagCentrality;
   std::string         _histfilename;
   std::string         _datasetname;
 
@@ -412,6 +414,7 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig):
   _genParticle(iConfig.getParameter<edm::InputTag>("genParticles")),
   _thePVs(iConfig.getParameter<edm::InputTag>("primaryVertexTag")),
   _tagTriggerResults(iConfig.getParameter<edm::InputTag>("triggerResultsLabel")),
+  _tagCentrality(iConfig.getParameter<edm::InputTag>("srcCentrality")),
   _histfilename(iConfig.getParameter<std::string>("histFileName")),		
   _datasetname(iConfig.getParameter<std::string>("dataSetName")),		
   _ptbinranges(iConfig.getParameter< std::vector<double> >("pTBinRanges")),	
@@ -574,11 +577,14 @@ HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   if (_isHI || _isPA) {
+    edm::Handle<reco::Centrality> collCentrality;
+    iEvent.getByLabel(_tagCentrality,collCentrality);
+
     if(!centrality_) centrality_ = new CentralityProvider(iSetup);
     centrality_->newEvent(iEvent,iSetup); // make sure you do this first in every event
     centBin = centrality_->getBin();
     hCent->Fill(centBin);
-
+    
     for (unsigned int iCent=0; iCent<_centralityranges.size(); ++iCent) {
       if ( (_isHI && centBin<_centralityranges.at(iCent)/2.5) ||
 	   (_isPA && centBin<_centralityranges.at(iCent)) ) {
@@ -586,10 +592,12 @@ HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	break;
       }
     }
+    Ntracks = collCentrality->Ntracks();
   }
   else {
     centBin = 0;
     theCentralityBin=0;
+    Ntracks = 0;
   }
 
   if (_isHI) {
@@ -980,14 +988,15 @@ HiOniaAnalyzer::checkTriggers(const pat::CompositeCandidate* aJpsiCand) {
     
     bool pass1 = false;
     bool pass2 = false;
-    if (iTr<7) { // not sure the Multiplicity100_DoubleMu3 has the right filter name, so match by path for that one.
-      pass1 = mu1HLTMatchesFilter.size() > 0;
-      pass2 = mu2HLTMatchesFilter.size() > 0;
-    }
-    else {
-      pass1 = mu1HLTMatchesPath.size() > 0;
-      pass2 = mu2HLTMatchesPath.size() > 0;
-    }
+    //    if (iTr != NTRIGGERS_DBL) { // not sure the Multiplicity100_DoubleMu3 has the right filter name, so match by path for that one.
+    pass1 = mu1HLTMatchesFilter.size() > 0;
+    pass2 = mu2HLTMatchesFilter.size() > 0;
+    /*    }
+	  else {
+	  pass1 = mu1HLTMatchesPath.size() > 0;
+	  pass2 = mu2HLTMatchesPath.size() > 0;
+	  }
+    */
 
     if (iTr > NTRIGGERS_DBL) {  // single triggers here
       isTriggerMatched[iTr] = pass1 || pass2;
@@ -1432,6 +1441,7 @@ HiOniaAnalyzer::InitTree()
   myTree->Branch("zVtx",    &zVtx,        "zVtx/F"); 
   myTree->Branch("HLTriggers", &HLTriggers, "HLTriggers/I");
   myTree->Branch("Centrality", &centBin, "Centrality/I");
+  myTree->Branch("Ntracks", &Ntracks, "Ntracks/I");
 
   if (_isHI) {
     myTree->Branch("nEP", &nEP, "nEP/I");

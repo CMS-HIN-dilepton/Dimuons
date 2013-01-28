@@ -20,8 +20,8 @@ process.MessageLogger.destinations = ['cout', 'cerr']
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'GR_E_V33::All' # express reco
-#process.GlobalTag.globaltag = 'GR_P_V43D::All' # prompt reco
+#process.GlobalTag.globaltag = 'GR_E_V33::All' # express reco
+process.GlobalTag.globaltag = 'GR_P_V43D::All' # prompt reco
 
 from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import *
 overrideCentrality(process)
@@ -105,7 +105,8 @@ process.hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                                 genParticles = cms.InputTag("genParticles"),
                                 primaryVertexTag = cms.InputTag("offlinePrimaryVertices"),
                                 triggerResultsLabel = cms.InputTag("TriggerResults","","HLT"),
-
+                                srcCentrality = cms.InputTag("pACentrality"),
+                                
                                 #-- Reco Details
                                 useBeamSpot = cms.bool(False),
                                 useRapidity = cms.bool(True),
