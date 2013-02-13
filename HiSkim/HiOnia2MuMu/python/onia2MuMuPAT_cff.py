@@ -170,7 +170,8 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
     # since we're using tracker muons this year, we should use calo muons as probes here
     process.probeMuonsTrk = cms.EDFilter("PATMuonSelector",
                                          src = cms.InputTag("patMuonsWithTrigger"),
-                                         cut = cms.string("isCaloMuon && " + TRACK_CUTS)
+                                         #cut = cms.string("isCaloMuon && " + TRACK_CUTS)
+                                         cut = cms.string("caloCompatibility>0.6 && innerTrack.isNonnull && " + TRACK_CUTS)
                                          )
 
     process.tpPairsTracks = cms.EDProducer("CandViewShallowCloneCombiner",
