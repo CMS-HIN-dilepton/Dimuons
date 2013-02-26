@@ -11,8 +11,9 @@ process = cms.Process("Onia2MuMuPAT")
 options = VarParsing.VarParsing ('analysis')
 
 # setup any defaults you want
+options.inputFiles = '/store/hidata/HIRun2013/PAMuon/RECO/PromptReco-v1/000/210/498/00000/C08874D8-F364-E211-9A31-BCAEC518FF67.root'
 options.outputFile = 'onia2MuMuPAT.root'
-options.inputFiles = '/store/caf/user/tdahms/Data2013/pPb/ExpressSkims/Run_210498/pAMuonDimuon.root'
+
 options.maxEvents = -1 # -1 means all events
 
 # get and parse the command line arguments
@@ -22,11 +23,15 @@ process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'GR_E_V33::All'
-#process.GlobalTag.globaltag = 'GR_P_V43D::All'
+#process.GlobalTag.globaltag = 'GR_E_V33::All'    # express
+process.GlobalTag.globaltag = 'GR_P_V43D::All'    # prompt 
+#process.GlobalTag.globaltag = 'GR_R_53_V19::All' # analysis?
 
 # Common offline event selection
 process.load("HeavyIonsAnalysis.Configuration.collisionEventSelection_cff")
+
+# pile up rejection
+process.load('Appeltel.RpPbAnalysis.PAPileUpVertexFilter_cff')
 
 # Centrality for pPb
 process.load('RecoHI.HiCentralityAlgos.HiCentrality_cfi')
@@ -53,6 +58,14 @@ onia2MuMuPAT(process, GlobalTag=process.GlobalTag.globaltag, MC=False, HLT="HLT"
 #process.onia2MuMuPatTrkTrk.addMuonlessPrimaryVertex = False
 #process.onia2MuMuPatTrkTrk.resolvePileUpAmbiguity = False
 
+process.patMuonSequence = cms.Sequence(
+    process.hltOniaHI *
+    process.PAcollisionEventSelection *
+    process.pileupVertexFilterCutGplus * 
+    process.pACentrality_step *
+    process.patMuonsWithTriggerSequence
+    )
+
 process.source.fileNames = cms.untracked.vstring(
     options.inputFiles
     )
@@ -63,11 +76,12 @@ process.source.fileNames = cms.untracked.vstring(
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 process.outOnia2MuMu.fileName = cms.untracked.string( options.outputFile )
-process.pACentrality_step = cms.Path(process.hltOniaHI*process.PAcollisionEventSelection*process.pACentrality)
+
+#process.pACentrality.producePixelhits = cms.bool(False)
 
 process.e = cms.EndPath(process.outOnia2MuMu)
 
-process.schedule = cms.Schedule(process.pACentrality_step,
-                                process.Onia2MuMuPAT,process.e)
+process.schedule = cms.Schedule(process.Onia2MuMuPAT,
+                                process.e)
 
 
