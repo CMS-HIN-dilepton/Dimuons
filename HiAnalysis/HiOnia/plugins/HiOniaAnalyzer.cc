@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.23.2.13 2013/01/25 20:57:30 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.23.2.14 2013/01/28 23:52:35 tdahms Exp $
 //
 //
 
@@ -298,7 +298,9 @@ private:
   CentralityProvider* centrality_;
   int centBin;
   int theCentralityBin;
-  int Ntracks;
+  int Npix, NpixelTracks, Ntracks;
+  float SumET_HF, SumET_HFplus, SumET_HFminus, SumET_HFplusEta4, SumET_HFminusEta4, SumET_EB, SumET_ET, SumET_EE, SumET_EEplus, SumET_EEminus, SumET_ZDC, SumET_ZDCplus, SumET_ZDCminus;
+
 
   // handles
   edm::Handle<pat::CompositeCandidateCollection> collJpsi;
@@ -592,12 +594,46 @@ HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	break;
       }
     }
+
+    Npix = collCentrality->multiplicityPixel();
+    NpixelTracks = collCentrality->NpixelTracks();
     Ntracks = collCentrality->Ntracks();
+
+    SumET_HF = collCentrality->EtHFtowerSum();
+    SumET_HFplus = collCentrality->EtHFtowerSumPlus();
+    SumET_HFminus = collCentrality->EtHFtowerSumMinus();
+    SumET_HFplusEta4 = collCentrality->EtHFtruncatedPlus();
+    SumET_HFminusEta4 = collCentrality->EtHFtruncatedMinus();
+    SumET_ZDC = collCentrality->zdcSum();
+    SumET_ZDCplus = collCentrality->zdcSumPlus();
+    SumET_ZDCminus = collCentrality->zdcSumMinus();
+    SumET_EEplus = collCentrality->EtEESumPlus();
+    SumET_EEminus = collCentrality->EtEESumMinus();
+    SumET_EE = collCentrality->EtEESum();
+    SumET_EB = collCentrality->EtEBSum();
+    SumET_ET = collCentrality->EtMidRapiditySum();
   }
   else {
     centBin = 0;
     theCentralityBin=0;
+
+    Npix = 0;
+    NpixelTracks = 0;
     Ntracks = 0;
+
+    SumET_HF = 0;
+    SumET_HFplus = 0;
+    SumET_HFminus = 0;
+    SumET_HFplusEta4 = 0;
+    SumET_HFminusEta4 = 0;
+    SumET_ZDC = 0;
+    SumET_ZDCplus = 0;
+    SumET_ZDCminus = 0;
+    SumET_EEplus = 0;
+    SumET_EEminus = 0;
+    SumET_EE = 0;
+    SumET_EB = 0;
+    SumET_ET = 0;
   }
 
   if (_isHI) {
@@ -1441,7 +1477,23 @@ HiOniaAnalyzer::InitTree()
   myTree->Branch("zVtx",    &zVtx,        "zVtx/F"); 
   myTree->Branch("HLTriggers", &HLTriggers, "HLTriggers/I");
   myTree->Branch("Centrality", &centBin, "Centrality/I");
+
+  myTree->Branch("Npix",&Npix,"Npix/I");
+  myTree->Branch("NpixelTracks",&NpixelTracks,"NpixelTracks/I");
   myTree->Branch("Ntracks", &Ntracks, "Ntracks/I");
+  myTree->Branch("SumET_HF",&SumET_HF,"SumET_HF/F");
+  myTree->Branch("SumET_HFplus",&SumET_HFplus,"SumET_HFplus/F");
+  myTree->Branch("SumET_HFminus",&SumET_HFminus,"SumET_HFminus/F");
+  myTree->Branch("SumET_HFplusEta4",&SumET_HFplusEta4,"SumET_HFplusEta4/F");
+  myTree->Branch("SumET_HFminusEta4",&SumET_HFminusEta4,"SumET_HFminusEta4/F");
+  myTree->Branch("SumET_ET",&SumET_ET,"SumET_ET/F");
+  myTree->Branch("SumET_EE",&SumET_EE,"SumET_EE/F");
+  myTree->Branch("SumET_EB",&SumET_EB,"SumET_EB/F");
+  myTree->Branch("SumET_EEplus",&SumET_EEplus,"SumET_EEplus/F");
+  myTree->Branch("SumET_EEminus",&SumET_EEminus,"SumET_EEminus/F");
+  myTree->Branch("SumET_ZDC",&SumET_ZDC,"SumET_ZDC/F");
+  myTree->Branch("SumET_ZDCplus",&SumET_ZDCplus,"SumET_ZDCplus/F");
+  myTree->Branch("SumET_ZDCminus",&SumET_ZDCminus,"SumET_ZDCminus/F");
 
   if (_isHI) {
     myTree->Branch("nEP", &nEP, "nEP/I");
