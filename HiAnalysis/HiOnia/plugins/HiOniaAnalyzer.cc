@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.23.2.14 2013/01/28 23:52:35 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.23.2.15 2013/03/05 12:17:23 tdahms Exp $
 //
 //
 
@@ -56,6 +56,9 @@
 
 // adding Event Plane by dmoon 
 #include "DataFormats/HeavyIonEvent/interface/EvtPlane.h"
+
+// delta R
+#include "DataFormats/Math/interface/deltaR.h"
 
 //
 // class declaration
@@ -172,6 +175,10 @@ private:
   float Reco_QQ_ctauTrue[100];// true ctau
   float Reco_QQ_dca[100];
   float Reco_QQ_MassErr[100];
+
+  int  Reco_QQ_NtrkDeltaR03[100];
+  int  Reco_QQ_NtrkDeltaR04[100];
+  int  Reco_QQ_NtrkDeltaR05[100];
 
   bool Reco_QQ_mupl_TrkMuArb[100];      // Vector of TrackerMuonArbitrated for plus muon
   bool Reco_QQ_mumi_TrkMuArb[100];      // Vector of TrackerMuonArbitrated for minus muon
@@ -306,6 +313,7 @@ private:
   edm::Handle<pat::CompositeCandidateCollection> collJpsi;
   edm::Handle<pat::MuonCollection> collMuon;
   edm::Handle<pat::MuonCollection> collMuonNoTrig;
+  edm::Handle<reco::TrackCollection> collTracks;
 
   edm::Handle<reco::GenParticleCollection> collGenParticles;
 
@@ -315,6 +323,7 @@ private:
   edm::InputTag       _patMuon;
   edm::InputTag       _patMuonNoTrig;
   edm::InputTag       _patJpsi;
+  edm::InputTag       _recoTracks;
   edm::InputTag       _genParticle;
   edm::InputTag       _thePVs;
   edm::InputTag       _tagTriggerResults;
@@ -377,6 +386,9 @@ private:
   float JpsiRapMax;          // LIMITS 
 
   math::XYZPoint RefVtx;
+  float RefVtx_xError;
+  float RefVtx_yError;
+  float RefVtx_zError;
   float zVtx;
   float nPV;
 
@@ -413,6 +425,7 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig):
   _patMuon(iConfig.getParameter<edm::InputTag>("srcMuon")),
   _patMuonNoTrig(iConfig.getParameter<edm::InputTag>("srcMuonNoTrig")),
   _patJpsi(iConfig.getParameter<edm::InputTag>("src")),
+  _recoTracks(iConfig.getParameter<edm::InputTag>("srcTracks")),
   _genParticle(iConfig.getParameter<edm::InputTag>("genParticles")),
   _thePVs(iConfig.getParameter<edm::InputTag>("primaryVertexTag")),
   _tagTriggerResults(iConfig.getParameter<edm::InputTag>("triggerResultsLabel")),
@@ -559,8 +572,14 @@ HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   if ( privtxs->begin() != privtxs->end() ) {
     privtx=privtxs->begin();
     RefVtx = privtx->position();
+    RefVtx_xError = privtx->xError();
+    RefVtx_yError = privtx->yError();
+    RefVtx_zError = privtx->zError();
   } else {
     RefVtx.SetXYZ(0.,0.,0.);
+    RefVtx_xError = 0.0;
+    RefVtx_yError = 0.0;
+    RefVtx_zError = 0.0;
   }
 
   zVtx = RefVtx.Z();
@@ -669,6 +688,7 @@ HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel(_patJpsi,collJpsi); 
   iEvent.getByLabel(_patMuon,collMuon);
   iEvent.getByLabel(_patMuonNoTrig,collMuonNoTrig);
+  iEvent.getByLabel(_recoTracks,collTracks);
 
   if (_isMC) {
     iEvent.getByLabel(_genParticle,collGenParticles);
@@ -926,6 +946,36 @@ HiOniaAnalyzer::fillTreeJpsi(int iSign, int count) {
   Reco_QQ_VtxProb[Reco_QQ_size] = aJpsiCand->userFloat("vProb");
   Reco_QQ_dca[Reco_QQ_size] = aJpsiCand->userFloat("DCA");
   Reco_QQ_MassErr[Reco_QQ_size] = aJpsiCand->userFloat("MassErr");
+
+  Reco_QQ_NtrkDeltaR03[Reco_QQ_size]=0;
+  Reco_QQ_NtrkDeltaR04[Reco_QQ_size]=0;
+  Reco_QQ_NtrkDeltaR05[Reco_QQ_size]=0;
+
+  if (collTracks.isValid()) {
+    for(std::vector<reco::Track>::const_iterator it=collTracks->begin();
+	it!=collTracks->end(); ++it) {
+      const reco::Track* track = &(*it);	
+
+       double dz = track->dz(RefVtx);
+       double dzsigma = sqrt(track->dzError()*track->dzError()+RefVtx_zError*RefVtx_zError);    
+       double dxy = track->dxy(RefVtx);
+       double dxysigma = sqrt(track->dxyError()*track->dxyError()+RefVtx_xError*RefVtx_xError+RefVtx_yError*RefVtx_yError);
+
+       if( track->qualityByName("highPurity") &&
+	   track->pt()>0.4 && fabs(track->eta())<2.4 &&
+	   track->ptError()/track->pt()<0.1 && 
+	   fabs(dz/dzsigma)<3.0 && fabs(dxy/dxysigma)<3.0)  {
+	 double Reco_QQ_NtrkDeltaR = deltaR(aJpsiCand->eta(), aJpsiCand->phi(), track->eta(), track->phi());
+	 if (Reco_QQ_NtrkDeltaR<0.3)
+	   Reco_QQ_NtrkDeltaR03[Reco_QQ_size]++;
+	 if (Reco_QQ_NtrkDeltaR<0.4)
+	   Reco_QQ_NtrkDeltaR04[Reco_QQ_size]++;
+	 if (Reco_QQ_NtrkDeltaR<0.5)
+	   Reco_QQ_NtrkDeltaR05[Reco_QQ_size]++;
+       }
+    }
+  }
+
 
   Reco_QQ_size++;
   return;
@@ -1495,6 +1545,7 @@ HiOniaAnalyzer::InitTree()
   myTree->Branch("SumET_ZDCplus",&SumET_ZDCplus,"SumET_ZDCplus/F");
   myTree->Branch("SumET_ZDCminus",&SumET_ZDCminus,"SumET_ZDCminus/F");
 
+
   if (_isHI) {
     myTree->Branch("nEP", &nEP, "nEP/I");
     myTree->Branch("nNfEP", &nNfEP, "nNfEP/I");
@@ -1519,6 +1570,10 @@ HiOniaAnalyzer::InitTree()
   myTree->Branch("Reco_QQ_VtxProb", Reco_QQ_VtxProb,   "Reco_QQ_VtxProb[Reco_QQ_size]/F");
   myTree->Branch("Reco_QQ_dca", Reco_QQ_dca,   "Reco_QQ_dca[Reco_QQ_size]/F");
   myTree->Branch("Reco_QQ_MassErr", Reco_QQ_MassErr,   "Reco_QQ_MassErr[Reco_QQ_size]/F");
+
+  myTree->Branch("Reco_QQ_NtrkDeltaR03", Reco_QQ_NtrkDeltaR03, "Reco_QQ_NtrkDeltaR03[Reco_QQ_size]/I");
+  myTree->Branch("Reco_QQ_NtrkDeltaR04", Reco_QQ_NtrkDeltaR04, "Reco_QQ_NtrkDeltaR04[Reco_QQ_size]/I");
+  myTree->Branch("Reco_QQ_NtrkDeltaR05", Reco_QQ_NtrkDeltaR05, "Reco_QQ_NtrkDeltaR05[Reco_QQ_size]/I");
 
   if (!_theMinimumFlag) {
     myTree->Branch("Reco_QQ_mupl_TrkMuArb", Reco_QQ_mupl_TrkMuArb,   "Reco_QQ_mupl_TrkMuArb[Reco_QQ_size]/O");

@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                         src = cms.InputTag("onia2MuMuPatTrkTrk"),
+                        srcTracks = cms.InputTag("srcTracks"),
                         genParticles = cms.InputTag("genMuons"),
                         primaryVertexTag = cms.InputTag("hiSelectedVertex"),
                         triggerResultsLabel = cms.InputTag("TriggerResults"),
