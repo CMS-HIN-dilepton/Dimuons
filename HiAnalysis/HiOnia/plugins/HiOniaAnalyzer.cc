@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.23.2.15 2013/03/05 12:17:23 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.23.2.16 2013/03/14 18:26:26 tdahms Exp $
 //
 //
 
@@ -965,6 +965,24 @@ HiOniaAnalyzer::fillTreeJpsi(int iSign, int count) {
 	   track->pt()>0.4 && fabs(track->eta())<2.4 &&
 	   track->ptError()/track->pt()<0.1 && 
 	   fabs(dz/dzsigma)<3.0 && fabs(dxy/dxysigma)<3.0)  {
+
+	 if (iTrack_mupl->charge()==track->charge()) {
+	   double Reco_QQ_mupl_NtrkDeltaR = deltaR(iTrack_mupl->eta(), iTrack_mupl->phi(), track->eta(), track->phi());
+	   double Reco_QQ_mupl_RelDelPt = abs(1.0 - iTrack_mupl->pt()/track->pt());
+
+	   if ( Reco_QQ_mupl_NtrkDeltaR<0.001 &&
+		Reco_QQ_mupl_RelDelPt<0.001 )
+	     continue;
+	 }
+	 else {
+	   double Reco_QQ_mumi_NtrkDeltaR = deltaR(iTrack_mumi->eta(), iTrack_mumi->phi(), track->eta(), track->phi());
+	   double Reco_QQ_mumi_RelDelPt = abs(1.0 - iTrack_mumi->pt()/track->pt());
+
+	   if ( Reco_QQ_mumi_NtrkDeltaR<0.001 &&
+		Reco_QQ_mumi_RelDelPt<0.001 ) 
+	     continue;
+	 }
+
 	 double Reco_QQ_NtrkDeltaR = deltaR(aJpsiCand->eta(), aJpsiCand->phi(), track->eta(), track->phi());
 	 if (Reco_QQ_NtrkDeltaR<0.3)
 	   Reco_QQ_NtrkDeltaR03[Reco_QQ_size]++;
