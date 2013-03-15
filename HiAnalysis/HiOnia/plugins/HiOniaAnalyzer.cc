@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.23.2.16 2013/03/14 18:26:26 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.23.2.17 2013/03/15 10:14:41 tdahms Exp $
 //
 //
 
@@ -1373,9 +1373,9 @@ HiOniaAnalyzer::fillGenInfo()
 	    new((*Gen_QQ_mupl_4mom)[Gen_QQ_size])TLorentzVector(vMuon2);
 	    new((*Gen_QQ_mumi_4mom)[Gen_QQ_size])TLorentzVector(vMuon1);
 	  }
+
+	  Gen_QQ_size++;
 	}
-	
-	Gen_QQ_size++;
       }
 
       if (abs(gen->pdgId()) == 13  && gen->status() == 1) {
