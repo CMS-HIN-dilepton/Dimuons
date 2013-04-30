@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 onia2MuMuPAT = cms.EDProducer('Onia2MuMuPAT',
   muons = cms.InputTag("patMuons"),
   beamSpotTag = cms.InputTag("offlineBeamSpot"),
-#  primaryVertexTag = cms.InputTag("offlinePrimaryVertices"),
   primaryVertexTag = cms.InputTag("hiSelectedVertex"),
   higherPuritySelection = cms.string("isGlobalMuon"), ## At least one muon must pass this selection
   lowerPuritySelection  = cms.string("isGlobalMuon"), ## BOTH muons must pass this selection

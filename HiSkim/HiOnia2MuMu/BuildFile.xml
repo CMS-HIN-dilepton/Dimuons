@@ -5,7 +5,6 @@
 <use   name="rootmath"/>
 <use   name="rootcore"/>
 <use   name="roofit"/>
-<flags   EDM_PLUGIN="1"/>
 <use   name="hepmc"/>
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="DataFormats/HepMCCandidate"/>
@@ -35,3 +34,8 @@
 <use   name="PhysicsTools/PatUtils"/>
 <use   name="PhysicsTools/UtilAlgos"/>
 <use   name="PhysicsTools/Utilities"/>
+<use   name="MuonAnalysis/MuonAssociators"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="CondFormats/RecoMuonObjects"/>
+<use   name="TrackingTools/IPTools"/>
+<flags   EDM_PLUGIN="1"/>

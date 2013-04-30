@@ -7,20 +7,19 @@ function command(){
 
 workDir=$PWD  
                                                                        
-logDir=${workDir}"/BATCHJOBS/v1h0/"
+logDir=${workDir}"/BATCHJOBS/v0h0/"
 command "mkdir -p $logDir"
 
-castorDirOut="/store/caf/user/tdahms/HeavyIons/Data2011/pp/v1/Skims/ReReco/"
+castorDirOut="/store/caf/user/tdahms/Data2013/pPb/ExpressSkims/Runs_210498-210638/Skim/"
 #command "cmsMkdir -p $castorDirOut"
 
 
 j=0
 jobNb=""
 
-for fileList in `ls ppFiles_??`
+for fileList in `ls express_runs_210498-210638_??`
 do
     echo $fileList;
-    # file="MC_PromptJpsi_FEVTDEBUGHLT_"${i}".root"
     jobNb=${j};
     let j=${j}+1;
     name="onia2MuMuPAT_${jobNb}"
@@ -37,32 +36,28 @@ function command(){
 }
 
 
-workDir=$PWD  
-logDir="${logDir}"
-castorDirOut="${castorDirOut}"
-
-cd /afs/cern.ch/user/t/tdahms/scratch0/devel/CMSSW_4_4_2_patch5/src/
+cd ${CMSSW_BASE}/src
 eval \`scramv1 runtime -sh\`
-source /afs/cern.ch/cms/caf/setup.sh
 cd -
-cp /afs/cern.ch/user/t/tdahms/scratch0/devel/CMSSW_4_4_2_patch5/src/HiSkim/HiOnia2MuMu/test/onia2MuMuPAT_pp_lowMass_cfg.py .
-cp /afs/cern.ch/user/t/tdahms/scratch0/devel/CMSSW_4_4_2_patch5/src/HiSkim/HiOnia2MuMu/test/${fileList} .
+cp ${workDir}/onia2MuMuPAT_pAData_cfg.py tmp.py
+cp ${workDir}/${fileList} .
 echo "before running cmsRun"
 ls -l
 
-command "cmsRun onia2MuMuPAT_pp_lowMass_cfg.py inputFiles_clear inputFiles_load=${fileList} print 2>&1 | tee -a $logDir${name}.log"
+command "cmsRun tmp.py inputFiles_clear inputFiles_load=${fileList} print 2>&1 | tee -a $logDir${name}.log"
 
 echo "after running cmsRun"
 ls -l
 
-command "cmsStage onia2MuMuPAT_lowmass.root ${castorDirOut}${outfilename}"
-
+command "cmsStage onia2MuMuPAT.root ${castorDirOut}${outfilename}"
 command "gzip -f $logDir${name}.log"
+command "rm -f tmp.py"
+command "rm -f ${fileList}"
 
 EOF
 
 	chmod 755 job_Onia2MuMu_EOS_${jobNb}.sh
 	
-	bsub -q 1nd -J $name /afs/cern.ch/user/t/tdahms/scratch0/devel/CMSSW_4_4_2_patch5/src/HiSkim/HiOnia2MuMu/test/job_Onia2MuMu_EOS_${jobNb}.sh
+	bsub -q cmscaf1nd -J $name ${workDir}/job_Onia2MuMu_EOS_${jobNb}.sh
 
 done
