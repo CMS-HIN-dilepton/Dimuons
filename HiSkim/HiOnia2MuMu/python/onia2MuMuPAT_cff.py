@@ -170,15 +170,16 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
                                      )
 
     # must be tracker muon, so we can measure the muon reco efficiency
-    # for PbPb: had originally a matching to DobuleMu0 here, but that makes no sense as it biases the muon reco efficiency
+    # for PbPb: had originally a matching to DoubleMu0 here, but that makes no sense as it biases the muon reco efficiency
     process.probeMuonsTrk = cms.EDFilter("PATMuonSelector",
                                          src = cms.InputTag("patMuonsWithTrigger"),
                                          cut = cms.string("isTrackerMuon && " + IN_ACCEPTANCE + " && " + TRACK_CUTS)
                                          )
 
+    # for PbPb: had originally a tagMuonsDblTrg here, but that makes no sense as it biases the muon reco efficiency
     process.tpPairsTracks = cms.EDProducer("CandViewShallowCloneCombiner",
                                            cut = cms.string('2.6 < mass < 4.0'),
-                                           decay = cms.string('tagMuonsDblTrg@+ probeMuonsTrk@-')
+                                           decay = cms.string('tagMuonsSglTrg@+ probeMuonsTrk@-')
                                            )
 
     # check if there is at least one Tag and Probe pair
@@ -274,6 +275,7 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
         'keep *_hiCentrality_*_*',
         'keep *_hiSelectedTracks_*_*',
         'keep *_hiEvtPlane_*_*',                               # for v2 analysis
+        'keep *_hiEvtPlaneFlat_*_*',                           # for v2 analysis
         'keep *_standAloneMuons_*_*')
                             ),
 
@@ -305,6 +307,7 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
             'keep *_hiCentrality_*_*',
             'keep *_hiSelectedTracks_*_*',
             'keep *_hiEvtPlane_*_*',                               # for v2 analysis
+            'keep *_hiEvtPlaneFlat_*_*',                           # for v2 analysis
             'keep *_standAloneMuons_*_*'                           # standAloneMuon track collection, to be on the safe side
         ),
         SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('TagAndProbeSta','TagAndProbeMuID','TagAndProbeTrig') ) if Filter else cms.untracked.PSet()
