@@ -2,9 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                         src = cms.InputTag("onia2MuMuPatTrkTrk"),
+                        srcTracks = cms.InputTag("srcTracks"),
                         genParticles = cms.InputTag("genMuons"),
                         primaryVertexTag = cms.InputTag("hiSelectedVertex"),
-                        
+                        triggerResultsLabel = cms.InputTag("TriggerResults"),
+                        srcCentrality = cms.InputTag("hiCentrality"),
+
                         #-- Reco Details
                         useBeamSpot = cms.bool(False),
                         useRapidity = cms.bool(True),
@@ -26,15 +29,21 @@ hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                         #-- Gen Details
                         oniaPDG = cms.int32(443),
                         isHI = cms.untracked.bool(True),
+                        isPA = cms.untracked.bool(False),
                         isMC = cms.untracked.bool(False),
-                        isPromptMC = cms.untracked.bool(True),
+                        isPromptMC = cms.untracked.bool(False),
 
                         #-- Histogram configuration
                         combineCategories = cms.bool(False),
                         fillRooDataSet = cms.bool(False),
+                        fillTree = cms.bool(True),
+                        fillHistos = cms.bool(True),
                         histFileName = cms.string("Jpsi_Histos.root"),		
                         dataSetName = cms.string("Jpsi_DataSet.root"),
                         
                         #--
-                        NumberOfTriggers = cms.uint32(2),
+                        dblTriggerPathNames    = cms.vstring(),
+                        dblTriggerFilterNames = cms.vstring(),
+                        sglTriggerPathNames    = cms.vstring(),
+                        sglTriggerFilterNames = cms.vstring()
                         )

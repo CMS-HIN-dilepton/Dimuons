@@ -265,7 +265,7 @@ MyCommonHistograms::Fill(const reco::Candidate *p) {
 
   double theCentrality;
   double theCtau;
-  double theCtauErr;
+  //  double theCtauErr;
 
   if (hName.find("Jpsi")!=std::string::npos) {
     const pat::CompositeCandidate * cand = dynamic_cast<const pat::CompositeCandidate*> (p->clone());
@@ -274,7 +274,7 @@ MyCommonHistograms::Fill(const reco::Candidate *p) {
     hCent_Mass->Fill(p->mass(), theCentrality);
 
     theCtau = 10.0*cand->userFloat("ppdlPV");
-    theCtauErr = 10.0*cand->userFloat("ppdlErrPV");
+    //    theCtauErr = 10.0*cand->userFloat("ppdlErrPV");
   
     
     hCtau_Mass->Fill(p->mass(), theCtau);
