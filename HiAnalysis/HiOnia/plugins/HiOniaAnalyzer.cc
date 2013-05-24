@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.23.2.17 2013/03/15 10:14:41 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.23.2.18 2013/03/15 10:20:51 tdahms Exp $
 //
 //
 
@@ -142,6 +142,7 @@ private:
   TClonesArray* Reco_QQ_4mom;
   TClonesArray* Reco_QQ_mupl_4mom;
   TClonesArray* Reco_QQ_mumi_4mom;
+  TClonesArray* Reco_trk_4mom;
 
   TClonesArray* Gen_mu_4mom;
   TClonesArray* Gen_mu_3vec;
@@ -151,6 +152,7 @@ private:
 
   static const int Max_QQ_size = 100;
   static const int Max_mu_size = 100;
+  static const int Max_trk_size = 10000;
 
   int Gen_QQ_size; // number of generated Onia
   int Gen_QQ_type[100]; // Onia type: prompt, non-prompt, unmatched
@@ -262,6 +264,10 @@ private:
     int Reco_mu_nhitsPix1HitBE[100];
   */
   int muType; // type of muon (global=0, tracker=1, calo=2, none=-1) 
+
+  int Reco_trk_size;           // Number of reconstructed tracks
+  int Reco_trk_charge[100];  // Vector of charge of tracks
+
 
   // Event Plane variables
   int nEP;
@@ -966,6 +972,19 @@ HiOniaAnalyzer::fillTreeJpsi(int iSign, int count) {
 	   track->ptError()/track->pt()<0.1 && 
 	   fabs(dz/dzsigma)<3.0 && fabs(dxy/dxysigma)<3.0)  {
 
+	 if (Reco_trk_size >= Max_trk_size) {
+	   std::cout << "Too many tracks: " << Reco_trk_size << std::endl;
+	   std::cout << "Maximum allowed: " << Max_trk_size << std::endl;
+	   break;
+	 }
+
+	 Reco_trk_charge[Reco_trk_size] = track->charge();
+	 
+	 TLorentzVector vTrack;
+	 vTrack.SetPtEtaPhiM(track->pt(), track->eta(), track->phi(), 0.13957018);
+	 new((*Reco_trk_4mom)[Reco_trk_size])TLorentzVector(vTrack);
+	 Reco_trk_size++;
+
 	 if (iTrack_mupl->charge()==track->charge()) {
 	   double Reco_QQ_mupl_NtrkDeltaR = deltaR(iTrack_mupl->eta(), iTrack_mupl->phi(), track->eta(), track->phi());
 	   double Reco_QQ_mupl_RelDelPt = abs(1.0 - iTrack_mupl->pt()/track->pt());
@@ -1296,6 +1315,7 @@ HiOniaAnalyzer::InitEvent()
 
   Reco_QQ_size = 0;
   Reco_mu_size = 0;
+  Reco_trk_size = 0;
 
   Gen_QQ_size = 0;
   Gen_mu_size = 0;
@@ -1305,6 +1325,7 @@ HiOniaAnalyzer::InitEvent()
   Reco_QQ_mumi_4mom->Clear();
   Reco_mu_4mom->Clear();
   Reco_mu_3vec->Clear();
+  Reco_trk_4mom->Clear();
 
   if (_isMC) {
     Gen_QQ_4mom->Clear();
@@ -1528,6 +1549,7 @@ HiOniaAnalyzer::InitTree()
   Reco_QQ_4mom = new TClonesArray("TLorentzVector",10);
   Reco_QQ_mupl_4mom = new TClonesArray("TLorentzVector",10);
   Reco_QQ_mumi_4mom = new TClonesArray("TLorentzVector",10);
+  Reco_trk_4mom = new TClonesArray("TLorentzVector", 100);
 
   if (_isMC) {
     Gen_mu_4mom = new TClonesArray("TLorentzVector", 2);
@@ -1636,6 +1658,10 @@ HiOniaAnalyzer::InitTree()
   myTree->Branch("Reco_mu_4mom", "TClonesArray", &Reco_mu_4mom, 32000, 0);
   //  myTree->Branch("Reco_mu_3vec", "TClonesArray", &Reco_mu_3vec, 32000, 0);
   myTree->Branch("Reco_mu_trig", Reco_mu_trig,   "Reco_mu_trig[Reco_mu_size]/I");
+
+  myTree->Branch("Reco_trk_size", &Reco_trk_size,  "Reco_trk_size/I");
+  myTree->Branch("Reco_trk_charge", Reco_trk_charge,   "Reco_trk_charge[Reco_trk_size]/I");
+  myTree->Branch("Reco_trk_4mom", "TClonesArray", &Reco_trk_4mom, 32000, 0);
 
   if (!_theMinimumFlag) {
     myTree->Branch("Reco_mu_TrkMuArb", Reco_mu_TrkMuArb,   "Reco_mu_TrkMuArb[Reco_mu_size]/O");
