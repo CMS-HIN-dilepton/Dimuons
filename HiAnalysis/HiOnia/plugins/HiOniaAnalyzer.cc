@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.23.2.18 2013/03/15 10:20:51 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.23.2.19 2013/05/24 13:58:35 tdahms Exp $
 //
 //
 
@@ -155,118 +155,118 @@ private:
   static const int Max_trk_size = 10000;
 
   int Gen_QQ_size; // number of generated Onia
-  int Gen_QQ_type[100]; // Onia type: prompt, non-prompt, unmatched
-  //  float Gen_QQ_ctau[100];    // ctau: flight time
+  int Gen_QQ_type[Max_QQ_size]; // Onia type: prompt, non-prompt, unmatched
+  //  float Gen_QQ_ctau[Max_QQ_size];    // ctau: flight time
   
   
   int Gen_mu_size; // number of generated muons
-  int Gen_mu_charge[100]; // muon charge
-  int Gen_mu_type[100]; // muon type: prompt, non-prompt, unmatched
+  int Gen_mu_charge[Max_mu_size]; // muon charge
+  int Gen_mu_type[Max_mu_size]; // muon type: prompt, non-prompt, unmatched
 
   int Reco_QQ_size;       // Number of reconstructed Onia 
-  int Reco_QQ_type[100];   // Onia category: GG, GT, TT
-  int Reco_QQ_sign[100];   /* Mu Mu combinations sign:
+  int Reco_QQ_type[Max_QQ_size];   // Onia category: GG, GT, TT
+  int Reco_QQ_sign[Max_QQ_size];   /* Mu Mu combinations sign:
 			     0 = +/- (signal)
 			     1 = +/+
 			     2 = -/- 
 			  */
-  int Reco_QQ_trig[100];      // Vector of trigger bits matched to the Onia
-  float Reco_QQ_VtxProb[100]; // chi2 probability of vertex fitting 
-  float Reco_QQ_ctau[100];    // ctau: flight time
-  float Reco_QQ_ctauErr[100]; // error on ctau
-  float Reco_QQ_ctauTrue[100];// true ctau
-  float Reco_QQ_dca[100];
-  float Reco_QQ_MassErr[100];
+  int Reco_QQ_trig[Max_QQ_size];      // Vector of trigger bits matched to the Onia
+  float Reco_QQ_VtxProb[Max_QQ_size]; // chi2 probability of vertex fitting 
+  float Reco_QQ_ctau[Max_QQ_size];    // ctau: flight time
+  float Reco_QQ_ctauErr[Max_QQ_size]; // error on ctau
+  float Reco_QQ_ctauTrue[Max_QQ_size];// true ctau
+  float Reco_QQ_dca[Max_QQ_size];
+  float Reco_QQ_MassErr[Max_QQ_size];
 
-  int  Reco_QQ_NtrkDeltaR03[100];
-  int  Reco_QQ_NtrkDeltaR04[100];
-  int  Reco_QQ_NtrkDeltaR05[100];
+  int  Reco_QQ_NtrkDeltaR03[Max_QQ_size];
+  int  Reco_QQ_NtrkDeltaR04[Max_QQ_size];
+  int  Reco_QQ_NtrkDeltaR05[Max_QQ_size];
 
-  bool Reco_QQ_mupl_TrkMuArb[100];      // Vector of TrackerMuonArbitrated for plus muon
-  bool Reco_QQ_mumi_TrkMuArb[100];      // Vector of TrackerMuonArbitrated for minus muon
-  bool Reco_QQ_mupl_TMOneStaTight[100]; // Vector of TMOneStationTight for plus muon
-  bool Reco_QQ_mumi_TMOneStaTight[100]; // Vector of TMOneStationTight for minus muon
+  bool Reco_QQ_mupl_TrkMuArb[Max_QQ_size];      // Vector of TrackerMuonArbitrated for plus muon
+  bool Reco_QQ_mumi_TrkMuArb[Max_QQ_size];      // Vector of TrackerMuonArbitrated for minus muon
+  bool Reco_QQ_mupl_TMOneStaTight[Max_QQ_size]; // Vector of TMOneStationTight for plus muon
+  bool Reco_QQ_mumi_TMOneStaTight[Max_QQ_size]; // Vector of TMOneStationTight for minus muon
 
-  int Reco_QQ_mupl_nMuValHits[100];  // Number of valid muon hits in plus sta muons
-  int Reco_QQ_mumi_nMuValHits[100];  // Number of valid muon hits in minus sta muons
-  int Reco_QQ_mupl_nTrkHits[100];  // track hits plus global muons
-  int Reco_QQ_mumi_nTrkHits[100];  // track hits minus global muons
-  int Reco_QQ_mupl_nPixWMea[100];  // pixel layers with measurement for plus inner track muons
-  int Reco_QQ_mumi_nPixWMea[100];  // pixel layers with measurement for minus inner track muons
-  int Reco_QQ_mupl_nTrkWMea[100];  // track layers with measurement for plus inner track muons
-  int Reco_QQ_mumi_nTrkWMea[100];  // track layers with measurement for minus inner track muons
-  int Reco_QQ_mupl_StationsMatched[100];  // number of stations matched for plus inner track muons
-  int Reco_QQ_mumi_StationsMatched[100];  // number of stations matched for minus inner track muons
-  float Reco_QQ_mupl_normChi2_inner[100];  // chi2/ndof for plus inner track muons
-  float Reco_QQ_mumi_normChi2_inner[100];  // chi2/ndof for minus inner track muons
-  float Reco_QQ_mupl_normChi2_global[100];  // chi2/ndof for plus global muons
-  float Reco_QQ_mumi_normChi2_global[100];  // chi2/ndof for minus global muons
-  float Reco_QQ_mupl_dxy[100];  // dxy for plus inner track muons
-  float Reco_QQ_mumi_dxy[100];  // dxy for minus inner track muons
-  float Reco_QQ_mupl_dxyErr[100];  // dxy error for plus inner track muons
-  float Reco_QQ_mumi_dxyErr[100];  // dxy error for minus inner track muons
-  float Reco_QQ_mupl_dz[100];  // dz for plus inner track muons
-  float Reco_QQ_mumi_dz[100];  // dz for minus inner track muons
-  float Reco_QQ_mupl_dzErr[100];  // dz error for plus inner track muons
-  float Reco_QQ_mumi_dzErr[100];  // dz error for minus inner track muons
-  float Reco_QQ_mupl_pt_inner[100];  // pT for plus inner track muons
-  float Reco_QQ_mumi_pt_inner[100];  // pT for minus inner track muons
-  float Reco_QQ_mupl_pt_global[100];  // pT for plus global muons
-  float Reco_QQ_mumi_pt_global[100];  // pT for minus global muons
-  float Reco_QQ_mupl_ptErr_inner[100];  // pT error for plus inner track muons
-  float Reco_QQ_mumi_ptErr_inner[100];  // pT error for minus inner track muons
-  float Reco_QQ_mupl_ptErr_global[100];  // pT error for plus global muons
-  float Reco_QQ_mumi_ptErr_global[100];  // pT error for minus global muons
+  int Reco_QQ_mupl_nMuValHits[Max_QQ_size];  // Number of valid muon hits in plus sta muons
+  int Reco_QQ_mumi_nMuValHits[Max_QQ_size];  // Number of valid muon hits in minus sta muons
+  int Reco_QQ_mupl_nTrkHits[Max_QQ_size];  // track hits plus global muons
+  int Reco_QQ_mumi_nTrkHits[Max_QQ_size];  // track hits minus global muons
+  int Reco_QQ_mupl_nPixWMea[Max_QQ_size];  // pixel layers with measurement for plus inner track muons
+  int Reco_QQ_mumi_nPixWMea[Max_QQ_size];  // pixel layers with measurement for minus inner track muons
+  int Reco_QQ_mupl_nTrkWMea[Max_QQ_size];  // track layers with measurement for plus inner track muons
+  int Reco_QQ_mumi_nTrkWMea[Max_QQ_size];  // track layers with measurement for minus inner track muons
+  int Reco_QQ_mupl_StationsMatched[Max_QQ_size];  // number of stations matched for plus inner track muons
+  int Reco_QQ_mumi_StationsMatched[Max_QQ_size];  // number of stations matched for minus inner track muons
+  float Reco_QQ_mupl_normChi2_inner[Max_QQ_size];  // chi2/ndof for plus inner track muons
+  float Reco_QQ_mumi_normChi2_inner[Max_QQ_size];  // chi2/ndof for minus inner track muons
+  float Reco_QQ_mupl_normChi2_global[Max_QQ_size];  // chi2/ndof for plus global muons
+  float Reco_QQ_mumi_normChi2_global[Max_QQ_size];  // chi2/ndof for minus global muons
+  float Reco_QQ_mupl_dxy[Max_QQ_size];  // dxy for plus inner track muons
+  float Reco_QQ_mumi_dxy[Max_QQ_size];  // dxy for minus inner track muons
+  float Reco_QQ_mupl_dxyErr[Max_QQ_size];  // dxy error for plus inner track muons
+  float Reco_QQ_mumi_dxyErr[Max_QQ_size];  // dxy error for minus inner track muons
+  float Reco_QQ_mupl_dz[Max_QQ_size];  // dz for plus inner track muons
+  float Reco_QQ_mumi_dz[Max_QQ_size];  // dz for minus inner track muons
+  float Reco_QQ_mupl_dzErr[Max_QQ_size];  // dz error for plus inner track muons
+  float Reco_QQ_mumi_dzErr[Max_QQ_size];  // dz error for minus inner track muons
+  float Reco_QQ_mupl_pt_inner[Max_QQ_size];  // pT for plus inner track muons
+  float Reco_QQ_mumi_pt_inner[Max_QQ_size];  // pT for minus inner track muons
+  float Reco_QQ_mupl_pt_global[Max_QQ_size];  // pT for plus global muons
+  float Reco_QQ_mumi_pt_global[Max_QQ_size];  // pT for minus global muons
+  float Reco_QQ_mupl_ptErr_inner[Max_QQ_size];  // pT error for plus inner track muons
+  float Reco_QQ_mumi_ptErr_inner[Max_QQ_size];  // pT error for minus inner track muons
+  float Reco_QQ_mupl_ptErr_global[Max_QQ_size];  // pT error for plus global muons
+  float Reco_QQ_mumi_ptErr_global[Max_QQ_size];  // pT error for minus global muons
 
   int Reco_mu_size;           // Number of reconstructed muons
-  int Reco_mu_trig[100];      // Vector of trigger bits matched to the muons
-  int Reco_mu_charge[100];  // Vector of charge of muons
-  int Reco_mu_type[100];  // Vector of type of muon (global=0, tracker=1, calo=2)  
+  int Reco_mu_trig[Max_mu_size];      // Vector of trigger bits matched to the muons
+  int Reco_mu_charge[Max_mu_size];  // Vector of charge of muons
+  int Reco_mu_type[Max_mu_size];  // Vector of type of muon (global=0, tracker=1, calo=2)  
 
-  bool Reco_mu_TrkMuArb[100];      // Vector of TrackerMuonArbitrated
-  bool Reco_mu_TMOneStaTight[100]; // Vector of TMOneStationTight
+  bool Reco_mu_TrkMuArb[Max_mu_size];      // Vector of TrackerMuonArbitrated
+  bool Reco_mu_TMOneStaTight[Max_mu_size]; // Vector of TMOneStationTight
 
-  int Reco_mu_nMuValHits[100];  // Number of valid muon hits in sta muons
-  int Reco_mu_nTrkHits[100];  // track hits global muons
-  int Reco_mu_nPixWMea[100];  // pixel layers with measurement for inner track muons
-  int Reco_mu_nTrkWMea[100];  // track layers with measurement for inner track muons
-  int Reco_mu_StationsMatched[100];  // number of stations matched for inner track muons
-  float Reco_mu_normChi2_inner[100];  // chi2/ndof for inner track muons
-  float Reco_mu_normChi2_global[100];  // chi2/ndof for global muons
-  float Reco_mu_dxy[100];  // dxy for inner track muons
-  float Reco_mu_dxyErr[100];  // dxy error for inner track muons
-  float Reco_mu_dz[100];  // dz for inner track muons
-  float Reco_mu_dzErr[100];  // dz error for inner track muons
-  float Reco_mu_pt_inner[100];  // pT for inner track muons
-  float Reco_mu_pt_global[100];  // pT for global muons
-  float Reco_mu_ptErr_inner[100];  // pT error for inner track muons
-  float Reco_mu_ptErr_global[100];  // pT error for global muons
+  int Reco_mu_nMuValHits[Max_mu_size];  // Number of valid muon hits in sta muons
+  int Reco_mu_nTrkHits[Max_mu_size];  // track hits global muons
+  int Reco_mu_nPixWMea[Max_mu_size];  // pixel layers with measurement for inner track muons
+  int Reco_mu_nTrkWMea[Max_mu_size];  // track layers with measurement for inner track muons
+  int Reco_mu_StationsMatched[Max_mu_size];  // number of stations matched for inner track muons
+  float Reco_mu_normChi2_inner[Max_mu_size];  // chi2/ndof for inner track muons
+  float Reco_mu_normChi2_global[Max_mu_size];  // chi2/ndof for global muons
+  float Reco_mu_dxy[Max_mu_size];  // dxy for inner track muons
+  float Reco_mu_dxyErr[Max_mu_size];  // dxy error for inner track muons
+  float Reco_mu_dz[Max_mu_size];  // dz for inner track muons
+  float Reco_mu_dzErr[Max_mu_size];  // dz error for inner track muons
+  float Reco_mu_pt_inner[Max_mu_size];  // pT for inner track muons
+  float Reco_mu_pt_global[Max_mu_size];  // pT for global muons
+  float Reco_mu_ptErr_inner[Max_mu_size];  // pT error for inner track muons
+  float Reco_mu_ptErr_global[Max_mu_size];  // pT error for global muons
   
   /*
-    float Reco_mu_ptErr[100];   // Vector of err on pt of muons
-    float Reco_mu_phiErr[100];  // Vector of err on phi of muons
-    float Reco_mu_etaErr[100];  // Vector of err on eta of muons
-    float Reco_mu_d0[100];      // Vector of d0 of muons
-    float Reco_mu_d0err[100];   // Vector of d0err of muons
-    float Reco_mu_dz[100];      // Vector of dz of muons
-    float Reco_mu_dzerr[100];   // Vector of dzerr of muons
-    float Reco_mu_normChi2[100];   // Vector of chi2/ndof of muons
-    int Reco_mu_nhitsCSC[100];    // Vector of number of valid hits of muons
-    int Reco_mu_nhitsDT[100];    // Vector of number of valid hits of muons
-    int Reco_mu_nhitsTrack[100];    // Vector of number of valid hits of muons
-    float Reco_mu_caloComp[100];    // Vector of calorimeter compatibilities
-    float Reco_mu_segmComp[100];    // Vector of muon segment compatibilities 
-    float Reco_mu_iso[100];    // Vector of isolations (NOW ONLY SUMPt OF TRACKS) 
-    int Reco_mu_nhitsStrip[100];  // Vectors of strip/pixel hits
-    int Reco_mu_nhitsPixB[100];
-    int Reco_mu_nhitsPixE[100];
-    int Reco_mu_nhitsPix1Hit[100];
-    int Reco_mu_nhitsPix1HitBE[100];
+    float Reco_mu_ptErr[Max_mu_size];   // Vector of err on pt of muons
+    float Reco_mu_phiErr[Max_mu_size];  // Vector of err on phi of muons
+    float Reco_mu_etaErr[Max_mu_size];  // Vector of err on eta of muons
+    float Reco_mu_d0[Max_mu_size];      // Vector of d0 of muons
+    float Reco_mu_d0err[Max_mu_size];   // Vector of d0err of muons
+    float Reco_mu_dz[Max_mu_size];      // Vector of dz of muons
+    float Reco_mu_dzerr[Max_mu_size];   // Vector of dzerr of muons
+    float Reco_mu_normChi2[Max_mu_size];   // Vector of chi2/ndof of muons
+    int Reco_mu_nhitsCSC[Max_mu_size];    // Vector of number of valid hits of muons
+    int Reco_mu_nhitsDT[Max_mu_size];    // Vector of number of valid hits of muons
+    int Reco_mu_nhitsTrack[Max_mu_size];    // Vector of number of valid hits of muons
+    float Reco_mu_caloComp[Max_mu_size];    // Vector of calorimeter compatibilities
+    float Reco_mu_segmComp[Max_mu_size];    // Vector of muon segment compatibilities 
+    float Reco_mu_iso[Max_mu_size];    // Vector of isolations (NOW ONLY SUMPt OF TRACKS) 
+    int Reco_mu_nhitsStrip[Max_mu_size];  // Vectors of strip/pixel hits
+    int Reco_mu_nhitsPixB[Max_mu_size];
+    int Reco_mu_nhitsPixE[Max_mu_size];
+    int Reco_mu_nhitsPix1Hit[Max_mu_size];
+    int Reco_mu_nhitsPix1HitBE[Max_mu_size];
   */
   int muType; // type of muon (global=0, tracker=1, calo=2, none=-1) 
 
   int Reco_trk_size;           // Number of reconstructed tracks
-  int Reco_trk_charge[100];  // Vector of charge of tracks
+  int Reco_trk_charge[Max_trk_size];  // Vector of charge of tracks
 
 
   // Event Plane variables
