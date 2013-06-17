@@ -23,15 +23,15 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 #process.GlobalTag.globaltag = 'GR_E_V33::All' # express reco
 process.GlobalTag.globaltag = 'GR_P_V43D::All' # prompt reco
 
-#from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import *
-#overrideCentrality(process)
+from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import *
+overrideCentrality(process)
 
-#process.HeavyIonGlobalParameters = cms.PSet(
-#    centralityVariable = cms.string("HFtowersPlusTrunc"),
-#    nonDefaultGlauberModel = cms.string(""),
-#    centralitySrc = cms.InputTag("pACentrality"),
-#    pPbRunFlip = cms.untracked.uint32(211313)
-#    )
+process.HeavyIonGlobalParameters = cms.PSet(
+    centralityVariable = cms.string("HFtowersPlusTrunc"),
+    nonDefaultGlauberModel = cms.string(""),
+    centralitySrc = cms.InputTag("pACentrality"),
+    pPbRunFlip = cms.untracked.uint32(211313)
+    )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
