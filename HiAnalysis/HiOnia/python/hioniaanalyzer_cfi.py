@@ -26,6 +26,8 @@ hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                         removeTrueMuons = cms.untracked.bool(False),
                         storeSameSign = cms.untracked.bool(False),
                         
+                        muonLessPV = cms.bool(True),
+                        
                         #-- Gen Details
                         oniaPDG = cms.int32(443),
                         isHI = cms.untracked.bool(True),
