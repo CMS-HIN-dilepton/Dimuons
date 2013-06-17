@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.23.2.15 2013/03/05 12:17:23 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.23.2.21 2013/06/17 13:01:22 tdahms Exp $
 //
 //
 
@@ -596,7 +596,6 @@ HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   zVtx = RefVtx.Z();
 
   hZVtx->Fill(zVtx);
-  if (fabs(zVtx) > _iConfig.getParameter< double > ("maxAbsZ")) return;
   hPileUp->Fill(nPV);
 
   this->hltReport(iEvent, iSetup);
@@ -823,7 +822,6 @@ HiOniaAnalyzer::fillTreeJpsi(int iSign, int count) {
   const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(aJpsiCand->daughter("muon1"));
   const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(aJpsiCand->daughter("muon2"));
 
-
   int trigBits=0;
   for (unsigned int iTr=1; iTr<NTRIGGERS; ++iTr) {
     if (isTriggerMatched[iTr])
@@ -834,7 +832,6 @@ HiOniaAnalyzer::fillTreeJpsi(int iSign, int count) {
   Reco_QQ_type[Reco_QQ_size] = _thePassedCats[iSign].at(count);
 
   Reco_QQ_trig[Reco_QQ_size] = trigBits;
-
 
   if (_muonLessPrimaryVertex && aJpsiCand->hasUserData("muonLessPV")) {
     RefVtx = (*aJpsiCand->userData<reco::Vertex>("muonlessPV")).position();
@@ -1192,9 +1189,11 @@ HiOniaAnalyzer::makeCuts(int sign) {
       else
 	cout << "no PV for muon pair stored" << endl;
 
+      if (fabs(RefVtx.Z()) > _iConfig.getParameter< double > ("maxAbsZ")) continue;
+
       const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(cand->daughter("muon1"));
       const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(cand->daughter("muon2"));
-
+      
       if (fabs(muon1->rapidity()) >= etaMax ||
 	  fabs(muon2->rapidity()) >= etaMax) continue;
 
