@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.23.2.19 2013/05/24 13:58:35 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.23.2.15 2013/03/05 12:17:23 tdahms Exp $
 //
 //
 
@@ -177,6 +177,9 @@ private:
   float Reco_QQ_ctauTrue[Max_QQ_size];// true ctau
   float Reco_QQ_dca[Max_QQ_size];
   float Reco_QQ_MassErr[Max_QQ_size];
+  float Reco_QQ_xVtx[Max_QQ_size];
+  float Reco_QQ_yVtx[Max_QQ_size];
+  float Reco_QQ_zVtx[Max_QQ_size];
 
   int  Reco_QQ_NtrkDeltaR03[Max_QQ_size];
   int  Reco_QQ_NtrkDeltaR04[Max_QQ_size];
@@ -347,6 +350,7 @@ private:
   bool           _onlythebest;
   bool           _applycuts;
   bool           _storeefficiency;
+  bool           _muonLessPrimaryVertex;
   bool           _useBS;
   bool           _useRapidity;
   bool           _removeSignal;
@@ -448,6 +452,7 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig):
   _onlythebest(iConfig.getParameter<bool>("onlyTheBest")),		
   _applycuts(iConfig.getParameter<bool>("applyCuts")),			
   _storeefficiency(iConfig.getParameter<bool>("storeEfficiency")),	
+  _muonLessPrimaryVertex(iConfig.getParameter<bool>("muonLessPV")),
   _useBS(iConfig.getParameter<bool>("useBeamSpot")),
   _useRapidity(iConfig.getParameter<bool>("useRapidity")),
   _removeSignal(iConfig.getUntrackedParameter<bool>("removeSignalEvents",false)),
@@ -574,7 +579,7 @@ HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   reco::VertexCollection::const_iterator privtx;
 
   nPV = privtxs->size();
-   
+  
   if ( privtxs->begin() != privtxs->end() ) {
     privtx=privtxs->begin();
     RefVtx = privtx->position();
@@ -825,11 +830,30 @@ HiOniaAnalyzer::fillTreeJpsi(int iSign, int count) {
       trigBits += pow(2,iTr-1);
   }
 
-
   Reco_QQ_sign[Reco_QQ_size] = iSign;
   Reco_QQ_type[Reco_QQ_size] = _thePassedCats[iSign].at(count);
 
   Reco_QQ_trig[Reco_QQ_size] = trigBits;
+
+
+  if (_muonLessPrimaryVertex && aJpsiCand->hasUserData("muonLessPV")) {
+    RefVtx = (*aJpsiCand->userData<reco::Vertex>("muonlessPV")).position();
+    RefVtx_xError = (*aJpsiCand->userData<reco::Vertex>("muonlessPV")).xError();
+    RefVtx_yError = (*aJpsiCand->userData<reco::Vertex>("muonlessPV")).yError();
+    RefVtx_zError = (*aJpsiCand->userData<reco::Vertex>("muonlessPV")).zError();
+  }
+  else if (!_muonLessPrimaryVertex && aJpsiCand->hasUserData("PVwithmuons")) {
+    RefVtx = (*aJpsiCand->userData<reco::Vertex>("PVwithmuons")).position();
+    RefVtx_xError = (*aJpsiCand->userData<reco::Vertex>("PVwithmuons")).xError();
+    RefVtx_yError = (*aJpsiCand->userData<reco::Vertex>("PVwithmuons")).yError();
+    RefVtx_zError = (*aJpsiCand->userData<reco::Vertex>("PVwithmuons")).zError();
+  }
+  else
+    cout << "no PV for muon pair stored" << endl;
+
+  Reco_QQ_xVtx[Reco_QQ_size] = RefVtx.X();
+  Reco_QQ_yVtx[Reco_QQ_size] = RefVtx.Y();
+  Reco_QQ_zVtx[Reco_QQ_size] = RefVtx.Z();
 
   TLorentzVector vMuon1 = lorentzMomentum(muon1->p4());
   TLorentzVector vMuon2 = lorentzMomentum(muon2->p4());
@@ -962,10 +986,18 @@ HiOniaAnalyzer::fillTreeJpsi(int iSign, int count) {
 	it!=collTracks->end(); ++it) {
       const reco::Track* track = &(*it);	
 
-       double dz = track->dz(RefVtx);
-       double dzsigma = sqrt(track->dzError()*track->dzError()+RefVtx_zError*RefVtx_zError);    
-       double dxy = track->dxy(RefVtx);
-       double dxysigma = sqrt(track->dxyError()*track->dxyError()+RefVtx_xError*RefVtx_xError+RefVtx_yError*RefVtx_yError);
+      double dz = track->dz(RefVtx);
+      double dzsigma = sqrt(track->dzError()*track->dzError()+RefVtx_zError*RefVtx_zError);    
+      double dxy = track->dxy(RefVtx);
+      double dxysigma = sqrt(track->dxyError()*track->dxyError() + RefVtx_xError*RefVtx_yError);
+      // to be fixed
+      // double dxysigma = sqrt(track->dxyError()*track->dxyError() + RefVtx_xError*RefVtx_xError+RefVtx_yError*RefVtx_yError);
+      // std::cout << "original: " << dxysigma
+      // 		<< " better: "  << sqrt( pow(track->dxyError(),2) + pow(RefVtx_xError,2) + pow(RefVtx_yError,2) )
+      // 		<< " ratio: " << dxysigma / sqrt( pow(track->dxyError(),2) + pow(RefVtx_xError,2) + pow(RefVtx_yError,2) )
+      //		<< " best: "
+      //		<< std::endl;
+      
 
        if( track->qualityByName("highPurity") &&
 	   track->pt()>0.4 && fabs(track->eta())<2.4 &&
@@ -1144,6 +1176,7 @@ HiOniaAnalyzer::checkTriggers(const pat::CompositeCandidate* aJpsiCand) {
 
 void
 HiOniaAnalyzer::makeCuts(int sign) {
+  math::XYZPoint RefVtx_tmp = RefVtx;
 
   if (collJpsi.isValid()) {
     for(std::vector<pat::CompositeCandidate>::const_iterator it=collJpsi->begin();
@@ -1152,33 +1185,40 @@ HiOniaAnalyzer::makeCuts(int sign) {
       const pat::CompositeCandidate* cand = &(*it);	
       if (fabs(cand->rapidity()) >= etaMax) continue;
 
+      if (_muonLessPrimaryVertex && cand->hasUserData("muonLessPV"))
+	RefVtx = (*cand->userData<reco::Vertex>("muonlessPV")).position();
+      else if (!_muonLessPrimaryVertex && cand->hasUserData("PVwithmuons"))
+	RefVtx = (*cand->userData<reco::Vertex>("PVwithmuons")).position();
+      else
+	cout << "no PV for muon pair stored" << endl;
+
       const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(cand->daughter("muon1"));
       const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(cand->daughter("muon2"));
 
       if (fabs(muon1->rapidity()) >= etaMax ||
 	  fabs(muon2->rapidity()) >= etaMax) continue;
-      
+
       bool thisSign = ( (sign == 0 && muon1->charge() + muon2->charge() == 0) || 
 			(sign == 1 && muon1->charge() + muon2->charge() == 2) || 
 			(sign == 2 && muon1->charge() + muon2->charge() == -2) );
 
       if (thisSign) {
-	/*	
+	/*
 	// global + global?
 	if (checkCuts(cand,muon1,muon2,&HiOniaAnalyzer::selGlobalMuon,&HiOniaAnalyzer::selGlobalMuon)){
-	_thePassedCats[sign].push_back(GlbGlb);  _thePassedCands[sign].push_back(cand);
-	//	  continue;
+	  _thePassedCats[sign].push_back(GlbGlb);  _thePassedCands[sign].push_back(cand);
+	  //	  continue;
 	}
-
+		
 	// global + tracker? (x2)    
 	if (checkCuts(cand,muon1,muon2,&HiOniaAnalyzer::selGlobalMuon,&HiOniaAnalyzer::selTrackerMuon)){
-	_thePassedCats[sign].push_back(GlbTrk);  _thePassedCands[sign].push_back(cand);
-	//	  continue;
+	  _thePassedCats[sign].push_back(GlbTrk);  _thePassedCands[sign].push_back(cand);
+	  //	  continue;
 	}
 
 	if (checkCuts(cand,muon2,muon1,&HiOniaAnalyzer::selGlobalMuon,&HiOniaAnalyzer::selTrackerMuon)){
-	_thePassedCats[sign].push_back(GlbTrk);  _thePassedCands[sign].push_back(cand);
-	//	  continue;
+	  _thePassedCats[sign].push_back(GlbTrk);  _thePassedCands[sign].push_back(cand);
+	  //	  continue;
 	}
 	*/
 
@@ -1191,6 +1231,7 @@ HiOniaAnalyzer::makeCuts(int sign) {
     }
   }
   
+  RefVtx = RefVtx_tmp;
   return;
 }
 
@@ -1225,13 +1266,13 @@ HiOniaAnalyzer::theBestQQ(int sign) {
 bool
 HiOniaAnalyzer::isMuonInAccept(const pat::Muon* aMuon) {
   // return (fabs(aMuon->eta()) < 2.4 &&
-  // 	  ((fabs(aMuon->eta()) < 1.0 && aMuon->pt() >= 3.4) ||
-  // 	   (1.0 <= fabs(aMuon->eta()) && fabs(aMuon->eta()) < 1.5 && aMuon->pt() >= 5.8-2.4*fabs(aMuon->eta())) ||
-  // 	   (1.5 <= fabs(aMuon->eta()) && aMuon->pt() >= 3.3667-7.0/9.0*fabs(aMuon->eta()))));
+  //  	  ((fabs(aMuon->eta()) < 1.0 && aMuon->pt() >= 3.4) ||
+  //  	   (1.0 <= fabs(aMuon->eta()) && fabs(aMuon->eta()) < 1.5 && aMuon->pt() >= 5.8-2.4*fabs(aMuon->eta())) ||
+  //  	   (1.5 <= fabs(aMuon->eta()) && aMuon->pt() >= 3.3667-7.0/9.0*fabs(aMuon->eta()))));
   return (fabs(aMuon->eta()) < 2.4 &&
-	  ((fabs(aMuon->eta()) < 1.3 && aMuon->pt() >= 3.3) ||
-	   (1.3 <= fabs(aMuon->eta()) && fabs(aMuon->eta()) < 2.2 && aMuon->p() >= 2.9) ||
-	   (2.2 <= fabs(aMuon->eta()) && aMuon->pt() >= 0.8)));
+   	  ((fabs(aMuon->eta()) < 1.3 && aMuon->pt() >= 3.3) ||
+   	   (1.3 <= fabs(aMuon->eta()) && fabs(aMuon->eta()) < 2.2 && aMuon->p() >= 2.9) ||
+   	   (2.2 <= fabs(aMuon->eta()) && aMuon->pt() >= 0.8)));
 }
 
 bool
@@ -1585,7 +1626,6 @@ HiOniaAnalyzer::InitTree()
   myTree->Branch("SumET_ZDCplus",&SumET_ZDCplus,"SumET_ZDCplus/F");
   myTree->Branch("SumET_ZDCminus",&SumET_ZDCminus,"SumET_ZDCminus/F");
 
-
   if (_isHI) {
     myTree->Branch("nEP", &nEP, "nEP/I");
     myTree->Branch("nNfEP", &nNfEP, "nNfEP/I");
@@ -1610,6 +1650,9 @@ HiOniaAnalyzer::InitTree()
   myTree->Branch("Reco_QQ_VtxProb", Reco_QQ_VtxProb,   "Reco_QQ_VtxProb[Reco_QQ_size]/F");
   myTree->Branch("Reco_QQ_dca", Reco_QQ_dca,   "Reco_QQ_dca[Reco_QQ_size]/F");
   myTree->Branch("Reco_QQ_MassErr", Reco_QQ_MassErr,   "Reco_QQ_MassErr[Reco_QQ_size]/F");
+  myTree->Branch("Reco_QQ_xVtx", Reco_QQ_xVtx,   "Reco_QQ_xVtx[Reco_QQ_size]/F");
+  myTree->Branch("Reco_QQ_yVtx", Reco_QQ_yVtx,   "Reco_QQ_yVtx[Reco_QQ_size]/F");
+  myTree->Branch("Reco_QQ_zVtx", Reco_QQ_zVtx,   "Reco_QQ_zVtx[Reco_QQ_size]/F");
 
   myTree->Branch("Reco_QQ_NtrkDeltaR03", Reco_QQ_NtrkDeltaR03, "Reco_QQ_NtrkDeltaR03[Reco_QQ_size]/I");
   myTree->Branch("Reco_QQ_NtrkDeltaR04", Reco_QQ_NtrkDeltaR04, "Reco_QQ_NtrkDeltaR04[Reco_QQ_size]/I");
