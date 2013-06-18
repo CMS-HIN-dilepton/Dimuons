@@ -144,6 +144,7 @@ process.hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                                 fillHistos = cms.bool(False),
                                 minimumFlag = cms.bool(True),
                                 fillSingleMuons = cms.bool(True),
+                                fillRecoTracks = cms.bool(True),
                                 histFileName = cms.string(options.outputFile),		
                                 dataSetName = cms.string(options.secondaryOutputFile),
                                 

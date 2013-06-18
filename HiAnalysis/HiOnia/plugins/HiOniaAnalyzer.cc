@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.23.2.21 2013/06/17 13:01:22 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.23.2.22 2013/06/17 13:44:38 tdahms Exp $
 //
 //
 
@@ -87,6 +87,8 @@ private:
   void fillRecoMuons(int theCentralityBin);
   bool isMuonInAccept(const pat::Muon* aMuon);
 
+  void fillRecoTracks();
+
   pair< unsigned int, const pat::CompositeCandidate* > theBestQQ(int sign);
   double CorrectMass(const reco::Muon& mu1,const reco::Muon& mu2, int mode);
 
@@ -140,9 +142,11 @@ private:
   TClonesArray* Reco_mu_4mom;
   TClonesArray* Reco_mu_3vec;
   TClonesArray* Reco_QQ_4mom;
+  TClonesArray* Reco_QQ_vtx;
   TClonesArray* Reco_QQ_mupl_4mom;
   TClonesArray* Reco_QQ_mumi_4mom;
   TClonesArray* Reco_trk_4mom;
+  TClonesArray* Reco_trk_vtx;
 
   TClonesArray* Gen_mu_4mom;
   TClonesArray* Gen_mu_3vec;
@@ -177,9 +181,10 @@ private:
   float Reco_QQ_ctauTrue[Max_QQ_size];// true ctau
   float Reco_QQ_dca[Max_QQ_size];
   float Reco_QQ_MassErr[Max_QQ_size];
-  float Reco_QQ_xVtx[Max_QQ_size];
-  float Reco_QQ_yVtx[Max_QQ_size];
-  float Reco_QQ_zVtx[Max_QQ_size];
+
+  int  Reco_QQ_NtrkPt02[Max_QQ_size];
+  int  Reco_QQ_NtrkPt03[Max_QQ_size];
+  int  Reco_QQ_NtrkPt04[Max_QQ_size];
 
   int  Reco_QQ_NtrkDeltaR03[Max_QQ_size];
   int  Reco_QQ_NtrkDeltaR04[Max_QQ_size];
@@ -270,7 +275,8 @@ private:
 
   int Reco_trk_size;           // Number of reconstructed tracks
   int Reco_trk_charge[Max_trk_size];  // Vector of charge of tracks
-
+  float Reco_trk_dxyError[Max_trk_size];
+  float Reco_trk_dzError[Max_trk_size];
 
   // Event Plane variables
   int nEP;
@@ -362,6 +368,7 @@ private:
   bool           _fillHistos;
   bool           _theMinimumFlag;
   bool           _fillSingleMuons;
+  bool           _fillRecoTracks;
   bool           _isHI;
   bool           _isPA;
   bool           _isMC;
@@ -464,6 +471,7 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig):
   _fillHistos(iConfig.getParameter<bool>("fillHistos")),
   _theMinimumFlag(iConfig.getParameter<bool>("minimumFlag")),  
   _fillSingleMuons(iConfig.getParameter<bool>("fillSingleMuons")),
+  _fillRecoTracks(iConfig.getParameter<bool>("fillRecoTracks")),
   _isHI(iConfig.getUntrackedParameter<bool>("isHI",false) ),
   _isPA(iConfig.getUntrackedParameter<bool>("isPA",true) ),
   _isMC(iConfig.getUntrackedParameter<bool>("isMC",false) ),
@@ -717,6 +725,9 @@ HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (_fillSingleMuons)
     this->fillRecoMuons(theCentralityBin);
 
+  if (_fillRecoTracks)
+    this->fillRecoTracks();
+
   this->fillRecoHistos(lastSign);
 
   if (_fillTree)
@@ -848,9 +859,7 @@ HiOniaAnalyzer::fillTreeJpsi(int iSign, int count) {
   else
     cout << "no PV for muon pair stored" << endl;
 
-  Reco_QQ_xVtx[Reco_QQ_size] = RefVtx.X();
-  Reco_QQ_yVtx[Reco_QQ_size] = RefVtx.Y();
-  Reco_QQ_zVtx[Reco_QQ_size] = RefVtx.Z();
+  new((*Reco_QQ_vtx)[Reco_QQ_size])TVector3(RefVtx.X(),RefVtx.Y(),RefVtx.Z());
 
   TLorentzVector vMuon1 = lorentzMomentum(muon1->p4());
   TLorentzVector vMuon2 = lorentzMomentum(muon2->p4());
@@ -978,6 +987,10 @@ HiOniaAnalyzer::fillTreeJpsi(int iSign, int count) {
   Reco_QQ_NtrkDeltaR04[Reco_QQ_size]=0;
   Reco_QQ_NtrkDeltaR05[Reco_QQ_size]=0;
 
+  Reco_QQ_NtrkPt02[Reco_QQ_size]=0;
+  Reco_QQ_NtrkPt03[Reco_QQ_size]=0;
+  Reco_QQ_NtrkPt04[Reco_QQ_size]=0;
+
   if (collTracks.isValid()) {
     for(std::vector<reco::Track>::const_iterator it=collTracks->begin();
 	it!=collTracks->end(); ++it) {
@@ -996,23 +1009,10 @@ HiOniaAnalyzer::fillTreeJpsi(int iSign, int count) {
       //		<< std::endl;
       
 
-       if( track->qualityByName("highPurity") &&
-	   track->pt()>0.4 && fabs(track->eta())<2.4 &&
+       if (track->qualityByName("highPurity") &&
+	   track->pt()>0.2 && fabs(track->eta())<2.4 &&
 	   track->ptError()/track->pt()<0.1 && 
 	   fabs(dz/dzsigma)<3.0 && fabs(dxy/dxysigma)<3.0)  {
-
-	 if (Reco_trk_size >= Max_trk_size) {
-	   std::cout << "Too many tracks: " << Reco_trk_size << std::endl;
-	   std::cout << "Maximum allowed: " << Max_trk_size << std::endl;
-	   break;
-	 }
-
-	 Reco_trk_charge[Reco_trk_size] = track->charge();
-	 
-	 TLorentzVector vTrack;
-	 vTrack.SetPtEtaPhiM(track->pt(), track->eta(), track->phi(), 0.13957018);
-	 new((*Reco_trk_4mom)[Reco_trk_size])TLorentzVector(vTrack);
-	 Reco_trk_size++;
 
 	 if (iTrack_mupl->charge()==track->charge()) {
 	   double Reco_QQ_mupl_NtrkDeltaR = deltaR(iTrack_mupl->eta(), iTrack_mupl->phi(), track->eta(), track->phi());
@@ -1031,17 +1031,22 @@ HiOniaAnalyzer::fillTreeJpsi(int iSign, int count) {
 	     continue;
 	 }
 
-	 double Reco_QQ_NtrkDeltaR = deltaR(aJpsiCand->eta(), aJpsiCand->phi(), track->eta(), track->phi());
-	 if (Reco_QQ_NtrkDeltaR<0.3)
-	   Reco_QQ_NtrkDeltaR03[Reco_QQ_size]++;
-	 if (Reco_QQ_NtrkDeltaR<0.4)
-	   Reco_QQ_NtrkDeltaR04[Reco_QQ_size]++;
-	 if (Reco_QQ_NtrkDeltaR<0.5)
-	   Reco_QQ_NtrkDeltaR05[Reco_QQ_size]++;
+	 Reco_QQ_NtrkPt02[Reco_QQ_size]++;
+	 if (track->pt()>0.3) Reco_QQ_NtrkPt03[Reco_QQ_size]++;
+	 if (track->pt()>0.4) {
+	   Reco_QQ_NtrkPt04[Reco_QQ_size]++;
+
+	   double Reco_QQ_NtrkDeltaR = deltaR(aJpsiCand->eta(), aJpsiCand->phi(), track->eta(), track->phi());
+	   if (Reco_QQ_NtrkDeltaR<0.3)
+	     Reco_QQ_NtrkDeltaR03[Reco_QQ_size]++;
+	   if (Reco_QQ_NtrkDeltaR<0.4)
+	     Reco_QQ_NtrkDeltaR04[Reco_QQ_size]++;
+	   if (Reco_QQ_NtrkDeltaR<0.5)
+	     Reco_QQ_NtrkDeltaR05[Reco_QQ_size]++;
+	 }
        }
     }
   }
-
 
   Reco_QQ_size++;
   return;
@@ -1361,11 +1366,13 @@ HiOniaAnalyzer::InitEvent()
   Gen_mu_size = 0;
 
   Reco_QQ_4mom->Clear();
+  Reco_QQ_vtx->Clear();
   Reco_QQ_mupl_4mom->Clear();
   Reco_QQ_mumi_4mom->Clear();
   Reco_mu_4mom->Clear();
   Reco_mu_3vec->Clear();
   Reco_trk_4mom->Clear();
+  Reco_trk_vtx->Clear();
 
   if (_isMC) {
     Gen_QQ_4mom->Clear();
@@ -1449,6 +1456,46 @@ HiOniaAnalyzer::fillGenInfo()
 	Gen_mu_size++;
       }
 
+    }
+  }
+  
+  return;
+}
+
+void
+HiOniaAnalyzer::fillRecoTracks()
+{
+  if (collTracks.isValid()) {
+    for(std::vector<reco::Track>::const_iterator it=collTracks->begin();
+	it!=collTracks->end(); ++it) {
+      const reco::Track* track = &(*it);	
+
+      // double dz = track->dz(RefVtx);
+      // double dzsigma = sqrt(track->dzError()*track->dzError()+RefVtx_zError*RefVtx_zError);    
+      // double dxy = track->dxy(RefVtx);
+      // double dxysigma = sqrt(track->dxyError()*track->dxyError() + RefVtx_xError*RefVtx_yError);
+      
+      if (track->qualityByName("highPurity") &&
+	  track->pt()>0.2 && fabs(track->eta())<2.4 &&
+	  track->ptError()/track->pt()<0.1)  {
+	if (Reco_trk_size >= Max_trk_size) {
+	  std::cout << "Too many tracks: " << Reco_trk_size << std::endl;
+	  std::cout << "Maximum allowed: " << Max_trk_size << std::endl;
+	  break;
+	}
+	
+	Reco_trk_charge[Reco_trk_size] = track->charge();
+	 
+	new((*Reco_trk_vtx)[Reco_trk_size])TVector3(track->vx(),track->vy(),track->vz());
+
+	Reco_trk_dxyError[Reco_trk_size] = track->dxyError();
+	Reco_trk_dzError[Reco_trk_size] = track->dzError();
+
+	TLorentzVector vTrack;
+	vTrack.SetPtEtaPhiM(track->pt(), track->eta(), track->phi(), 0.13957018);
+	new((*Reco_trk_4mom)[Reco_trk_size])TLorentzVector(vTrack);
+	Reco_trk_size++;
+      }
     }
   }
   
@@ -1591,6 +1638,9 @@ HiOniaAnalyzer::InitTree()
   Reco_QQ_mumi_4mom = new TClonesArray("TLorentzVector",10);
   Reco_trk_4mom = new TClonesArray("TLorentzVector", 100);
 
+  Reco_QQ_vtx = new TClonesArray("TVector3", 100);
+  Reco_trk_vtx = new TClonesArray("TVector3", 100);
+
   if (_isMC) {
     Gen_mu_4mom = new TClonesArray("TLorentzVector", 2);
     Gen_mu_3vec = new TClonesArray("TVector3", 2);
@@ -1649,9 +1699,11 @@ HiOniaAnalyzer::InitTree()
   myTree->Branch("Reco_QQ_VtxProb", Reco_QQ_VtxProb,   "Reco_QQ_VtxProb[Reco_QQ_size]/F");
   myTree->Branch("Reco_QQ_dca", Reco_QQ_dca,   "Reco_QQ_dca[Reco_QQ_size]/F");
   myTree->Branch("Reco_QQ_MassErr", Reco_QQ_MassErr,   "Reco_QQ_MassErr[Reco_QQ_size]/F");
-  myTree->Branch("Reco_QQ_xVtx", Reco_QQ_xVtx,   "Reco_QQ_xVtx[Reco_QQ_size]/F");
-  myTree->Branch("Reco_QQ_yVtx", Reco_QQ_yVtx,   "Reco_QQ_yVtx[Reco_QQ_size]/F");
-  myTree->Branch("Reco_QQ_zVtx", Reco_QQ_zVtx,   "Reco_QQ_zVtx[Reco_QQ_size]/F");
+  myTree->Branch("Reco_QQ_vtx", "TClonesArray", &Reco_QQ_vtx, 32000, 0);
+
+  myTree->Branch("Reco_QQ_NtrkPt02", Reco_QQ_NtrkPt02, "Reco_QQ_NtrkPt02[Reco_QQ_size]/I");
+  myTree->Branch("Reco_QQ_NtrkPt03", Reco_QQ_NtrkPt03, "Reco_QQ_NtrkPt03[Reco_QQ_size]/I");
+  myTree->Branch("Reco_QQ_NtrkPt04", Reco_QQ_NtrkPt04, "Reco_QQ_NtrkPt04[Reco_QQ_size]/I");
 
   myTree->Branch("Reco_QQ_NtrkDeltaR03", Reco_QQ_NtrkDeltaR03, "Reco_QQ_NtrkDeltaR03[Reco_QQ_size]/I");
   myTree->Branch("Reco_QQ_NtrkDeltaR04", Reco_QQ_NtrkDeltaR04, "Reco_QQ_NtrkDeltaR04[Reco_QQ_size]/I");
@@ -1701,9 +1753,14 @@ HiOniaAnalyzer::InitTree()
   //  myTree->Branch("Reco_mu_3vec", "TClonesArray", &Reco_mu_3vec, 32000, 0);
   myTree->Branch("Reco_mu_trig", Reco_mu_trig,   "Reco_mu_trig[Reco_mu_size]/I");
 
-  myTree->Branch("Reco_trk_size", &Reco_trk_size,  "Reco_trk_size/I");
-  myTree->Branch("Reco_trk_charge", Reco_trk_charge,   "Reco_trk_charge[Reco_trk_size]/I");
-  myTree->Branch("Reco_trk_4mom", "TClonesArray", &Reco_trk_4mom, 32000, 0);
+  if (_fillRecoTracks) {
+    myTree->Branch("Reco_trk_size", &Reco_trk_size,  "Reco_trk_size/I");
+    myTree->Branch("Reco_trk_charge", Reco_trk_charge,   "Reco_trk_charge[Reco_trk_size]/I");
+    myTree->Branch("Reco_trk_4mom", "TClonesArray", &Reco_trk_4mom, 32000, 0);
+    myTree->Branch("Reco_trk_vtx", "TClonesArray", &Reco_trk_vtx, 32000, 0);
+    myTree->Branch("Reco_trk_dxyError", Reco_trk_dxyError, "Reco_trk_dxyError[Reco_trk_size]/F");
+    myTree->Branch("Reco_trk_dzError", Reco_trk_dzError, "Reco_trk_dzError[Reco_trk_size]/F");
+  }
 
   if (!_theMinimumFlag) {
     myTree->Branch("Reco_mu_TrkMuArb", Reco_mu_TrkMuArb,   "Reco_mu_TrkMuArb[Reco_mu_size]/O");
