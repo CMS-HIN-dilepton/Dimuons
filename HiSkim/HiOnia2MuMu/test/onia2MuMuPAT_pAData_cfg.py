@@ -58,6 +58,12 @@ onia2MuMuPAT(process, GlobalTag=process.GlobalTag.globaltag, MC=False, HLT="HLT"
 #process.onia2MuMuPatTrkTrk.addMuonlessPrimaryVertex = False
 #process.onia2MuMuPatTrkTrk.resolvePileUpAmbiguity = False
 
+# don't filter on good vertex here, do it in the skimming step on the PV closest to onia in Delta Z
+process.PAcollisionEventSelection = cms.Sequence(process.hfCoincFilter *
+                                                 #process.PAprimaryVertexFilter *
+                                                 process.NoScraping
+                                                 )
+
 process.patMuonSequence = cms.Sequence(
     process.hltOniaHI *
     process.PAcollisionEventSelection *
