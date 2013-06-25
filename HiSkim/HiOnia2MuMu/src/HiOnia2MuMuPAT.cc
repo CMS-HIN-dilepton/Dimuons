@@ -166,6 +166,8 @@ HiOnia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    if (status) extrapZ=ttmd.points().first.z();
 	    
 	    for(VertexCollection::const_iterator itv = priVtxs->begin(), itvend = priVtxs->end(); itv != itvend; ++itv){
+	      // only consider good vertices
+	      if ( itv->isFake() || fabs(itv->position().z()) > 25 || itv->position().Rho() > 2 || itv->tracksSize() < 2) continue;
 	      float deltaZ = fabs(extrapZ - itv->position().z()) ;
 	      if ( deltaZ < minDz ) {
 		minDz = deltaZ;    
@@ -273,8 +275,10 @@ HiOnia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  myCand.addUserFloat("DCA", dca );
 	  ///end DCA
          
-          if (addMuonlessPrimaryVertex_)
+          if (addMuonlessPrimaryVertex_) {
             myCand.addUserData("muonlessPV",Vertex(thePrimaryV));
+	    myCand.addUserData("PVwithmuons",theOriginalPV);
+	  }
 	  else 
 	    myCand.addUserData("PVwithmuons",thePrimaryV);
 	  
@@ -323,10 +327,11 @@ HiOnia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  }
 	  if (addMuonlessPrimaryVertex_) {
             myCand.addUserData("muonlessPV",Vertex());
+	    myCand.addUserData("PVwithmuons",Vertex());
 	  } else {
 	    myCand.addUserData("PVwithmuons",Vertex());
 	  }
-	}	
+	}
       }
       
       // ---- MC Truth, if enabled ----
