@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.23.2.22 2013/06/17 13:44:38 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.23.2.23 2013/06/18 16:21:49 tdahms Exp $
 //
 //
 
@@ -508,7 +508,7 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig):
 
   NTRIGGERS_DBL = _dblTriggerPathNames.size();
   NTRIGGERS = NTRIGGERS_DBL + _sglTriggerPathNames.size() + 1; // + 1 for "NoTrigger"
-  cout << "NTRIGGERS_DBL = " << NTRIGGERS_DBL << "\t NTRIGGERS_SGL = " << _sglTriggerPathNames.size() << "\t NTRIGGERS = " << NTRIGGERS << endl;
+  std::cout << "NTRIGGERS_DBL = " << NTRIGGERS_DBL << "\t NTRIGGERS_SGL = " << _sglTriggerPathNames.size() << "\t NTRIGGERS = " << NTRIGGERS << std::endl;
 
   isTriggerMatched[0]=true; // first entry 'hardcoded' true to accept "all" events
   HLTLastFilters[0] = "";
@@ -525,7 +525,7 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig):
       HLTLastFilters[iTr] = _sglTriggerFilterNames.at(iTr-NTRIGGERS_DBL-1);
       theTriggerNames.push_back(_sglTriggerPathNames.at(iTr-NTRIGGERS_DBL-1));
     }
-    cout<<" Trigger "<<iTr<<"\t"<<HLTLastFilters[iTr]<<endl;
+    std::cout<<" Trigger "<<iTr<<"\t"<<HLTLastFilters[iTr]<<std::endl;
   }
 
   etaMax = 2.4;
@@ -688,7 +688,7 @@ HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
     }
     else if (!_isMC) 
-      cout << "Warning! Can't get flattened hiEvtPlane product!" << endl;
+      std::cout << "Warning! Can't get flattened hiEvtPlane product!" << std::endl;
 
 
     if(NoFlatEvtPlanes.isValid()){
@@ -700,7 +700,7 @@ HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
     }
     else if (!_isMC)
-      cout << "Warning! Can't get hiEvtPlane product!" << endl;
+      std::cout << "Warning! Can't get hiEvtPlane product!" << std::endl;
   }
 
   iEvent.getByLabel(_patJpsi,collJpsi); 
@@ -844,7 +844,7 @@ HiOniaAnalyzer::fillTreeJpsi(int iSign, int count) {
 
   Reco_QQ_trig[Reco_QQ_size] = trigBits;
 
-  if (_muonLessPrimaryVertex && aJpsiCand->hasUserData("muonLessPV")) {
+  if (_muonLessPrimaryVertex && aJpsiCand->hasUserData("muonlessPV")) {
     RefVtx = (*aJpsiCand->userData<reco::Vertex>("muonlessPV")).position();
     RefVtx_xError = (*aJpsiCand->userData<reco::Vertex>("muonlessPV")).xError();
     RefVtx_yError = (*aJpsiCand->userData<reco::Vertex>("muonlessPV")).yError();
@@ -857,7 +857,7 @@ HiOniaAnalyzer::fillTreeJpsi(int iSign, int count) {
     RefVtx_zError = (*aJpsiCand->userData<reco::Vertex>("PVwithmuons")).zError();
   }
   else
-    cout << "no PV for muon pair stored" << endl;
+    cout << "HiOniaAnalyzer::fillTreeJpsi: no PVfor muon pair stored" << endl;
 
   new((*Reco_QQ_vtx)[Reco_QQ_size])TVector3(RefVtx.X(),RefVtx.Y(),RefVtx.Z());
 
@@ -1013,6 +1013,11 @@ HiOniaAnalyzer::fillTreeJpsi(int iSign, int count) {
 	   track->pt()>0.2 && fabs(track->eta())<2.4 &&
 	   track->ptError()/track->pt()<0.1 && 
 	   fabs(dz/dzsigma)<3.0 && fabs(dxy/dxysigma)<3.0)  {
+	 
+	 Reco_QQ_NtrkPt02[Reco_QQ_size]++;
+	 if (track->pt()>0.3) Reco_QQ_NtrkPt03[Reco_QQ_size]++;
+	 if (track->pt()>0.4) {
+	   Reco_QQ_NtrkPt04[Reco_QQ_size]++;
 
 	 if (iTrack_mupl->charge()==track->charge()) {
 	   double Reco_QQ_mupl_NtrkDeltaR = deltaR(iTrack_mupl->eta(), iTrack_mupl->phi(), track->eta(), track->phi());
@@ -1030,11 +1035,6 @@ HiOniaAnalyzer::fillTreeJpsi(int iSign, int count) {
 		Reco_QQ_mumi_RelDelPt<0.001 ) 
 	     continue;
 	 }
-
-	 Reco_QQ_NtrkPt02[Reco_QQ_size]++;
-	 if (track->pt()>0.3) Reco_QQ_NtrkPt03[Reco_QQ_size]++;
-	 if (track->pt()>0.4) {
-	   Reco_QQ_NtrkPt04[Reco_QQ_size]++;
 
 	   double Reco_QQ_NtrkDeltaR = deltaR(aJpsiCand->eta(), aJpsiCand->phi(), track->eta(), track->phi());
 	   if (Reco_QQ_NtrkDeltaR<0.3)
@@ -1187,12 +1187,12 @@ HiOniaAnalyzer::makeCuts(int sign) {
       const pat::CompositeCandidate* cand = &(*it);	
       if (fabs(cand->rapidity()) >= etaMax) continue;
 
-      if (_muonLessPrimaryVertex && cand->hasUserData("muonLessPV"))
+      if (_muonLessPrimaryVertex && cand->hasUserData("muonlessPV"))
 	RefVtx = (*cand->userData<reco::Vertex>("muonlessPV")).position();
       else if (!_muonLessPrimaryVertex && cand->hasUserData("PVwithmuons"))
 	RefVtx = (*cand->userData<reco::Vertex>("PVwithmuons")).position();
       else
-	cout << "no PV for muon pair stored" << endl;
+	std::cout << "HiOniaAnalyzer::makeCuts: no PV for muon pair stored" << std::endl;
 
       if (fabs(RefVtx.Z()) > _iConfig.getParameter< double > ("maxAbsZ")) continue;
 
@@ -1995,13 +1995,13 @@ HiOniaAnalyzer::hltReport(const edm::Event &iEvent ,const edm::EventSetup& iSetu
   // Get Trigger Results
   try {
     iEvent.getByLabel( _tagTriggerResults, collTriggerResults );
-    //    cout << "[HiOniaAnalyzer::hltReport] --- J/psi TriggerResult is present in current event" << endl;
+    //    std::cout << "[HiOniaAnalyzer::hltReport] --- J/psi TriggerResult is present in current event" << std::endl;
   }
   catch(...) {
-    //    cout << "[HiOniaAnalyzer::hltReport] --- J/psi TriggerResults NOT present in current event" << endl;
+    //    std::cout << "[HiOniaAnalyzer::hltReport] --- J/psi TriggerResults NOT present in current event" << std::endl;
   }
   if ( collTriggerResults.isValid() ){
-    //    cout << "[HiOniaAnalyzer::hltReport] --- J/psi TriggerResults IS valid in current event" << endl;
+    //    std::cout << "[HiOniaAnalyzer::hltReport] --- J/psi TriggerResults IS valid in current event" << std::endl;
       
     // loop over Trigger Results to check if paths was fired
     for(std::vector< std::string >::iterator itHLTNames= theTriggerNames.begin(); itHLTNames != theTriggerNames.end(); itHLTNames++){
@@ -2020,7 +2020,7 @@ HiOniaAnalyzer::hltReport(const edm::Event &iEvent ,const edm::EventSetup& iSetu
 	*/
       }
     }
-  } else cout << "[HiOniaAnalyzer::hltReport] --- TriggerResults NOT valid in current event" << endl;
+  } else std::cout << "[HiOniaAnalyzer::hltReport] --- TriggerResults NOT valid in current event" << std::endl;
 
   return;
 }
