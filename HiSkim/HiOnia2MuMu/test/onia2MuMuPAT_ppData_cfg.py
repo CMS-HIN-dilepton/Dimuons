@@ -68,8 +68,8 @@ process.source.fileNames = cms.untracked.vstring(
     )
 
 # filter on lumisections
-import FWCore.PythonUtilities.LumiList as LumiList
-process.source.lumisToProcess = LumiList.LumiList(filename = 'Cert_211739-211831_2760GeV_PromptReco_Collisions13_JSON_MuonPhys.txt').getVLuminosityBlockRange()
+#import FWCore.PythonUtilities.LumiList as LumiList
+#process.source.lumisToProcess = LumiList.LumiList(filename = 'Cert_211739-211831_2760GeV_PromptReco_Collisions13_JSON_MuonPhys.txt').getVLuminosityBlockRange()
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 process.outOnia2MuMu.fileName = cms.untracked.string( options.outputFile )
