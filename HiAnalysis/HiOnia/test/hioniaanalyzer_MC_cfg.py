@@ -74,24 +74,45 @@ process.hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                                 removeSignalEvents = cms.untracked.bool(False),
                                 removeTrueMuons = cms.untracked.bool(False),
                                 storeSameSign = cms.untracked.bool(True),
+                                muonLessPV = cms.bool(True),
                                 
                                 #-- Gen Details
                                 oniaPDG = cms.int32(443),
                                 isHI = cms.untracked.bool(True),
                                 isMC = cms.untracked.bool(True),
                                 isPromptMC = cms.untracked.bool(True),
-
+                                useEvtPlane = cms.untracked.bool(False),
+                                runVersionChange = cms.untracked.uint32(0),
+                                
                                 #-- Histogram configuration
                                 combineCategories = cms.bool(False),
                                 fillRooDataSet = cms.bool(False),
                                 fillTree = cms.bool(True),
                                 minimumFlag = cms.bool(True),
                                 fillSingleMuons = cms.bool(True),
+                                fillRecoTracks = cms.bool(False),
                                 histFileName = cms.string(options.outputFile),		
                                 dataSetName = cms.string(options.secondaryOutputFile),
                                 
                                 #--
-                                NumberOfTriggers = cms.uint32(9),
+                                # NumberOfTriggers = cms.uint32(9),
+                                dblTriggerPathNames = cms.vstring("HLT_HIL1DoubleMu0_HighQ_v*",
+                                                                  "HLT_HIL2DoubleMu3_v*",
+                                                                  "HLT_HIL3DoubleMuOpen_v*",
+                                                                  "HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v*"),
+                                dblTriggerFilterNames = cms.vstring("hltHIDoubleMuLevel1PathL1HighQFiltered",
+                                                                    "hltHIL2DoubleMu3L2Filtered",
+                                                                    "hltHIDimuonL3FilteredOpen",
+                                                                    "hltHIDimuonL3FilteredMg2OSnoCowboy"),
+                                sglTriggerPathNames = cms.vstring("HLT_HIL2Mu3_NHitQ_v*",
+                                                                  "HLT_HIL2Mu7_v*",
+                                                                  "HLT_HIL2Mu15_v*",
+                                                                  "HLT_HIL3Mu3_v*"),
+                                sglTriggerFilterNames = cms.vstring("hltHIL2Mu3NHitL2Filtered",
+                                                                    "hltHIL2Mu7L2Filtered",
+                                                                    "hltHIL2Mu15L2Filtered",
+                                                                    "hltHISingleMu3L3Filtered")
+                                
                                 )
 
 

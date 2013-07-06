@@ -74,6 +74,7 @@ process.hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                                 removeSignalEvents = cms.untracked.bool(False),
                                 removeTrueMuons = cms.untracked.bool(False),
                                 storeSameSign = cms.untracked.bool(True),
+                                muonLessPV = cms.bool(True),
                                 
                                 #-- Gen Details
                                 oniaPDG = cms.int32(443),
@@ -91,6 +92,7 @@ process.hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                                 fillHistos = cms.bool(False),
                                 minimumFlag = cms.bool(True),
                                 fillSingleMuons = cms.bool(True),
+                                fillRecoTracks = cms.bool(False),
                                 histFileName = cms.string(options.outputFile),		
                                 dataSetName = cms.string(options.secondaryOutputFile),
                                 
