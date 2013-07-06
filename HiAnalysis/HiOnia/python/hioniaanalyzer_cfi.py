@@ -25,7 +25,8 @@ hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                         removeSignalEvents = cms.untracked.bool(False),
                         removeTrueMuons = cms.untracked.bool(False),
                         storeSameSign = cms.untracked.bool(False),
-                        
+                        muonLessPV = cms.bool(True),
+
                         #-- Gen Details
                         oniaPDG = cms.int32(443),
                         isHI = cms.untracked.bool(True),
@@ -38,6 +39,9 @@ hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                         fillRooDataSet = cms.bool(False),
                         fillTree = cms.bool(True),
                         fillHistos = cms.bool(True),
+                        minimumFlag = cms.bool(True),
+                        fillSingleMuons = cms.bool(True),
+                        fillRecoTracks = cms.bool(False),
                         histFileName = cms.string("Jpsi_Histos.root"),		
                         dataSetName = cms.string("Jpsi_DataSet.root"),
                         
