@@ -11,9 +11,9 @@ process = cms.Process("Onia2MuMuPAT")
 options = VarParsing.VarParsing ('analysis')
 
 # setup any defaults you want
-options.outputFile = 'onia2MuMuPAT.root'
-options.inputFiles = '/store/data/Run2013A/PPMuon/RECO/PromptReco-v1/000/211/739/00000/0842C448-3A76-E211-9FF0-0025901D6272.root'
-#'/store/data/Run2013A/PPMuon/RECO/PromptReco-v1/000/211/831/00000/F40F947D-1578-E211-8D75-003048D37666.root'
+options.inputFiles = '/store/data/Run2013A/PPMuon/RECO/PromptReco-v1/000/211/831/00000/F40F947D-1578-E211-8D75-003048D37666.root'
+options.outputFile = 'tnp.root'
+
 options.maxEvents = -1 # -1 means all events
 
 # get and parse the command line arguments
@@ -55,17 +55,15 @@ onia2MuMuPAT(process, GlobalTag=process.GlobalTag.globaltag, MC=False, HLT="HLT"
 #process.onia2MuMuPatTrkTrk.addMuonlessPrimaryVertex = False
 #process.onia2MuMuPatTrkTrk.resolvePileUpAmbiguity = False
 
-# don't filter on good vertex here, do it in the skimming step on the PV closest to onia in Delta Z
-process.PAcollisionEventSelection = cms.Sequence(process.hfCoincFilter *
-                                                 #process.PAprimaryVertexFilter *
-                                                 process.NoScraping
-                                                 )
+from MuonAnalysis.MuonAssociators.patMuonsWithTrigger_cff import changeRecoMuonInput
+changeRecoMuonInput(process, "mergedMuons")
 
 process.patMuonSequence = cms.Sequence(
-    process.hltOniaHI *
+#    process.hltOniaHI *
     process.PAcollisionEventSelection *
     process.pileupVertexFilterCutGplus * 
-    process.pACentrality_step *
+#    process.pACentrality_step *
+    process.mergedMuons *
     process.patMuonsWithTriggerSequence
     )
 
@@ -78,12 +76,16 @@ process.source.fileNames = cms.untracked.vstring(
 #process.source.lumisToProcess = LumiList.LumiList(filename = 'Cert_211739-211831_2760GeV_PromptReco_Collisions13_JSON_MuonPhys.txt').getVLuminosityBlockRange()
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
-process.outOnia2MuMu.fileName = cms.untracked.string( options.outputFile )
+process.outTnP.fileName = cms.untracked.string( options.outputFile )
 
 # suppress harmless warnings about missing parentage info for vertex collection
 #process.MessageLogger.suppressWarning = cms.untracked.vstring('onia2MuMuPatTrkTrk')
 
-process.e = cms.EndPath(process.outOnia2MuMu)
+process.e = cms.EndPath(process.outTnP)
 
-process.schedule = cms.Schedule(process.Onia2MuMuPAT,process.e)
+process.schedule = cms.Schedule(process.TagAndProbeTrig,
+                                process.TagAndProbeSta,
+                                process.TagAndProbeMuID,
+                                process.e)
+
 
