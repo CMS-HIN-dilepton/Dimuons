@@ -77,13 +77,16 @@ process.source.fileNames = cms.untracked.vstring(
     )
 
 # filter on lumisections
-#from HiSkim.HiOnia2MuMu.goodLumiSectionListHI_cfi import *
-#process.source.lumisToProcess = goodLumisToProcess
+#import FWCore.PythonUtilities.LumiList as LumiList
+#process.source.lumisToProcess = LumiList.LumiList(filename = 'Cert_210498-211631_HI_PromptReco_Collisions13_JSON_MuonPhys_v2.txt').getVLuminosityBlockRange()
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 process.outOnia2MuMu.fileName = cms.untracked.string( options.outputFile )
 
 #process.pACentrality.producePixelhits = cms.bool(False)
+
+# suppress harmless warnings about missing parentage info for vertex collection
+#process.MessageLogger.suppressWarning = cms.untracked.vstring('onia2MuMuPatTrkTrk')
 
 process.e = cms.EndPath(process.outOnia2MuMu)
 
