@@ -13,7 +13,7 @@
 //
 // Original Author:  Torsten Dahms,40 4-A32,+41227671635,
 //         Created:  Mon Nov 29 03:13:35 CET 2010
-// $Id: HiOniaAnalyzer.cc,v 1.24 2013/05/18 13:31:23 tdahms Exp $
+// $Id: HiOniaAnalyzer.cc,v 1.25 2013/07/06 13:26:16 tdahms Exp $
 //
 //
 
@@ -1994,7 +1994,7 @@ HiOniaAnalyzer::hltReport(const edm::Event &iEvent ,const edm::EventSetup& iSetu
 
   for(std::vector<std::string>::const_iterator it=theTriggerNames.begin(); it !=theTriggerNames.end(); ++it){
     mapTriggernameToTriggerFired[*it]=false;
-    mapTriggernameToHLTbit[*it]=1000;
+    mapTriggernameToHLTbit[*it]=pow(2,32)-1;
   }
 
   // HLTConfigProvider
@@ -2027,7 +2027,7 @@ HiOniaAnalyzer::hltReport(const edm::Event &iEvent ,const edm::EventSetup& iSetu
     // loop over Trigger Results to check if paths was fired
     for(std::vector< std::string >::iterator itHLTNames= theTriggerNames.begin(); itHLTNames != theTriggerNames.end(); itHLTNames++){
       const std::string triggerPathName =  *itHLTNames;
-      if ( mapTriggernameToHLTbit[triggerPathName] < 1000 ) {
+      if ( mapTriggernameToHLTbit[triggerPathName] < (pow(2,32) - 1) ) {
 	if (collTriggerResults->accept( mapTriggernameToHLTbit[triggerPathName] ) ){
 	  mapTriggerNameToIntFired_[triggerPathName] = 3;
 	}
