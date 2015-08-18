@@ -1,3 +1,12 @@
+/*
+ Macro that:
+ a) reads the yield vs dphi histograms created by the readFitTable/makeHistos_v2.C
+ b) fits the dphi distributions, to extract v2
+ c) makes the v2 vs Npart, pt, and y (which you have to chose before running the macro)
+ d) writes out all numbers and figures in a root file in directory rootFiles
+ e) saves canvases as png and pdf in the figs/ directory
+ 
+ */
 #include <Riostream.h>
 #include <TSystem.h>
 #include <TProfile.h>
@@ -21,17 +30,13 @@
 #include <TGraphErrors.h>
 
 void v2_fitter(int jpsiCategory = 3, // 1 : Inclusive, 2 : Prompt, 3 : Non-Prompt
-	       int varCategory  = 3, // 1: pt; 2: rapidity; 3: centrality; 4: integrated
-	       int nDphiBins    = 4, 
-	       // const char* inHistYieldFile_yesWeight  = "/Users/eusmartass/Documents/cmswrite/hin-14-005/v2/plots_v2/yieldsData/rootFile/20141028_yesW_2dphi_histsDPhiYields.root",
-	       //const char* inHistYieldFile_noWeight  = "/Users/eusmartass/Documents/cmswrite/hin-14-005/v2/plots_v2/yieldsData/rootFile/20141028_yesW_2dphi_histsDPhiYields.root",
-	       const char* inHistYieldFile_yesWeight  = "/Users/eusmartass/Documents/cmswrite/hin-14-005/v2/plots_v2/yieldsData/rootFile/20140807_weightedEff_histsDPhiYields.root",
-	       const char* inHistYieldFile_noWeight  = "/Users/eusmartass/Documents/cmswrite/hin-14-005/v2/plots_v2/yieldsData/rootFile/20140807_noWeight_histsDPhiYields.root",
-	       // const char* inHistYieldFile_yesWeight  = "/Users/eusmartass/Documents/cmswrite/hin-14-005/v2/plots_v2/yieldsData/rootFile/20141020_weightedEff_histsDPhiYields.root",
-	       // const char* inHistYieldFile_noWeight  = "/Users/eusmartass/Documents/cmswrite/hin-14-005/v2/plots_v2/yieldsData/rootFile/20141020_noWeight_histsDPhiYields.root",
-
-	       const char* outputFile = "rootFiles/v2Fitter_regit",
-	       bool bSavePlots = true){
+               int varCategory  = 3, // 1: pt; 2: rapidity; 3: centrality; 4: integrated
+               int nDphiBins    = 4,
+               const char* inHistYieldFile_yesWeight  = "../readFitTable/20140807_weightedEff_histsDPhiYields.root",
+               const char* inHistYieldFile_noWeight  = "../readFitTable/20140807_noWeight_histsDPhiYields.root",
+               const char* outputFile = "rootFiles/v2Fitter_regit",
+               bool bSavePlots = true)
+{
 
   const char* signal[5]      = {"","Inc","Prp","NPrp","NBkg"};
   const char* legend[5]      = {"","Inclusive J/#psi","Prompt J/#psi","Non-prompt J/#psi","Background"};
@@ -357,7 +362,7 @@ void v2_fitter(int jpsiCategory = 3, // 1 : Inclusive, 2 : Prompt, 3 : Non-Promp
   if (bSavePlots)
     {
       pcDPhi->SaveAs(Form("figs/png/rawYield_%s_%s_ndphibins%d.png", outFilePlot[varCategory],signal[jpsiCategory],nDphiBins ));
-      pcDPhi->SaveAs(Form("figs/png/rawYield_%s_%s_ndphibins%d.png", outFilePlot[varCategory],signal[jpsiCategory],nDphiBins ));
+      pcDPhi->SaveAs(Form("figs/pdf/rawYield_%s_%s_ndphibins%d.pdf", outFilePlot[varCategory],signal[jpsiCategory],nDphiBins ));
     }
 
   // -------------- make the results plots ---------------....
