@@ -39,7 +39,7 @@ The output root files of this macro, wich contains the histograms with the yield
 void makeHisto_raa(int sample = 1, // 0=PbPb,     1= pp
 		   int weight = 1, // 0=noWeight, 1=weight
 		   int isEffFile = 0,// 0=no, 1=yes needed when making efficiency histograms
-		   const char* inputFitDataFileLocation = ".."
+		   const char* inputFitDataFileLocation = "../data/raa"
 		   ) 
 {
   //latest
@@ -56,13 +56,13 @@ void makeHisto_raa(int sample = 1, // 0=PbPb,     1= pp
     {
       if(sample==0)
 	{
-	  in.open(Form("%s/data/raa/%s/%s/summary/fit_table",inputFitDataFileLocation,whichSample[sample],whichWeight[weight]));
+	  in.open(Form("%s/%s/%s/summary/fit_table",inputFitDataFileLocation,whichSample[sample],whichWeight[weight]));
 	  pfOutput = new TFile(Form("%s_%s_%s.root",outputHistDataFile[isEffFile],whichSample[sample],whichWeight[weight]),"RECREATE");
 	  cout <<"##### Lucky you: you are reading the PbPb fit files" <<endl;
 	}
       if(sample==1)
 	{
-	  in.open(Form("%s/data/raa/%s/%s/summary/fit_table",inputFitDataFileLocation,whichSample[sample],whichWeight_pp[weight]));
+	  in.open(Form("%s/%s/%s/summary/fit_table",inputFitDataFileLocation,whichSample[sample],whichWeight_pp[weight]));
 	  pfOutput = new TFile(Form("%s_%s_%s.root",outputHistDataFile[isEffFile],whichSample[sample],whichWeight_pp[weight]),"RECREATE");
 	  cout <<"##### Lucky you: you are reading the pp fit files" <<endl;
 	}
