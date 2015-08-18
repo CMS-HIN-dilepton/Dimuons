@@ -1,3 +1,17 @@
+/*
+  Macro that makes histograms of:
+1) yields from the fit_table file that contains the fit results, that sits in a path of the form data/raa/20150817_PbPb/pp_../noWeight-weighted_.../summary/
+2) efficiency histograms out of the traditional efficiencies stored in excel sheet
+
+  Before running the macro:
+a) edit the fit_table file and remove the headers (we need just numbers to make the histograms)
+b) chose adjut the name of the directories (2015...) in the 'whichSample[2]' vector
+c) adjust the name of the weighted-no weighted directory, in the vectors whichWeight[2], and whichWeight_pp[2]
+d) chose whether is the yields files or efficiency that you want to 'histogramize'
+
+The output root files of this macro, wich contains the histograms with the yields, are the input root file that are needed to make the Raa plots! 
+
+ */
 #include <Riostream.h>
 #include <TSystem.h>
 #include <TProfile.h>
@@ -20,51 +34,87 @@
 #include <TGraphAsymmErrors.h>
 #include <TGraphErrors.h>
 #include "Riostream.h"
-#include "/Users/eusmartass/Documents/cmswrite/hin-14-005/macroraa/dataBinning_2015.h"
+#include "dataBinning_2015.h"
 
-void makeHisto_raa(int sample = 0, // 0=PbPb,     1= pp
-		   const char* inputFitDataFileLocation = "/Users/eusmartass/Documents/cmswrite/hin-14-005/excel",
-		   const char* outputHistDataFile       = "histRaaEff"
+void makeHisto_raa(int sample = 1, // 0=PbPb,     1= pp
+		   int weight = 1, // 0=noWeight, 1=weight
+		   int isEffFile = 0,// 0=no, 1=yes needed when making efficiency histograms
+		   const char* inputFitDataFileLocation = ".."
 		   ) 
 {
-  const char* whichSample[2] = {"pbpb_tradEff_nov12","pp_tradEff_nov12"};
- 
-  ifstream in;
-  in.open(Form("%s/%s.dat",inputFitDataFileLocation,whichSample[sample]));
-  if(in.is_open())  cout<< "Input file opened!"<<endl;
-  double x[8];
- 
-  TFile *pfOutput;
-  pfOutput = new TFile(Form("%s_%s.root",outputHistDataFile,whichSample[sample]),"RECREATE");
+  //latest
+  const char* whichSample[2]    = {"20150817_PbPb_raa_Lxyz",    "20150817_pp_Lxyz"};
+  const char* whichWeight[2]    = {"noWeight_Lxyz_pTtune_PRMC", "weightedEff_Lxyz_pTtune_PRMC"};
+  const char* whichWeight_pp[2] = {"noWeight_Lxyz_finerpT_PRMC","weightedEff_Lxyz_finerpT_PRMC"};
 
+  const char* effFileName[2]        = {"pbpb_tradEff_nov12","pp_tradEff_nov12"};
+  const char* outputHistDataFile[2] = {"histsRaaYields","histEff"};
+
+  TFile *pfOutput;
+  ifstream in;
+  if(!isEffFile)
+    {
+      if(sample==0)
+	{
+	  in.open(Form("%s/data/raa/%s/%s/summary/fit_table",inputFitDataFileLocation,whichSample[sample],whichWeight[weight]));
+	  pfOutput = new TFile(Form("%s_%s_%s.root",outputHistDataFile[isEffFile],whichSample[sample],whichWeight[weight]),"RECREATE");
+	  cout <<"##### Lucky you: you are reading the PbPb fit files" <<endl;
+	}
+      if(sample==1)
+	{
+	  in.open(Form("%s/data/raa/%s/%s/summary/fit_table",inputFitDataFileLocation,whichSample[sample],whichWeight_pp[weight]));
+	  pfOutput = new TFile(Form("%s_%s_%s.root",outputHistDataFile[isEffFile],whichSample[sample],whichWeight_pp[weight]),"RECREATE");
+	  cout <<"##### Lucky you: you are reading the pp fit files" <<endl;
+	}
+    }
+  else// these are the traditional efficiency files
+    {
+      in.open(Form("%s/excel/%s.dat",inputFitDataFileLocation,effFileName[sample]));
+      pfOutput = new TFile(Form("%s_%s.root",outputHistDataFile[isEffFile],effFileName[sample]),"RECREATE");
+      
+    }
+
+  double x[17];
   double prpt[300], prptErr[300], nprpt[300], nprptErr[300];
   double inc[300], incErr[300];
   double rap1[300], rap2[300], pT1[300], pT2[300];
   int cent1[300], cent2[300];
-  char tmp[512];
   int nline = 0;
-  string line; //this will contain the data read from the file
 
-  while (!in.eof()) 
+  while (1) 
     {
-      in >> x[0] >> x[1] >> x[2] >> x[3] >> x[4] >> x[5] >> x[6] >> x[7];
-      rap1[nline]  = x[0];  rap2[nline]     = fabs(x[1]); // rapidity (second value comes with '-')
-      pT1[nline]   = x[2];  pT2[nline]      = fabs(x[3]); // pt (second value comes with '-')
-      cent1[nline] = x[4];  cent2[nline]    = fabs(x[5]); // centrlaity (second value comes with '-')
-      
-      prpt[nline]  = x[6]; // prompt correction
-      nprpt[nline] = x[7]; // non-prompt correction
-  
-      // cout<<"Reading "<< x[0]<<" "<<x[1]<<" "<<x[2]<<" "<<x[3]<<" "<<x[4]<<" "<<x[5]<<" "<<x[6]<<" "<<x[7]<<endl;   
-      if (!in.good()) {cout<<"input file not found"<<endl; break;}
+      if(!isEffFile)// yield files
+	{
+	  in >> x[0] >> x[1] >> x[2] >> x[3] >> x[4] >> x[5] >> x[6] >> x[7] >> x[8] >> x[9] >> x[10] >> x[11] >> x[12] >> x[13] >> x[14] >> x[15] >> x[16] >> x[17];
+	  rap1[nline]  = x[0];  rap2[nline]     = fabs(x[1]); // rapidity (second value comes with '-')
+	  pT1[nline]   = x[2];  pT2[nline]      = fabs(x[3]); // pt (second value comes with '-')
+	  cent1[nline] = x[4];  cent2[nline]    = fabs(x[5]); // centrlaity (second value comes with '-')
+	  // [6]&[7] is the phi interval
+	  inc[nline]   = x[8];  incErr[nline]   = fabs(x[9]); // inclusive yield and error
+	  //[10]&[11] is the bkg and bkg error
+	  prpt[nline]  = x[12]; prptErr[nline]  = fabs(x[13]);// prompt yield and error
+	  nprpt[nline] = x[14]; nprptErr[nline] = fabs(x[15]);// non-prompt yield and error
+	  //[16]&[17] is the b-fraction
+	}
+      else // efficiency files
+	{
+	  in >> x[0] >> x[1] >> x[2] >> x[3] >> x[4] >> x[5] >> x[6] >> x[7];
+	  rap1[nline]  = x[0];  rap2[nline]     = fabs(x[1]); // rapidity (second value comes with '-')
+	  pT1[nline]   = x[2];  pT2[nline]      = fabs(x[3]); // pt (second value comes with '-')
+	  cent1[nline] = x[4];  cent2[nline]    = fabs(x[5]); // centrlaity (second value comes with '-')
+	  
+	  prpt[nline]  = x[6]; // prompt correction
+	  nprpt[nline] = x[7]; // non-prompt correction
+	}
+      if (!in.good()) break;
       if(nline == 28 || nline == 10)
-      	{
-      	  cout<<"Stored values in line : "<<nline<<endl;
-      	  cout<<"rapidity: "<<rap1[nline]<<" "<<rap2[nline]<<" "<<endl;
-      	  cout<<"pt: "<<pT1[nline]<<" "<<pT2[nline]<<" "<<endl;
-      	  cout<<"cent: "<<cent1[nline]<<" "<<cent2[nline]<<" "<<endl;
-      	  cout<<"prompt: "<<prpt[nline] <<"\n non-prompt: "<<nprpt[nline] <<endl;
-      	}
+	{
+	  cout<<"Stored values in line : "<<nline<<endl;
+	  cout<<"rapidity: "<<rap1[nline]<<" "<<rap2[nline]<<" "<<endl;
+	  cout<<"pt: "<<pT1[nline]<<" "<<pT2[nline]<<" "<<endl;
+	  cout<<"cent: "<<cent1[nline]<<" "<<cent2[nline]<<" "<<endl;
+	  cout<<"prompt: "<<prpt[nline] <<"\n non-prompt: "<<nprpt[nline] <<endl;
+	}
       nline++;
     }
   printf(" found %d points\n",nline);
@@ -74,40 +124,41 @@ void makeHisto_raa(int sample = 0, // 0=PbPb,     1= pp
 
   // Make histograms
   // minbias histos
-  TH1F *phPrp_mb      = new TH1F("phPrp_mb", ";N_{part};Yield",nBinsMB,binsMB);
-  TH1F *phNPrp_mb     = new TH1F("phNPrp_mb", ";N_{part};Yield",nBinsMB,binsMB);
+  TH1F *phPrp_mb      = new TH1F("phPrp_mb", ";N_{part};Yield",nBinsMB,bins1);
+  TH1F *phNPrp_mb     = new TH1F("phNPrp_mb", ";N_{part};Yield",nBinsMB,bins1);
 
-  TH1F *phPrp_y_mb      = new TH1F("phPrp_y_mb",  ";y;Yield",nBinsY3,binsY3);
-  TH1F *phNPrp_y_mb     = new TH1F("phNPrp_y_mb", ";y;Yield",nBinsY3,binsY3);
+  TH1F *phPrp_y_mb      = new TH1F("phPrp_y_mb",  ";y;Yield",nBinsY3,bins3);
+  TH1F *phNPrp_y_mb     = new TH1F("phNPrp_y_mb", ";y;Yield",nBinsY3,bins3);
 
-  TH1F *phPrp_ptLow_mb  = new TH1F("phPrp_ptLow_mb", ";p_{T};Yield",nBinsPt3, binsPt3_mb);
-  TH1F *phNPrp_ptLow_mb = new TH1F("phNPrp_ptLow_mb", ";p_{T};Yield",nBinsPt3, binsPt3_mb);
+  TH1F *phPrp_ptLow_mb  = new TH1F("phPrp_ptLow_mb", ";p_{T};Yield",nBinsPt3, bins3);
+  TH1F *phNPrp_ptLow_mb = new TH1F("phNPrp_ptLow_mb", ";p_{T};Yield",nBinsPt3, bins3);
   
   // 1D histos
-  TH1F *phPrp_cent   = new TH1F("phPrp_cent", ";N_{part};Yield",nBinsNpart12,binsNpart12);
-  TH1F *phNPrp_cent  = new TH1F("phNPrp_cent",";N_{part};Yield",nBinsNpart6,binsNpart6);
+  TH1F *phPrp_cent   = new TH1F("phPrp_cent", ";N_{part};Yield",nBinsNpart12,bins12);
+  TH1F *phNPrp_cent  = new TH1F("phNPrp_cent",";N_{part};Yield",nBinsNpart6,bins6);
 
-  TH1F *phPrp_y    = new TH1F("phPrp_y",";y;Yield",nBinsY,binsY);
-  TH1F *phNPrp_y   = new TH1F("phNPrp_y",";y;Yield",nBinsY,binsY);
+  TH1F *phPrp_y    = new TH1F("phPrp_y",";y;Yield",nBinsY,bins6);
+  TH1F *phNPrp_y   = new TH1F("phNPrp_y",";y;Yield",nBinsY,bins6);
 
-  TH1F *phPrp_pt  = new TH1F("phPrp_pt", ";p_{T};Yield",nBinsPt,binsPt);
-  TH1F *phNPrp_pt = new TH1F("phNPrp_pt", ";p_{T};Yield",nBinsPt,binsPt);
+  TH1F *phPrp_pt  = new TH1F("phPrp_pt", ";p_{T};Yield",nBinsPt,bins7);
+  TH1F *phNPrp_pt = new TH1F("phNPrp_pt", ";p_{T};Yield",nBinsPt,bins7);
   
-  TH1F *phPrp_ptLow  = new TH1F("phPrp_ptLow", ";p_{T};Yield",nBinsPt3,binsPt3);
-  TH1F *phNPrp_ptLow = new TH1F("phNPrp_ptLow", ";p_{T};Yield",nBinsPt3,binsPt3);
+  TH1F *phPrp_ptLow  = new TH1F("phPrp_ptLow", ";p_{T};Yield",nBinsPt3,bins3);
+  TH1F *phNPrp_ptLow = new TH1F("phNPrp_ptLow", ";p_{T};Yield",nBinsPt3,bins3);
 
   // 2D histos
-  TH1F *phPrp_y012Cent = new TH1F("phPrp_y012Cent", ";N_{part};Yield",nBinsNpart6,binsNpart6);
-  TH1F *phNPrp_y012Cent= new TH1F("phNPrp_y012Cent", ";N_{part};Yield",nBinsNpart6,binsNpart6);
+  TH1F *phPrp_y012Cent = new TH1F("phPrp_y012Cent", ";N_{part};Yield",nBinsNpart6,bins6);
+  TH1F *phNPrp_y012Cent= new TH1F("phNPrp_y012Cent", ";N_{part};Yield",nBinsNpart6,bins6);
 
-  TH1F *phPrp_y1216Cent = new TH1F("phPrp_y1216Cent", ";N_{part};Yield",nBinsNpart6,binsNpart6);
-  TH1F *phNPrp_y1216Cent= new TH1F("phNPrp_y1216Cent", ";N_{part};Yield",nBinsNpart6,binsNpart6);
+  TH1F *phPrp_y1216Cent = new TH1F("phPrp_y1216Cent", ";N_{part};Yield",nBinsNpart6,bins6);
+  TH1F *phNPrp_y1216Cent= new TH1F("phNPrp_y1216Cent", ";N_{part};Yield",nBinsNpart6,bins6);
 
-  TH1F *phPrp_y1624Cent = new TH1F("phPrp_y1624Cent", ";N_{part};Yield",nBinsNpart6,binsNpart6);
-  TH1F *phNPrp_y1624Cent = new TH1F("phNPrp_y1624Cent", ";N_{part};Yield",nBinsNpart6,binsNpart6);
+  TH1F *phPrp_y1624Cent = new TH1F("phPrp_y1624Cent", ";N_{part};Yield",nBinsNpart6,bins6);
+  TH1F *phNPrp_y1624Cent = new TH1F("phNPrp_y1624Cent", ";N_{part};Yield",nBinsNpart6,bins6);
 
-  TH1F *phPrp_y1624LowPtCent  = new TH1F("phPrp_y1624LowPtCent", ";N_{part};Yield",nBinsNpart5,binsNpart5);
-  TH1F *phNPrp_y1624LowPtCent = new TH1F("phNPrp_y1624LowPtCent", ";N_{part};Yield",nBinsNpart5,binsNpart5);
+  TH1F *phPrp_y1624LowPtCent  = new TH1F("phPrp_y1624LowPtCent", ";N_{part};Yield",nBinsNpart5,bins5);
+  TH1F *phNPrp_y1624LowPtCent = new TH1F("phNPrp_y1624LowPtCent", ";N_{part};Yield",nBinsNpart5,bins5);
+
 // ------------------
   phPrp_mb->Sumw2();
   phNPrp_mb->Sumw2();
@@ -188,7 +239,7 @@ void makeHisto_raa(int sample = 0, // 0=PbPb,     1= pp
 	      phNPrp_cent->SetBinError(binn,nprptErr[il]);
 	    }
 
-	  if( (il>=37 && il<=42) || (il>=8 && il<=13)) // the high pt lines
+	  if( il==37 || il==39 || il==41 || il==42 || il==10 || il==11 || il==13) // the high pt lines
 	    {
 	      if(il == 37) binn = 1; // 6.5-7.5
 	      if(il == 39) binn = 2; // 7.5-8.5
@@ -224,7 +275,7 @@ void makeHisto_raa(int sample = 0, // 0=PbPb,     1= pp
 	    }//y
 
 	  // ************************** yields for 2D RAA --- high-pt
-	  if(il>=1 && il<=7 && il!=2) // y[0,1.2]
+	  if(il==1 || il==3 || il==4 || il==5 || il==6 || il==7) // y[0,1.2]
 	    {
 	      if(il == 1) binn = 6; // 0-10
 	      if(il == 3) binn = 5; // 10-20
@@ -284,6 +335,7 @@ void makeHisto_raa(int sample = 0, // 0=PbPb,     1= pp
 	      if(il == 62) binn = 2; // 30-40
 	      if(il == 63) binn = 1; // 40-100
 	      
+	      cout << il << "prompt yield: " <<prpt[il]<<endl;
 	      // fill histograms
 	      phPrp_y1624LowPtCent->SetBinContent(binn,prpt[il]);
 	      phPrp_y1624LowPtCent->SetBinError(binn,prptErr[il]);
@@ -334,7 +386,7 @@ void makeHisto_raa(int sample = 0, // 0=PbPb,     1= pp
 	      if(il==57)binn = 1;//pT 3-6.5
 	      if(il==69)binn = 2;//pT 6.5-30
 	      if(il==53)binn = 3;//pT 3-30
-	      cout<<"???? bin "<<binn<<"\t promptYield= "<< prpt[il]<<endl;
+	      cout<<"???? bin "<<binn<<"\t prompt= "<< prpt[il]<<endl;
 	      phPrp_ptLow_mb->SetBinContent(binn,prpt[il]);
 	      phPrp_ptLow_mb->SetBinError(binn,prptErr[il]);
 
@@ -370,7 +422,7 @@ void makeHisto_raa(int sample = 0, // 0=PbPb,     1= pp
 	    }// centrality
 	  
 
-	  if( (il>=9 && il<=14) || (il>=2 && il<=7)) // the high pt lines
+	  if( il==9 || il==11 || il==13 || il==14 || il==4 || il==5 || il==7) // the high pt lines
 	    {
 	      if(il == 9)  binn = 1; // 6.5-7.5
 	      if(il == 11) binn = 2; // 7.5-8.5
@@ -388,7 +440,7 @@ void makeHisto_raa(int sample = 0, // 0=PbPb,     1= pp
 	      phNPrp_pt->SetBinError(binn,nprptErr[il]);
 	    }//pt
 
-	  if(il==0 || (il>=15 && il==18) || il==26 ) // the y lines
+	  if(il==0 || il==15 || il==16 || il==17 || il==18 || il==26 ) // the y lines
 	    {
 	      if(il == 0) binn = 1;  // 0-0.4
 	      if(il == 15) binn = 2; // 0.4-0.8
@@ -448,7 +500,7 @@ void makeHisto_raa(int sample = 0, // 0=PbPb,     1= pp
 	  // ************************** yields for 2D RAA --- low-pt
 	  if(il==22) // centrality
 	    {
-	      for(int ibin=1; ibin<=nBinsNpart6; ibin++)
+	      for(int ibin=1; ibin<=nBinsNpart5; ibin++)
 		{
 		  binn = ibin; 
 		  phPrp_y1624LowPtCent->SetBinContent(binn,prpt[il]);
@@ -509,8 +561,6 @@ void makeHisto_raa(int sample = 0, // 0=PbPb,     1= pp
 	      phNPrp_ptLow_mb->SetBinError(binn,nprptErr[il]);
 
 	    }
-	  cout<<"!! Reading-filling pp line"<<il<<endl;
-	  
 	}// for pp sample
 
     }//for each line in the fit_table file
