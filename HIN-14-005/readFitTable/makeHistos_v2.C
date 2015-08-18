@@ -1,3 +1,16 @@
+/*
+  Macro that makes histograms of:
+1) yields from the fit_table file that contains the fit results, that sits in a path of the form data/v2/20150817_PbPb/pp_../noWeight-weighted_.../summary/
+
+  Before running the macro:
+a) edit the fit_table file and remove the headers (we need just numbers to make the histograms)
+b) chose adjut the name of the directories (2015...) in the 'whichSample[1]' vector
+c) adjust the name of the weighted-no weighted directory, in the vectors whichWeight[2], and whichWeight_pp[2]
+
+The output root files of this macro, wich contains the histograms with the yields, are the input root file that are needed to make the v2 plots! 
+
+ */
+
 #include <Riostream.h>
 #include <TSystem.h>
 #include <TProfile.h>
@@ -23,29 +36,29 @@
 
 // remember to replace, in the case of the 'weighted' case, the rel. stat uncertianties with the one from the 'unweighted' yields
 
-void makeHisto(int nDphiBins = 2, 
-	       // const char* inputFitDataFileName   = "/Users/eusmartass/Documents/cmswrite/hin-14-005/v2/plots_v2/yieldsData/20140807/weightedEff/summary",
-	       // const char* outputHistDataFileName = "/Users/eusmartass/Documents/cmswrite/hin-14-005/v2/plots_v2/yieldsData/yieldsRootFiles/20140807_weightedEff_histsDPhiYields.root"
-	       // const char* inputFitDataFileName   = "/Users/eusmartass/Documents/cmswrite/hin-14-005/data/raa/20141020_PbPb_raa_v2_fwdCorrPt3/v2/20141020/v2noW_InEta/summary",
-	       // const char* outputHistDataFileName = "/Users/eusmartass/Documents/cmswrite/hin-14-005/v2/plots_v2/yieldsData/rootFile/20141020_noWeight_histsDPhiYields.root"
-	       const char* inputFitDataFileName   = "/Users/eusmartass/Documents/cmswrite/hin-14-005/data/raa/20141028_PbPb_v2_2dPhiBins/v2W_InEta_2dphiBins/summary",
-	       const char* outputHistDataFileName = "/Users/eusmartass/Documents/cmswrite/hin-14-005/v2/plots_v2/yieldsData/rootFile/20141028_yesW_2dphi_histsDPhiYields.root"
-	       ) 
+void makeHistos_v2(int nDphiBins = 4, 
+		   int sample = 0, // 0=PbPb
+		   int weight = 1, // 0=noWeight, 1=weight
+		   const char* inputFitDataFileLocation = "../data/v2"
+		   ) 
 {
+  const char* whichSample[1]    = {"20140807_v2"};
+  const char* whichWeight[2]    = {"noWeight","weightedEff"};
+  const char* outputHistDataFile[1] = {"histsV2Yields"};
+
   double PI = TMath::Pi();
 
   ifstream in;
-  in.open(Form("%s/fit_table",inputFitDataFileName));
-  
-  double x[300];
+  in.open(Form("%s/%s/%s/summary/fit_table",inputFitDataFileLocation,whichSample[sample],whichWeight[weight]));
  
   TFile *pfOutput;
-  pfOutput = new TFile(Form("%s",outputHistDataFileName),"RECREATE");
-  
+  pfOutput = new TFile(Form("%s_%s_%s_dPhiBins%d.root",outputHistDataFile[0],whichSample[sample],whichWeight[weight],nDphiBins),"RECREATE");
+
   TH1F *hInc[300];
   TH1F *hPrp[300];
   TH1F *hNPrp[300];
   
+  double x[300];
   double prpt[300], prptErr[300], nprpt[300], nprptErr[300];
   double inc[300], incErr[300];
   double rap1[300], rap2[300], pT1[300], pT2[300];//, cent1[300], cent2[300];
