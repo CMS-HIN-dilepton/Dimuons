@@ -23,7 +23,7 @@
 
 // remember to replace, in the case of the 'weighted' case, the rel. stat uncertianties with the one from the 'unweighted' yields
 
-void makeHisto(int nDphiBins = 2, 
+void makeHisto_v2(int nDphiBins = 2, 
 	       // const char* inputFitDataFileName   = "/Users/eusmartass/Documents/cmswrite/hin-14-005/v2/plots_v2/yieldsData/20140807/weightedEff/summary",
 	       // const char* outputHistDataFileName = "/Users/eusmartass/Documents/cmswrite/hin-14-005/v2/plots_v2/yieldsData/yieldsRootFiles/20140807_weightedEff_histsDPhiYields.root"
 	       // const char* inputFitDataFileName   = "/Users/eusmartass/Documents/cmswrite/hin-14-005/data/raa/20141020_PbPb_raa_v2_fwdCorrPt3/v2/20141020/v2noW_InEta/summary",
