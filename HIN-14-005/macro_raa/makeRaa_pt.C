@@ -32,13 +32,13 @@ Output: the Raa vs pt.
 #endif
 
 void makeRaa_pt( bool bSavePlots=1,
-		  bool bDoDebug = 0, // adds some numbers, numerator, denominator, to help figure out if things are read properly
-		  bool bAddLumi = 0, // add the lumi boxes at raa=1
-		  bool bAddLegend = 1, 
-		  bool bOnlyLowPtCent=0,
-		  int weight = 1, //0=raw yields, will be corrected on the fly, in the traditional way, 1=corrected yields
-		  const char* inputDir="../readFitTable", // the place where the input root files, with the histograms are
-		  const char* outputDir="figs")// where the output figures will be
+      bool bDoDebug = 0, // adds some numbers, numerator, denominator, to help figure out if things are read properly
+      bool bAddLumi = 0, // add the lumi boxes at raa=1
+      bool bAddLegend = 1, 
+      bool bOnlyLowPtCent=0,
+      int weight = 1, //0=raw yields, will be corrected on the fly, in the traditional way, 1=corrected yields
+      const char* inputDir="../readFitTable", // the place where the input root files, with the histograms are
+      const char* outputDir="figs")// where the output figures will be
 {
   gROOT->Macro("../logon.C+");
   gStyle->SetOptFit(0);
@@ -47,20 +47,24 @@ void makeRaa_pt( bool bSavePlots=1,
 
   // input files: 
   // const char* yieldHistFile_yesWeight[2] = {"histsRaaYields_20150127_PbPb_raa_weightedEff_InEta.root",
-  // 					    "histsRaaYields_20150127_pp_raa_weightedEff_InEta.root"};
+  //              "histsRaaYields_20150127_pp_raa_weightedEff_InEta.root"};
   // const char* yieldHistFile_noWeight[2]  = {"histsRaaYields_20150127_PbPb_raa_noWeight_InEta.root",
-  // 					    "histsRaaYields_20150127_pp_raa_noWeight_InEta.root"};
+  //              "histsRaaYields_20150127_pp_raa_noWeight_InEta.root"};
 
-
-  const char* yieldHistFile_yesWeight[2] = {"histsRaaYields_20150817_PbPb_raa_Lxyz_weightedEff_Lxyz_pTtune_PRMC.root",
-  					    "histsRaaYields_20150817_pp_Lxyz_weightedEff_Lxyz_finerpT_PRMC.root"};
+  const char* yieldHistFile_yesWeight[2] = {
+   "histsRaaYields_20150817_PbPb_raa_Lxyz_weightedEff_Lxyz_pTtune_PRMC.root",
+   "histsRaaYields_20150817_pp_Lxyz_weightedEff_Lxyz_finerpT_PRMC.root"
+  };
   
-  const char* yieldHistFile_noWeight[2]  = {"histsRaaYields_20150817_PbPb_raa_Lxyz_noWeight_Lxyz_pTtune_PRMC.root",
-					    "histsRaaYields_20150817_pp_Lxyz_noWeight_Lxyz_finerpT_PRMC.root"};
+  const char* yieldHistFile_noWeight[2] = {
+   "histsRaaYields_20150817_PbPb_raa_Lxyz_noWeight_Lxyz_pTtune_PRMC.root",
+   "histsRaaYields_20150817_pp_Lxyz_noWeight_Lxyz_finerpT_PRMC.root"
+  };
 
-
-  const char* effHistFile[2]             = {"histEff_pbpb_tradEff_nov12.root",
-					    "histEff_pp_tradEff_nov12.root"};
+  const char* effHistFile[2] = {
+   "histEff_pbpb_tradEff_nov12.root",
+   "histEff_pp_tradEff_nov12.root"
+  };
   const int nInHist = 4;
   const char* yieldHistNames[nInHist] = {"pt", "ptLow", "ptLow_mb", "mb"};
 
@@ -73,6 +77,11 @@ void makeRaa_pt( bool bSavePlots=1,
 
   TFile *fEffFile_aa = new TFile(Form("%s/%s",inputDir,effHistFile[0]));
   TFile *fEffFile_pp = new TFile(Form("%s/%s",inputDir,effHistFile[1]));
+
+  if (!fYesWeighFile_aa->IsOpen() || !fYesWeighFile_pp->IsOpen()|| !fNoWeighFile_aa->IsOpen() || !fNoWeighFile_pp->IsOpen() || !fEffFile_aa->IsOpen() || !fEffFile_pp->IsOpen()) {
+    cout << "One or more input files are missing" << endl;
+    return ;
+  }
 
   TH1F *phRaw_pr_pp; 
   TH1F *phCorr_pr_pp;
@@ -89,115 +98,111 @@ void makeRaa_pt( bool bSavePlots=1,
   TH1F *phEff_npr_aa;
   
   for(int ih=0; ih<nInHist;ih++) // for each kinematic range
-    {
-      TString hist_pr(Form("phPrp_%s",yieldHistNames[ih]));
-      TString hist_npr(Form("phNPrp_%s",yieldHistNames[ih]));
-      
-      cout<<"histogram input name: "<< hist_pr<<"\t"<<hist_npr<<endl; 
-
-      // prompt histos
-      phRaw_pr_pp  = (TH1F*)fNoWeighFile_pp->Get(hist_pr);
-      phCorr_pr_pp = (TH1F*)fYesWeighFile_pp->Get(hist_pr);
-      phRaw_pr_aa  = (TH1F*)fNoWeighFile_aa->Get(hist_pr);
-      phCorr_pr_aa = (TH1F*)fYesWeighFile_aa->Get(hist_pr);
-      
-      // non-prompt histos
-      phRaw_npr_pp  = (TH1F*)fNoWeighFile_pp->Get(hist_npr);
-      phCorr_npr_pp = (TH1F*)fYesWeighFile_pp->Get(hist_npr);
-      phRaw_npr_aa  = (TH1F*)fNoWeighFile_aa->Get(hist_npr);
-      phCorr_npr_aa = (TH1F*)fYesWeighFile_aa->Get(hist_npr);
-
-      // efficiency histos
-      phEff_pr_pp  = (TH1F*)fEffFile_pp->Get(hist_pr);
-      phEff_npr_pp = (TH1F*)fEffFile_pp->Get(hist_npr);
-      phEff_pr_aa  = (TH1F*)fEffFile_aa->Get(hist_pr);
-      phEff_npr_aa = (TH1F*)fEffFile_aa->Get(hist_npr);
-
-      double scaleFactor = ppLumi/nMbEvents;
-      double scale_cent = 1/(adTaaMB[0]*adDeltaCentMB[0]);
+  {
+    TString hist_pr(Form("phPrp_%s",yieldHistNames[ih]));
+    TString hist_npr(Form("phNPrp_%s",yieldHistNames[ih]));
     
-      int numBins = 0;
-      if(ih==0) numBins = nBinsPt;
-      if(ih==1 || ih==2) numBins = nBinsPt3;
-      if(ih==3) numBins = nBinsMB;
+    cout<<"histogram input name: "<< hist_pr<<"\t"<<hist_npr<<endl; 
 
-      for(int ibin=1; ibin<=numBins; ibin++)
-	{
-	  double raa_pr=0, raaErr_pr=0, raa_npr=0, raaErr_npr=0;
+    // prompt histos
+    phRaw_pr_pp  = (TH1F*)fNoWeighFile_pp->Get(hist_pr);
+    phCorr_pr_pp = (TH1F*)fYesWeighFile_pp->Get(hist_pr);
+    phRaw_pr_aa  = (TH1F*)fNoWeighFile_aa->Get(hist_pr);
+    phCorr_pr_aa = (TH1F*)fYesWeighFile_aa->Get(hist_pr);
+    
+    // non-prompt histos
+    phRaw_npr_pp  = (TH1F*)fNoWeighFile_pp->Get(hist_npr);
+    phCorr_npr_pp = (TH1F*)fYesWeighFile_pp->Get(hist_npr);
+    phRaw_npr_aa  = (TH1F*)fNoWeighFile_aa->Get(hist_npr);
+    phCorr_npr_aa = (TH1F*)fYesWeighFile_aa->Get(hist_npr);
 
-	  //prompt
-	  double dRelErrRaw_pr_pp  = phRaw_pr_pp->GetBinError(ibin)/phRaw_pr_pp->GetBinContent(ibin);
-	  double dRelErrRaw_pr_aa  = phRaw_pr_aa->GetBinError(ibin)/phRaw_pr_aa->GetBinContent(ibin);
-	  double yieldRatio_pr     = phCorr_pr_aa->GetBinContent(ibin)/phCorr_pr_pp->GetBinContent(ibin);
-	  if(weight==0) yieldRatio_pr = (phRaw_pr_aa->GetBinContent(ibin)/phRaw_pr_pp->GetBinContent(ibin))
-			  * (phEff_pr_pp->GetBinContent(ibin)/phEff_pr_aa->GetBinContent(ibin));
+    // efficiency histos
+    phEff_pr_pp  = (TH1F*)fEffFile_pp->Get(hist_pr);
+    phEff_npr_pp = (TH1F*)fEffFile_pp->Get(hist_npr);
+    phEff_pr_aa  = (TH1F*)fEffFile_aa->Get(hist_pr);
+    phEff_npr_aa = (TH1F*)fEffFile_aa->Get(hist_npr);
 
-	  raa_pr      =  yieldRatio_pr * scaleFactor * scale_cent;
-	  raaErr_pr   = TMath::Sqrt(TMath::Power(dRelErrRaw_pr_pp,2)+TMath::Power(dRelErrRaw_pr_aa,2))*raa_pr;
+    double scaleFactor = ppLumi/nMbEvents;
+    double scale_cent = 1/(adTaaMB[0]*adDeltaCentMB[0]);
+  
+    int numBins = 0;
+    if(ih==0) numBins = nBinsPt;
+    if(ih==1 || ih==2) numBins = nBinsPt3;
+    if(ih==3) numBins = nBinsMB;
 
-	    //non-prompt
-	    // get the rel uncert from the raw sample
-	    double dRelErrRaw_npr_pp  = phRaw_npr_pp->GetBinError(ibin)/phRaw_npr_pp->GetBinContent(ibin);
-	    double dRelErrRaw_npr_aa  = phRaw_npr_aa->GetBinError(ibin)/phRaw_npr_aa->GetBinContent(ibin);
-	    double yieldRatio_npr     = phCorr_npr_aa->GetBinContent(ibin)/phCorr_npr_pp->GetBinContent(ibin);
-	    if(weight==0) yieldRatio_npr = phRaw_npr_aa->GetBinContent(ibin)/phRaw_npr_pp->GetBinContent(ibin)
-			    * (phEff_npr_pp->GetBinContent(ibin)/phEff_npr_aa->GetBinContent(ibin));
+    for(int ibin=1; ibin<=numBins; ibin++)
+    {
+      double raa_pr=0, raaErr_pr=0, raa_npr=0, raaErr_npr=0;
 
-	    raa_npr    = yieldRatio_npr * scaleFactor * scale_cent;
-	    raaErr_npr = TMath::Sqrt(TMath::Power(dRelErrRaw_npr_pp,2)+TMath::Power(dRelErrRaw_npr_aa,2))*raa_npr;
-	   
-	    // fill the corresponding array
-	    switch(ih){
-	    case 0:
-	      prJpsi_pt[ibin-1]    = raa_pr;
-	      prJpsiErr_pt[ibin-1] = raaErr_pr;
-	    	      
-	      nonPrJpsi_pt[ibin-1]    = raa_npr;
-	      nonPrJpsiErr_pt[ibin-1] = raaErr_npr;
-	      break;
-	    case 1:
-	      prJpsi_pt365y1624_pt[ibin-1]        = raa_pr;
-	      prJpsiErr_pt365y1624_pt[ibin-1]     = raaErr_pr;
+      //prompt
+      double dRelErrRaw_pr_pp  = phRaw_pr_pp->GetBinError(ibin)/phRaw_pr_pp->GetBinContent(ibin);
+      double dRelErrRaw_pr_aa  = phRaw_pr_aa->GetBinError(ibin)/phRaw_pr_aa->GetBinContent(ibin);
+      double yieldRatio_pr     = phCorr_pr_aa->GetBinContent(ibin)/phCorr_pr_pp->GetBinContent(ibin);
+      if(weight==0) yieldRatio_pr = (phRaw_pr_aa->GetBinContent(ibin)/phRaw_pr_pp->GetBinContent(ibin))
+          * (phEff_pr_pp->GetBinContent(ibin)/phEff_pr_aa->GetBinContent(ibin));
 
-	      nonPrJpsi_pt365y1624_pt[ibin-1]     = raa_npr;
-	      nonPrJpsiErr_pt365y1624_pt[ibin-1]  = raaErr_npr;
+      raa_pr      =  yieldRatio_pr * scaleFactor * scale_cent;
+      raaErr_pr   = TMath::Sqrt(TMath::Power(dRelErrRaw_pr_pp,2)+TMath::Power(dRelErrRaw_pr_aa,2))*raa_pr;
 
-	      break;
+      //non-prompt
+      // get the rel uncert from the raw sample
+      double dRelErrRaw_npr_pp  = phRaw_npr_pp->GetBinError(ibin)/phRaw_npr_pp->GetBinContent(ibin);
+      double dRelErrRaw_npr_aa  = phRaw_npr_aa->GetBinError(ibin)/phRaw_npr_aa->GetBinContent(ibin);
+      double yieldRatio_npr     = phCorr_npr_aa->GetBinContent(ibin)/phCorr_npr_pp->GetBinContent(ibin);
+      if(weight==0) yieldRatio_npr = phRaw_npr_aa->GetBinContent(ibin)/phRaw_npr_pp->GetBinContent(ibin)
+          * (phEff_npr_pp->GetBinContent(ibin)/phEff_npr_aa->GetBinContent(ibin));
 
-	    case 2:
-	      prJpsi_y1624MB_pt[ibin-1]        = raa_pr;
-	      prJpsiErr_y1624MB_pt[ibin-1]     = raaErr_pr;
+      raa_npr    = yieldRatio_npr * scaleFactor * scale_cent;
+      raaErr_npr = TMath::Sqrt(TMath::Power(dRelErrRaw_npr_pp,2)+TMath::Power(dRelErrRaw_npr_aa,2))*raa_npr;
+     
+      // fill the corresponding array
+      switch(ih){
+      case 0:
+        prJpsi_pt[ibin-1]    = raa_pr;
+        prJpsiErr_pt[ibin-1] = raaErr_pr;
+              
+        nonPrJpsi_pt[ibin-1]    = raa_npr;
+        nonPrJpsiErr_pt[ibin-1] = raaErr_npr;
+        break;
 
-	      nonPrJpsi_y1624MB_pt[ibin-1]     = raa_npr;
-	      nonPrJpsiErr_y1624MB_pt[ibin-1]  = raaErr_npr;
+      case 1:
+        prJpsi_pt365y1624_pt[ibin-1]        = raa_pr;
+        prJpsiErr_pt365y1624_pt[ibin-1]     = raaErr_pr;
 
-	      if(bDoDebug)
-	      {
-		// cout<<"weight_pr_aa = "<<phEff_pr_aa->GetBinContent(ibin)<<"\t weight_pr_pp = "<<phEff_pr_pp->GetBinContent(ibin)<<endl;
-		//cout<<"yield_pr_aa "<<phCorr_pr_aa->GetBinContent(ibin)<<"\t yield_pr_pp "<<phCorr_pr_pp->GetBinContent(ibin)<<endl;
-		cout<<"yield_npr_aa "<<phCorr_npr_aa->GetBinContent(ibin)<<"\t yield_pr_pp "<<phCorr_npr_pp->GetBinContent(ibin)<<endl;
-	
-		//cout<<"pr_aa= "<<phRaw_pr_aa->GetBinContent(ibin)/phEff_pr_aa->GetBinContent(ibin)<<"\t pr_pp= "<<phRaw_pr_pp->GetBinContent(ibin)/phEff_pr_pp->GetBinContent(ibin)<<endl;
-		cout<<setprecision(2);
-		cout<<"!!!!! raa_pr = "<<raa_pr<<"\t raa_npr= "<<raa_npr<<endl;
-		
-	      }
+        nonPrJpsi_pt365y1624_pt[ibin-1]     = raa_npr;
+        nonPrJpsiErr_pt365y1624_pt[ibin-1]  = raaErr_npr;
+        break;
 
-	      break;
+      case 2:
+        prJpsi_y1624MB_pt[ibin-1]        = raa_pr;
+        prJpsiErr_y1624MB_pt[ibin-1]     = raaErr_pr;
 
-	    case 3:
-	      // mb
-	      prJpsi_mb[0]     = raa_pr;
-	      prJpsiErr_mb[0]  = raaErr_pr;
-	      
-	      nonPrJpsi_mb[0]  = raa_npr;
-	      nonPrJpsi_mb[0]  = raaErr_npr;
-	      break;
-	    }
-	}//loop over mini centrlaity bins
-	
+        nonPrJpsi_y1624MB_pt[ibin-1]     = raa_npr;
+        nonPrJpsiErr_y1624MB_pt[ibin-1]  = raaErr_npr;
 
-    }//loop oever kinematic bins
+        if(bDoDebug)
+        {
+          // cout<<"weight_pr_aa = "<<phEff_pr_aa->GetBinContent(ibin)<<"\t weight_pr_pp = "<<phEff_pr_pp->GetBinContent(ibin)<<endl;
+          //cout<<"yield_pr_aa "<<phCorr_pr_aa->GetBinContent(ibin)<<"\t yield_pr_pp "<<phCorr_pr_pp->GetBinContent(ibin)<<endl;
+          cout<<"yield_npr_aa "<<phCorr_npr_aa->GetBinContent(ibin)<<"\t yield_pr_pp "<<phCorr_npr_pp->GetBinContent(ibin)<<endl;
+        
+          //cout<<"pr_aa= "<<phRaw_pr_aa->GetBinContent(ibin)/phEff_pr_aa->GetBinContent(ibin)<<"\t pr_pp= "<<phRaw_pr_pp->GetBinContent(ibin)/phEff_pr_pp->GetBinContent(ibin)<<endl;
+          cout<<setprecision(2);
+          cout<<"!!!!! raa_pr = "<<raa_pr<<"\t raa_npr= "<<raa_npr<<endl;
+        }
+        break;
+
+      case 3:
+        // mb
+        prJpsi_mb[0]     = raa_pr;
+        prJpsiErr_mb[0]  = raaErr_pr;
+        
+        nonPrJpsi_mb[0]  = raa_npr;
+        nonPrJpsi_mb[0]  = raaErr_npr;
+        break;
+      }
+    }//loop end: for(int ibin=1; ibin<=numBins; ibin++)
+  }//loop end: for(int ih=0; ih<nInHist;ih++)
 
   // ***** //Drawing
   // pr
@@ -241,16 +246,16 @@ void makeRaa_pt( bool bSavePlots=1,
   //-------------------------------------------------------------------
   // **************** marker colors
   if(weight==1)
-    {
-      //prompt
-      gPrJpsi->SetMarkerColor(kRed);
-      gPrJpsi_pt365y1624->SetMarkerColor(kViolet+2);
-      
-      // non-prompt
-      gNonPrJpsi->SetMarkerColor(kOrange+2);
-      gNonPrJpsi_pt365y1624->SetMarkerColor(kViolet+2);
+  {
+    //prompt
+    gPrJpsi->SetMarkerColor(kRed);
+    gPrJpsi_pt365y1624->SetMarkerColor(kViolet+2);
+    
+    // non-prompt
+    gNonPrJpsi->SetMarkerColor(kOrange+2);
+    gNonPrJpsi_pt365y1624->SetMarkerColor(kViolet+2);
 
-    }
+  }
   //mnbias colors
   gPrJpsi_mb->SetMarkerColor(kCyan+2);
   gNonPrJpsi_mb->SetMarkerColor(kCyan+2);
@@ -259,7 +264,7 @@ void makeRaa_pt( bool bSavePlots=1,
   gNonPrJpsi_y1624_mb->SetMarkerColor(kBlue-4);
 
   //--------- marker style  
- // pr
+  // pr
   gPrJpsi->SetMarkerStyle(21);
   gPrJpsiP->SetMarkerStyle(25);
 
@@ -282,7 +287,7 @@ void makeRaa_pt( bool bSavePlots=1,
 
 
   // ************** contour
-   // pr
+  // pr
   gPrJpsiP->SetMarkerColor(kBlack);
   gPrJpsiP_pt365y1624->SetMarkerColor(kBlack);
 
@@ -308,8 +313,6 @@ void makeRaa_pt( bool bSavePlots=1,
   
   gNonPrJpsiP_pt365y1624->SetMarkerSize(1.7);
   gNonPrJpsi_pt365y1624->SetMarkerSize(1.7);
-
-
 
 
   //stat boxes
@@ -356,16 +359,16 @@ void makeRaa_pt( bool bSavePlots=1,
   // general stuff
   f4->Draw();// axis
   if(bAddLumi) 
-    {
-      lumi->Draw();
-      f4->Draw("same");
-    }
+  {
+    lumi->Draw();
+    f4->Draw("same");
+  }
   if(bAddLegend)
-    {
-      pre->Draw();
-      l1->Draw();
-      lcent->Draw();
-    }
+  {
+    pre->Draw();
+    l1->Draw();
+    lcent->Draw();
+  }
   
   gPrJpsiSyst->Draw("2");
   gPrJpsi->Draw("P");
@@ -386,25 +389,25 @@ void makeRaa_pt( bool bSavePlots=1,
   leg11a->AddEntry(gPrJpsi_pt365y1624,"1.6<|y|<2.4","P");
  
   if(bAddLegend)
-    {
-      leg11a->Draw();
-      pre->DrawLatex(2,1.05,"Prompt J/#psi");
-    }
+  {
+    leg11a->Draw();
+    pre->DrawLatex(2,1.05,"Prompt J/#psi");
+  }
 
   if(bSavePlots)
-    {
-      c1->SaveAs(Form("%s/pdf/PrJpsi_vsPt_weight%d.pdf",outputDir,weight));
-      c1->SaveAs(Form("%s/png/PrJpsi_vsPt_weight%d.pdf",outputDir,weight));
-    }
+  {
+    c1->SaveAs(Form("%s/pdf/PrJpsi_vsPt_weight%d.pdf",outputDir,weight));
+    c1->SaveAs(Form("%s/png/PrJpsi_vsPt_weight%d.pdf",outputDir,weight));
+  }
   
   //-------------------minbias dependence
   TCanvas *c11b = new TCanvas("c11b","c11b");
   f4->Draw();
   if(bAddLumi)
-    {
-      lumi->Draw();
-      f4->Draw("same");
-    }
+  {
+    lumi->Draw();
+    f4->Draw("same");
+  }
  
   gPrJpsiSyst_mb->Draw("2");
   gPrJpsi_mb->Draw("P");
@@ -423,38 +426,38 @@ void makeRaa_pt( bool bSavePlots=1,
   leg11b->AddEntry(gPrJpsi_y1624_mb,"1.6<|y|<2.4","P");
  
   if(bAddLegend)
-    {
-      pre->Draw();
-      l1->Draw();
-      lcent->Draw();
-    
-      leg11b->Draw();
-      pre->DrawLatex(2,1.05,"Prompt J/#psi");
-    }
+  {
+    pre->Draw();
+    l1->Draw();
+    lcent->Draw();
+  
+    leg11b->Draw();
+    pre->DrawLatex(2,1.05,"Prompt J/#psi");
+  }
   gPad->RedrawAxis();
 
   if(bSavePlots)
-    {
-      c11b->SaveAs(Form("%s/pdf/PrJpsi_vsPt_mb_weight%d_onlyLow%d.pdf",outputDir,weight,bOnlyLowPtCent));
-      c11b->SaveAs(Form("%s/png/PrJpsi_vsPt_mb_weight%d_onlyLow%d.png",outputDir,weight,bOnlyLowPtCent));
-    }
+  {
+    c11b->SaveAs(Form("%s/pdf/PrJpsi_vsPt_mb_weight%d_onlyLow%d.pdf",outputDir,weight,bOnlyLowPtCent));
+    c11b->SaveAs(Form("%s/png/PrJpsi_vsPt_mb_weight%d_onlyLow%d.png",outputDir,weight,bOnlyLowPtCent));
+  }
 
- //   // ############################################## non-pr 
- //   // ############################################## non-pr
+  //   // ############################################## non-pr 
+  //   // ############################################## non-pr
   TCanvas *c2 = new TCanvas("c2","c2");
   // general stuff
   f4->Draw();// axis
   if(bAddLumi) 
-    {
-      lumi->Draw();
-      f4->Draw("same");
-    }
+  {
+    lumi->Draw();
+    f4->Draw("same");
+  }
   if(bAddLegend)
-    {
-      pre->DrawLatex(2,1.4,"CMS Preliminary");
-      l1->Draw();
-      lcent->Draw();
-    }
+  {
+    pre->DrawLatex(2,1.4,"CMS Preliminary");
+    l1->Draw();
+    lcent->Draw();
+  }
   
   gNonPrJpsiSyst->Draw("2");
   gNonPrJpsi->Draw("P");
@@ -475,25 +478,25 @@ void makeRaa_pt( bool bSavePlots=1,
   leg22a->AddEntry(gNonPrJpsi_pt365y1624,"1.6<|y|<2.4","P");
  
   if(bAddLegend)
-    {
-      leg22a->Draw();
-      pre->DrawLatex(2,1.05,"Non-prompt J/#psi");
-    }
+  {
+    leg22a->Draw();
+    pre->DrawLatex(2,1.05,"Non-prompt J/#psi");
+  }
 
   if(bSavePlots)
-    {
-      c2->SaveAs(Form("%s/pdf/nonPrJpsi_vsPt_weight%d.pdf",outputDir,weight));
-      c2->SaveAs(Form("%s/png/nonPrJpsi_vsPt_weight%d.pdf",outputDir,weight));
-    }
+  {
+    c2->SaveAs(Form("%s/pdf/nonPrJpsi_vsPt_weight%d.pdf",outputDir,weight));
+    c2->SaveAs(Form("%s/png/nonPrJpsi_vsPt_weight%d.pdf",outputDir,weight));
+  }
   
   //-------------------minbias dependence
   TCanvas *c22b = new TCanvas("c22b","c22b");
   f4->Draw();
   if(bAddLumi)
-    {
-      lumi->Draw();
-      f4->Draw("same");
-    }
+  {
+    lumi->Draw();
+    f4->Draw("same");
+  }
  
   gNonPrJpsiSyst_mb->Draw("2");
   gNonPrJpsi_mb->Draw("P");
@@ -512,21 +515,21 @@ void makeRaa_pt( bool bSavePlots=1,
   leg22b->AddEntry(gNonPrJpsi_y1624_mb,"1.6<|y|<2.4","P");
  
   if(bAddLegend)
-    {
-      pre->DrawLatex(2,1.4,"CMS Preliminary");
-      l1->Draw();
-      lcent->Draw();
-    
-      leg22b->Draw();
-      pre->DrawLatex(2,1.05,"Non-prompt J/#psi");
-    }
+  {
+    pre->DrawLatex(2,1.4,"CMS Preliminary");
+    l1->Draw();
+    lcent->Draw();
+  
+    leg22b->Draw();
+    pre->DrawLatex(2,1.05,"Non-prompt J/#psi");
+  }
   gPad->RedrawAxis();
 
   if(bSavePlots)
-    {
-      c22b->SaveAs(Form("%s/pdf/nonPrJpsi_vsPt_mb_weight%d_onlyLow%d.pdf",outputDir,weight,bOnlyLowPtCent));
-      c22b->SaveAs(Form("%s/png/nonPrJpsi_vsPt_mb_weight%d_onlyLow%d.png",outputDir,weight,bOnlyLowPtCent));
-    }
+  {
+    c22b->SaveAs(Form("%s/pdf/nonPrJpsi_vsPt_mb_weight%d_onlyLow%d.pdf",outputDir,weight,bOnlyLowPtCent));
+    c22b->SaveAs(Form("%s/png/nonPrJpsi_vsPt_mb_weight%d_onlyLow%d.png",outputDir,weight,bOnlyLowPtCent));
+  }
 
 
 }
