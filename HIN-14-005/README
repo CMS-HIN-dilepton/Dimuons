@@ -1,10 +1,9 @@
 data/ : fit_table files are located
-macro_v2/ and macro_raa/ : Draw final histograms
+  - Do not change any part of fit_tables, including the first 2 lines (headers)
 readFitTable/ : Process fit_table files under data/ to produce root files with histograms
+  - You shouldn't delete/modify fit_table files, it's automatically handled
+macro_v2/ and macro_raa/ : Draw final histograms
+
 
 * Please be aware below points:
-1) Put .gitignore file on the top directory with below contents.
-.DS_Store
-*.tgz
-
-2) Use whitespace instead of tab
+1) Use whitespace instead of tab
