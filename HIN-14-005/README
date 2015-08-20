@@ -1,0 +1,10 @@
+data/ : fit_table files are located
+macro_v2/ and macro_raa/ : Draw final histograms
+readFitTable/ : Process fit_table files under data/ to produce root files with histograms
+
+* Please be aware below points:
+1) Put .gitignore file on the top directory with below contents.
+.DS_Store
+*.tgz
+
+2) Use whitespace instead of tab
