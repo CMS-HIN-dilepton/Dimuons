@@ -3,9 +3,8 @@
 1) yields from the fit_table file that contains the fit results, that sits in a path of the form data/v2/20150817_PbPb/pp_../noWeight-weighted_.../summary/
 
   Before running the macro:
-a) edit the fit_table file and remove the headers (we need just numbers to make the histograms)
-b) chose adjut the name of the directories (2015...) in the 'whichSample[1]' vector
-c) adjust the name of the weighted-no weighted directory, in the vectors whichWeight[2], and whichWeight_pp[2]
+a) chose adjut the name of the directories (2015...) in the 'whichSample[1]' vector
+b) adjust the name of the weighted-no weighted directory, in the vectors whichWeight[2], and whichWeight_pp[2]
 
 The output root files of this macro, wich contains the histograms with the yields, are the input root file that are needed to make the v2 plots! 
 
@@ -65,6 +64,11 @@ void makeHistos_v2(int nDphiBins = 4,
   int cent1[300], cent2[300];
   char tmp[512];
   int nline = 0;
+
+  // Read 2 header lines and throw them away to kepp only numbers
+  string tmpstring;
+  getline(in,tmpstring);
+  getline(in,tmpstring);
   while (1) 
     {
       in >> x[0] >> x[1] >> x[2] >> x[3] >> x[4] >> x[5] >> x[6] >> x[7] >> x[8] >> x[9] >> x[10] >> x[11] >> x[12] >> x[13] >> x[14] >> x[15] >> x[16] >> x[17];
