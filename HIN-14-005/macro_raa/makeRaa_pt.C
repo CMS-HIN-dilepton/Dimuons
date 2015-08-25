@@ -15,6 +15,7 @@ Output: the Raa vs pt.
 #include <iomanip>
 
 #include "TROOT.h"
+#include "TSystem.h"
 #include "TStyle.h"
 #include "TMath.h"
 #include "TFile.h"
@@ -40,6 +41,8 @@ void makeRaa_pt( bool bSavePlots=1,
       const char* inputDir="../readFitTable", // the place where the input root files, with the histograms are
       const char* outputDir="figs")// where the output figures will be
 {
+  gSystem->mkdir(Form("./%s/png",outputDir), kTRUE);
+
   gROOT->Macro("../logon.C+");
   gStyle->SetOptFit(0);
   gStyle->SetOptStat(0);
@@ -52,18 +55,18 @@ void makeRaa_pt( bool bSavePlots=1,
   //              "histsRaaYields_20150127_pp_raa_noWeight_InEta.root"};
 
   const char* yieldHistFile_yesWeight[2] = {
-   "histsRaaYields_20150817_PbPb_raa_Lxyz_weightedEff_Lxyz_pTtune_PRMC.root",
-   "histsRaaYields_20150817_pp_Lxyz_weightedEff_Lxyz_finerpT_PRMC.root"
+   "histsRaaYields_20150823_PbPb_Lxyz_weightedEff_Lxyz_pTtune_PRMC.root",
+   "histsRaaYields_20150823_pp_Lxyz_weightedEff_Lxyz_finerpT_PRMC.root"
   };
   
   const char* yieldHistFile_noWeight[2] = {
-   "histsRaaYields_20150817_PbPb_raa_Lxyz_noWeight_Lxyz_pTtune_PRMC.root",
-   "histsRaaYields_20150817_pp_Lxyz_noWeight_Lxyz_finerpT_PRMC.root"
+   "histsRaaYields_20150823_PbPb_Lxyz_noWeight_Lxyz_pTtune_PRMC.root",
+   "histsRaaYields_20150823_pp_Lxyz_noWeight_Lxyz_finerpT_PRMC.root"
   };
 
   const char* effHistFile[2] = {
-   "histEff_pbpb_tradEff_nov12.root",
-   "histEff_pp_tradEff_nov12.root"
+   "histEff_pbpb_tradEff_0823.root",
+   "histEff_pp_tradEff_0823.root"
   };
   const int nInHist = 4;
   const char* yieldHistNames[nInHist] = {"pt", "ptLow", "ptLow_mb", "mb"};

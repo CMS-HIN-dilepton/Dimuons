@@ -14,6 +14,7 @@ Output: the Raa vs cent.
 #include <iomanip>
 
 #include "TROOT.h"
+#include "TSystem.h"
 #include "TStyle.h"
 #include "TMath.h"
 #include "TFile.h"
@@ -41,6 +42,8 @@ void makeRaa_cent(bool bSavePlots=1,
       const char* inputDir="../readFitTable", // the place where the input root files, with the histograms are
       const char* outputDir="figs")// where the output figures will be
 {
+  gSystem->mkdir(Form("./%s/png",outputDir), kTRUE);
+
   gROOT->Macro("../logon.C+");
   gStyle->SetOptFit(0);
   gStyle->SetOptStat(0);
@@ -54,18 +57,18 @@ void makeRaa_cent(bool bSavePlots=1,
 
 
   const char* yieldHistFile_yesWeight[2] = {
-   "histsRaaYields_20150817_PbPb_raa_Lxyz_weightedEff_Lxyz_pTtune_PRMC.root",
-   "histsRaaYields_20150817_pp_Lxyz_weightedEff_Lxyz_finerpT_PRMC.root"
+   "histsRaaYields_20150823_PbPb_Lxyz_weightedEff_Lxyz_pTtune_PRMC.root",
+   "histsRaaYields_20150823_pp_Lxyz_weightedEff_Lxyz_finerpT_PRMC.root"
   };
   
   const char* yieldHistFile_noWeight[2] = {
-   "histsRaaYields_20150817_PbPb_raa_Lxyz_noWeight_Lxyz_pTtune_PRMC.root",
-   "histsRaaYields_20150817_pp_Lxyz_noWeight_Lxyz_finerpT_PRMC.root"
+   "histsRaaYields_20150823_PbPb_Lxyz_noWeight_Lxyz_pTtune_PRMC.root",
+   "histsRaaYields_20150823_pp_Lxyz_noWeight_Lxyz_finerpT_PRMC.root"
   };
 
   const char* effHistFile[2] = {
-   "histEff_pbpb_tradEff_nov12.root",
-   "histEff_pp_tradEff_nov12.root"
+   "histEff_pbpb_tradEff_0823.root",
+   "histEff_pp_tradEff_0823.root"
   };
   const int nInHist = 5;
   const char* yieldHistNames[nInHist] = {"cent","y012Cent", "y1216Cent", "y1624Cent", "y1624LowPtCent"};
@@ -149,8 +152,8 @@ void makeRaa_cent(bool bSavePlots=1,
       double dRelErrRaw_pr_aa  = phRaw_pr_aa->GetBinError(ibin)/phRaw_pr_aa->GetBinContent(ibin);
       double yieldRatio_pr     = phCorr_pr_aa->GetBinContent(ibin)/phCorr_pr_pp->GetBinContent(ibin);
       if(weight==0) yieldRatio_pr =
-          (phRaw_pr_aa->GetBinContent(ibin)/phRaw_pr_pp->GetBinContent(ibin)) *
-          (phEff_pr_pp->GetBinContent(ibin)/phEff_pr_aa->GetBinContent(ibin));
+        (phRaw_pr_aa->GetBinContent(ibin)/phRaw_pr_pp->GetBinContent(ibin)) *
+        (phEff_pr_pp->GetBinContent(ibin)/phEff_pr_aa->GetBinContent(ibin));
 
       raa_pr      =  yieldRatio_pr * scaleFactor * scale_cent;
       raaErr_pr   = TMath::Sqrt(TMath::Power(dRelErrRaw_pr_pp,2)+TMath::Power(dRelErrRaw_pr_aa,2))*raa_pr;

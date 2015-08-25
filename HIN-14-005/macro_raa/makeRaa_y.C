@@ -14,6 +14,7 @@ Output: the Raa vs rpaidity.
 #include <iomanip>
 
 #include "TROOT.h"
+#include "TSystem.h"
 #include "TStyle.h"
 #include "TMath.h"
 #include "TFile.h"
@@ -35,10 +36,12 @@ void makeRaa_y(   bool bSavePlots=1,
       bool bAddLumi = 0, // add the lumi boxes at raa=1
       bool bAddLegend = 1, 
       bool bOnlyLowPtCent=0,
-      int weight = 1, //0=raw yields, will be corrected on the fly, in the traditional way, 1=corrected yields
+      int weight = 0, //0=raw yields, will be corrected on the fly, in the traditional way, 1=corrected yields
       const char* inputDir="../readFitTable", // the place where the input root files, with the histograms are
       const char* outputDir="figs")// where the output figures will be
 {
+  gSystem->mkdir(Form("./%s/png",outputDir), kTRUE);
+
   gROOT->Macro("../logon.C+");
   gStyle->SetOptFit(0);
   gStyle->SetOptStat(0);
@@ -53,18 +56,18 @@ void makeRaa_y(   bool bSavePlots=1,
 
   // name of input files
   const char* yieldHistFile_yesWeight[2] = {
-   "histsRaaYields_20150817_PbPb_raa_Lxyz_weightedEff_Lxyz_pTtune_PRMC.root",
-   "histsRaaYields_20150817_pp_Lxyz_weightedEff_Lxyz_finerpT_PRMC.root"
+   "histsRaaYields_20150823_PbPb_Lxyz_weightedEff_Lxyz_pTtune_PRMC.root",
+   "histsRaaYields_20150823_pp_Lxyz_weightedEff_Lxyz_finerpT_PRMC.root"
   };
   
   const char* yieldHistFile_noWeight[2] = {
-   "histsRaaYields_20150817_PbPb_raa_Lxyz_noWeight_Lxyz_pTtune_PRMC.root",
-   "histsRaaYields_20150817_pp_Lxyz_noWeight_Lxyz_finerpT_PRMC.root"
+   "histsRaaYields_20150823_PbPb_Lxyz_noWeight_Lxyz_pTtune_PRMC.root",
+   "histsRaaYields_20150823_pp_Lxyz_noWeight_Lxyz_finerpT_PRMC.root"
   };
 
   const char* effHistFile[2] = {
-   "histEff_pbpb_tradEff_nov12.root",
-   "histEff_pp_tradEff_nov12.root"
+   "histEff_pbpb_tradEff_0823.root",
+   "histEff_pp_tradEff_0823.root"
   };
   const int nInHist = 3;
   const char* yieldHistNames[nInHist] = {"y", "y_mb", "mb"};

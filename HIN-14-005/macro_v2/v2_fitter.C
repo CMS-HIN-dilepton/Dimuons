@@ -30,10 +30,10 @@
 #include <TGraphErrors.h>
 
 void v2_fitter(int jpsiCategory = 3, // 1 : Inclusive, 2 : Prompt, 3 : Non-Prompt
-               int varCategory  = 3, // 1: pt; 2: rapidity; 3: centrality; 4: integrated
+               int varCategory  = 2, // 1: pt; 2: rapidity; 3: centrality; 4: integrated
                int nDphiBins    = 4,
-               const char* inHistYieldFile_yesWeight  = "../readFitTable/histsV2Yields_20150820_v2W_Lxyz_pTtune_PRMC_dPhiBins4.root",
-               const char* inHistYieldFile_noWeight  = "../readFitTable/histsV2Yields_20150820_v2noW_Lxyz_pTtune_PRMC_dPhiBins4.root",
+               const char* inHistYieldFile_yesWeight  = "../readFitTable/histsV2Yields_20150823_v2W_Lxyz_pTtune_PRMC_dPhiBins4.root",
+               const char* inHistYieldFile_noWeight  = "../readFitTable/histsV2Yields_20150823_v2noW_Lxyz_pTtune_PRMC_dPhiBins4.root",
                const char* outputFile = "rootFiles/v2Fitter_regit",
                bool bSavePlots = true)
 {
@@ -47,6 +47,8 @@ void v2_fitter(int jpsiCategory = 3, // 1 : Inclusive, 2 : Prompt, 3 : Non-Promp
   const int nYBins    = 6;
   const int nCentBins = 8;
 
+//  const char* ptBinsName[nPtBins]     = {"65300","3065","6580","80100","100130","130300","3065","6580","80100","100130","130300"};
+//  const char* yBinsName[nYBins]       = {"0024","0012","1216","1624"};
   const char* ptBinsName[nPtBins]     = {"65300","3065","6580","80100","100300","3065","65100","100300"};
   const char* yBinsName[nYBins]       = {"0024","0012","1216","1624","0012","1224"};
   const char* centBinsName[nCentBins] = {"1060","010", "1020","2030","3060", "010","1030","3060"};
@@ -56,25 +58,30 @@ void v2_fitter(int jpsiCategory = 3, // 1 : Inclusive, 2 : Prompt, 3 : Non-Promp
   double dEvPlResCorr[]    = { 0.8168, 0.6311, 0.8166, 0.8418, 0.7812, 0.6311,  0.8270, 0.7812};
   double dEvPlResCorrErr[] = { 0.0013, 0.0023, 0.0018, 0.0025, 0.0029, 0.0023, 0.0020, 0.0029};
 
+//  const char* ptBinsLegend[nPtBins]     = {"6.5<p_{T}<30","3<p_{T}<6.5","6.5<p_{T}<8","8<p_{T}<10","10<p_{T}<13","13<p_{T}<30","3<p_{T}<6.5","6.5<p_{T}<8","8<p_{T}<10","10<p_{T}<13","13<p_{T}<30"};
+//  const char* yBinsLegend[nYBins]       = {"|y|<2.4","|y|<1.2","1.2<|y|<1.6","1.6<|y|<2.4"};
   const char* ptBinsLegend[nPtBins]     = {"6.5<p_{T}<30","3<p_{T}<6.5","6.5<p_{T}<8","8<p_{T}<10","10<p_{T}<30","3<p_{T}<6.5","6.5<p_{T}<10","10<p_{T}<30"};
   const char* yBinsLegend[nYBins]       = {"|y|<2.4","|y|<1.2","1.2<|y|<1.6","1.6<|y|<2.4","|y|<1.2","1.2<|y|<2.4"};
   const char* centBinsLegend[nCentBins] = {"Cent. 10--60\%","Cent. 0-10\%", "Cent. 10-20\%","Cent. 20-30\%","Cent. 30-60\%","Cent. 0-10\%","Cent. 10-30\%","Cent. 30-60\%"};
 
-  const int nPtBins_np   = 3;
-  const int nYBins_np    = 2;
-  const int nCentBins_np = 3;
-  const int nPtBins_pr   = 4;
-  const int nYBins_pr    = 3;
-  const int nCentBins_pr = 4;
-
-  double ptBins[nPtBins_pr+1]     = {3.0, 6.5, 8.0, 10.0, 30.0};
-  double yBins[nYBins_pr+1]       = {0.0, 1.2, 1.6, 2.4};
-  double centBins[nCentBins_pr+1] = {0.0, 10.0, 20.0, 30.0, 60.0};
+  // prompt bins
+  double ptBins[]     = {3.0, 6.5, 8.0, 10.0, 13, 30.0};
+  double yBins[]       = {0.0, 1.2, 1.6, 2.4};
+  double centBins[] = {0.0, 10.0, 20.0, 30.0, 60.0};
 
   // non-prompt bins
-  double ptBins_np[nPtBins_np+1]     = {3.0, 6.5, 10.0, 30.0};
-  double yBins_np[nYBins_np+1]       = {0.0, 1.2, 2.4};
-  double centBins_np[nCentBins_np+1] = {0.0, 10.0, 30.0, 60.0};
+//  double ptBins_np[]     = {3.0, 6.5, 8.0, 10.0, 13, 30.0};
+//  double yBins_np[]       = {0.0, 1.2, 1.6, 2.4};
+  double ptBins_np[]     = {3.0, 6.5, 10.0, 30.0};
+  double yBins_np[]       = {0.0, 1.2, 2.4};
+  double centBins_np[] = {0.0, 10.0, 30.0, 60.0};
+
+  const int nPtBins_pr   = sizeof(ptBins)/sizeof(double) -1;
+  const int nYBins_pr    = sizeof(yBins)/sizeof(double) -1;
+  const int nCentBins_pr = sizeof(centBins)/sizeof(double) -1;
+  const int nPtBins_np   = sizeof(ptBins_np)/sizeof(double) -1;
+  const int nYBins_np    = sizeof(yBins_np)/sizeof(double) -1;
+  const int nCentBins_np = sizeof(centBins_np)/sizeof(double) -1;
 
   gSystem->mkdir("./rootFiles", kTRUE);
   gSystem->mkdir("./figs/png", kTRUE);
@@ -99,12 +106,11 @@ void v2_fitter(int jpsiCategory = 3, // 1 : Inclusive, 2 : Prompt, 3 : Non-Promp
   TFile *fWeighFile   = new TFile(Form("%s",inHistYieldFile_yesWeight));
   TFile *fUnweighFile = new TFile(Form("%s",inHistYieldFile_noWeight));
 
-  TH1F *phPhi[10]; 
-  TH1F *phPhi_noWeight[10]; 
+  TH1F *phPhi[20]; 
+  TH1F *phPhi_noWeight[20]; 
   int nBins=0;
   int nBins_np=0;
   int nBins_pr=0;
-  char anaBins[10];
   const char* rapidity = yBinsName[0];
   const char* ptbin    = ptBinsName[0];
   const char* centbin  = centBinsName[0];
@@ -113,39 +119,43 @@ void v2_fitter(int jpsiCategory = 3, // 1 : Inclusive, 2 : Prompt, 3 : Non-Promp
     cout<<"You are doing pt dependence!"<<endl;
     nBins = nPtBins; nBins_np = nPtBins_np;nBins_pr = nPtBins_pr;
     for(int iBin = 0; iBin < nBins; iBin++)
-      {
-        if(iBin==1 || iBin==5) rapidity = yBinsName[3]; // low-pt bin 3->6.5 and fwd rapidity; we add it to the pT dependence 
-        else rapidity = yBinsName[0];
-        TString histInc(Form("Rap_%s_pT_%s_Cent_%s_%s",rapidity,ptBinsName[iBin],centbin,signal[jpsiCategory]));
-        cout<<"histogram input name: "<< histInc<<endl; 
-        phPhi[iBin]          = (TH1F*)fWeighFile->Get(histInc);
-        phPhi_noWeight[iBin] = (TH1F*)fUnweighFile->Get(histInc);
-   
-      }
+    {
+      cout << "\t" << iBin << " " << nBins << " " << endl;
+//      if(iBin==1 || iBin==6) rapidity = yBinsName[3]; // low-pt bin 3->6.5 and fwd rapidity; we add it to the pT dependence 
+      if(iBin==1 || iBin==5) rapidity = yBinsName[3]; // low-pt bin 3->6.5 and fwd rapidity; we add it to the pT dependence 
+      else rapidity = yBinsName[0];
+      TString histInc(Form("Rap_%s_pT_%s_Cent_%s_%s",rapidity,ptBinsName[iBin],centbin,signal[jpsiCategory]));
+      cout<<"histogram input name: "<< histInc<<endl; 
+      phPhi[iBin]          = (TH1F*)fWeighFile->Get(histInc);
+      phPhi_noWeight[iBin] = (TH1F*)fUnweighFile->Get(histInc);
+      cout <<  phPhi[iBin] << " " << phPhi_noWeight[iBin] << endl;
+    }
     break;
 
   case 2:
     cout<<"You are doing rapidity dependence!"<<endl;
     nBins = nYBins; nBins_np = nYBins_np;nBins_pr = nYBins_pr;
     for(int iBin = 0; iBin < nBins; iBin++)
-      {
-        TString histInc(Form("Rap_%s_pT_%s_Cent_%s_%s",yBinsName[iBin],ptbin,centbin,signal[jpsiCategory]));
-        cout<<"histogram input name: "<< histInc<<endl; 
-        phPhi[iBin]          = (TH1F*)fWeighFile->Get(histInc);
-        phPhi_noWeight[iBin] = (TH1F*)fUnweighFile->Get(histInc);
-      }
+    {
+      TString histInc(Form("Rap_%s_pT_%s_Cent_%s_%s",yBinsName[iBin],ptbin,centbin,signal[jpsiCategory]));
+      cout<<"histogram input name: "<< histInc<<endl; 
+      phPhi[iBin]          = (TH1F*)fWeighFile->Get(histInc);
+      phPhi_noWeight[iBin] = (TH1F*)fUnweighFile->Get(histInc);
+      cout <<  phPhi[iBin] << " " << phPhi_noWeight[iBin] << endl;
+    }
     break;
 
   case 3:
     cout<<"You are doing centrality dependence!"<<endl;
     nBins = nCentBins; nBins_np = nCentBins_np; nBins_pr = nCentBins_pr;
     for(int iBin = 0; iBin < nBins; iBin++)
-      {
-        TString histInc(Form("Rap_%s_pT_%s_Cent_%s_%s",rapidity,ptbin,centBinsName[iBin],signal[jpsiCategory]));
-        cout<<"histogram input name: "<< histInc<<endl; 
-        phPhi[iBin]          = (TH1F*)fWeighFile->Get(histInc);
-        phPhi_noWeight[iBin] = (TH1F*)fUnweighFile->Get(histInc);
-      }
+    {
+      TString histInc(Form("Rap_%s_pT_%s_Cent_%s_%s",rapidity,ptbin,centBinsName[iBin],signal[jpsiCategory]));
+      cout<<"histogram input name: "<< histInc<<endl; 
+      phPhi[iBin]          = (TH1F*)fWeighFile->Get(histInc);
+      phPhi_noWeight[iBin] = (TH1F*)fUnweighFile->Get(histInc);
+      cout <<  phPhi[iBin] << " " << phPhi_noWeight[iBin] << endl;
+    }
     break;
 
   default:
@@ -160,7 +170,7 @@ void v2_fitter(int jpsiCategory = 3, // 1 : Inclusive, 2 : Prompt, 3 : Non-Promp
  
   cout<< "Got the histograms!!!" <<endl;
  
- // -------------create the normalized histograms (1/(sum yield in all 4 dPhi bins) )
+  // -------------create the normalized histograms (1/(sum yield in all 4 dPhi bins) )
   int nDphi_yield[20][20]       = {{0}};
   double nDphi_yieldErr[20][20] = {{0}};
   int nSumDphiYield[20]={0};
@@ -168,6 +178,14 @@ void v2_fitter(int jpsiCategory = 3, // 1 : Inclusive, 2 : Prompt, 3 : Non-Promp
   TH1F *phPhiNor[40];
   for(int iKin = 0; iKin < nBins; iKin++) // for all pt or y or cent  bins, including the minbias one
   {
+    cout << "\t" << iKin << " " << nBins << " " << endl;
+    if (!phPhi[iKin] || !phPhi_noWeight[iKin]) {
+      cout << "skip" << endl;
+      continue;
+    } else {
+      cout << phPhi_noWeight[iKin]->GetName() << " " << phPhi[iKin]->GetName() << endl;
+    }
+
     for(int ibin = 0; ibin < nDphiBins; ibin++) // add the yield in all dPhi bins
     {
       // get relative error from the 'unweighted case'
@@ -197,7 +215,7 @@ void v2_fitter(int jpsiCategory = 3, // 1 : Inclusive, 2 : Prompt, 3 : Non-Promp
       phPhiNor[iKin]->SetBinError(ibin+1,(double)nDphi_yieldErr[iKin][ibin]/((double)nSumDphiYield[iKin]*wbin));
       cout<<ibin<<"\t content "<<phPhiNor[iKin]->GetBinContent(ibin+1)<<endl;
     }
-    cout<<"nSumDphiYield : "<<nSumDphiYield[iKin]<<endl;
+    cout<< "iKin " << iKin << " nSumDphiYield : "<<nSumDphiYield[iKin]<<endl;
   }
   
   cout<<"Finished with the histograms!!!!!!"<<endl;
@@ -209,8 +227,8 @@ void v2_fitter(int jpsiCategory = 3, // 1 : Inclusive, 2 : Prompt, 3 : Non-Promp
   v2Fit->SetLineStyle(2);
   v2Fit->SetLineWidth(4);
 
-  double dFit_v2[10]    = {0.0}; 
-  double dFit_v2Err[10] = {0.0};
+  double dFit_v2[20]    = {0.0}; 
+  double dFit_v2Err[20] = {0.0};
   for(int iBin = 0; iBin < nBins; iBin++)
   {
     cout<<iBin<<" fitted!!"<<endl;
@@ -221,8 +239,8 @@ void v2_fitter(int jpsiCategory = 3, // 1 : Inclusive, 2 : Prompt, 3 : Non-Promp
 
 
   // --------------- make EP resolution corrections (for all bins, used and not used)
-  double dFit_v2Final[10]    = {0.0}; 
-  double dFit_v2FinalErr[10] = {0.0};
+  double dFit_v2Final[20]    = {0.0}; 
+  double dFit_v2FinalErr[20] = {0.0};
   double resCorrection    = dEvPlResCorr[0];
   double resCorrectionErr = dEvPlResCorrErr[0];
   for(int iBin = 0; iBin < nBins; iBin++)
@@ -243,10 +261,10 @@ void v2_fitter(int jpsiCategory = 3, // 1 : Inclusive, 2 : Prompt, 3 : Non-Promp
   switch(varCategory){
   case 1://pt
     cout<<"You are doing pt dependence!"<<endl;
-    phV2    = new TH1F("phV2_pr",";p_{T} GeV/c;",nBins_pr,ptBins); 
-    phV2Cor = new TH1F("phV2Cor_pr",";p_{T} GeV/c;",nBins_pr,ptBins);
-    if(jpsiCategory==3) 
-    {
+    if(jpsiCategory==1 || jpsiCategory==2) {
+      phV2    = new TH1F("phV2_pr",";p_{T} GeV/c;",nBins_pr,ptBins); 
+      phV2Cor = new TH1F("phV2Cor_pr",";p_{T} GeV/c;",nBins_pr,ptBins);
+    } else if(jpsiCategory==3) {
       phV2    = new TH1F("phV2_np",";p_{T} GeV/c;",nBins_np,ptBins_np);
       phV2Cor = new TH1F("phV2Cor_np",";p_{T} GeV/c;",nBins_np,ptBins_np);
     }
@@ -254,22 +272,22 @@ void v2_fitter(int jpsiCategory = 3, // 1 : Inclusive, 2 : Prompt, 3 : Non-Promp
 
   case 2:// rap
     cout<<"You are doing rapidity dependence!"<<endl;
-    phV2     = new TH1F("phV2_pr",";|y|;",nBins_pr,yBins);
-    phV2Cor  = new TH1F("phV2Cor_pr",";|y|;",nBins_pr,yBins);
-    if(jpsiCategory==3) 
-    {
+    if(jpsiCategory==1 || jpsiCategory==2) {
+      phV2     = new TH1F("phV2_pr",";|y|;",nBins_pr,yBins);
+      phV2Cor  = new TH1F("phV2Cor_pr",";|y|;",nBins_pr,yBins);
+    } else if(jpsiCategory==3) {
       phV2     = new TH1F("phV2_np",";|y|;",nBins_np,yBins_np);
       phV2Cor  = new TH1F("phV2Cor_np",";|y|;",nBins_np,yBins_np);
-      cout<<"Gate 2"<<endl;
     }
+    cout<<"Gate 2"<<endl;
     break;
 
   case 3://cent
     cout<<"You are doing centrality dependence!"<<endl;
-    phV2    = new TH1F("phV2_pr",";Centrality Bin;",nBins_pr,centBins);
-    phV2Cor = new TH1F("phV2Cor_pr",";Centrality Bin;",nBins_pr,centBins);
-    if(jpsiCategory==3) 
-    {
+    if(jpsiCategory==1 || jpsiCategory==2) {
+      phV2    = new TH1F("phV2_pr",";Centrality Bin;",nBins_pr,centBins);
+      phV2Cor = new TH1F("phV2Cor_pr",";Centrality Bin;",nBins_pr,centBins);
+    } else if(jpsiCategory==3) {
       phV2    = new TH1F("phV2_np",";Centrality Bin;",nBins_np,centBins_np);
       phV2Cor = new TH1F("phV2Cor_np",";Centrality Bin;",nBins_np,centBins_np);
     }
@@ -287,12 +305,14 @@ void v2_fitter(int jpsiCategory = 3, // 1 : Inclusive, 2 : Prompt, 3 : Non-Promp
   // fill the results histograms; 
   //attention, the v2 vector contains, minbias (element 0), prompt (middle) and non-prompt (last nBins_np) results
   int binStart = 1;
-  int binEnd = nBins-nBins_np;
-  if(jpsiCategory==3)
-  {
+  int binEnd = nBins;
+//  int binEnd = nBins-nBins_np;
+  if(jpsiCategory==3) {
     binStart = nBins-nBins_np;
     binEnd   = nBins;
   }
+  cout << binStart << " " << binEnd << endl;
+
   int bin =1;
   for(int iBin = binStart; iBin < binEnd; iBin++)
   {

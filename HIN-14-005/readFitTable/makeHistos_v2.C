@@ -39,11 +39,11 @@ using namespace std;
 
 void makeHistos_v2(int nDphiBins = 4, 
                    int sample = 0, // 0=PbPb
-                   int weight = 0, // 0=noWeight, 1=weight
+                   int weight = 1, // 0=noWeight, 1=weight
                    const char* inputFitDataFileLocation = "../data/v2/"
                    ) 
 {
-  const char* whichSample[1]    = {"20150820"};
+  const char* whichSample[1]    = {"20150823"};
   const char* whichWeight[2]    = {"v2noW_Lxyz_pTtune_PRMC","v2W_Lxyz_pTtune_PRMC"};
   const char* outputHistDataFile[1] = {"histsV2Yields"};
 
