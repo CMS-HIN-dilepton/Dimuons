@@ -29,6 +29,8 @@ Output: the Raa vs cent.
 #include "TLatex.h"
 #include "TLegend.h"
 #include "dataBinning_2015.h"
+#include "../CMS_lumi.C"
+#include "../tdrstyle.C"
 #endif
 
 using namespace std;
@@ -38,13 +40,15 @@ void makeRaa_cent(bool bSavePlots=1,
       bool bAddLumi = 0, // add the lumi boxes at raa=1
       bool bAddLegend = 1, 
       bool bOnlyLowPtCent=0,
-      int weight = 0, //0=raw yields, 1=corrected yields
+      int weight = 1, //0=raw yields, 1=corrected yields
       const char* inputDir="../readFitTable", // the place where the input root files, with the histograms are
       const char* outputDir="figs")// where the output figures will be
 {
   gSystem->mkdir(Form("./%s/png",outputDir), kTRUE);
+  gSystem->mkdir(Form("./%s/pdf",outputDir), kTRUE);
 
-  gROOT->Macro("../logon.C+");
+ // set the style
+  setTDRStyle();
   gStyle->SetOptFit(0);
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(kFALSE);
@@ -55,7 +59,7 @@ void makeRaa_cent(bool bSavePlots=1,
   // const char* yieldHistFile_noWeight[2]  = {"histsRaaYields_20150127_PbPb_raa_noWeight_InEta.root",
   //              "histsRaaYields_20150127_pp_raa_noWeight_InEta.root"};
 
-
+  //Lxyz with TnP
   const char* yieldHistFile_yesWeight[2] = {
    "histsRaaYields_20150823_PbPb_Lxyz_weightedEff_Lxyz_pTtune_PRMC.root",
    "histsRaaYields_20150823_pp_Lxyz_weightedEff_Lxyz_finerpT_PRMC.root"
@@ -65,6 +69,18 @@ void makeRaa_cent(bool bSavePlots=1,
    "histsRaaYields_20150823_PbPb_Lxyz_noWeight_Lxyz_pTtune_PRMC.root",
    "histsRaaYields_20150823_pp_Lxyz_noWeight_Lxyz_finerpT_PRMC.root"
   };
+
+  // Lxyz no TnP
+  // const char* yieldHistFile_yesWeight[2] = {
+  //  "histsRaaYields_20150826_PbPb_Lxyz_noTnPCorr_weightedEff_Lxyz_pTtune_PRMC_noTnPCorr.root",
+  //  "histsRaaYields_20150826_pp_Lxyz_noTnPCorr_weightedEff_Lxyz_finerpT_PRMC_noTnPCorr.root"
+  // };
+  
+  // const char* yieldHistFile_noWeight[2] = {
+  //  "histsRaaYields_20150826_PbPb_Lxyz_noTnPCorr_noWeight_Lxyz_pTtune_PRMC_noTnPCorr.root",
+  //  "histsRaaYields_20150826_pp_Lxyz_noTnPCorr_noWeight_Lxyz_finerpT_PRMC_noTnPCorr.root"
+  // };
+
 
   const char* effHistFile[2] = {
    "histEff_pbpb_tradEff_0823.root",
@@ -430,15 +446,20 @@ void makeRaa_cent(bool bSavePlots=1,
   lumi_npr_y1624_pt365->SetFillColor(kViolet-9);
 
   //---------------- general stuff
-  TLatex *pre = new TLatex(25,1.4,"CMS Preliminary");
+  TLatex *pre_pr = new TLatex(20,1.35,"Prompt J/#psi");
+  pre_pr->SetTextFont(42);
+  pre_pr->SetTextSize(0.05);
+
+  TLatex *pre = new TLatex(20,1.35,"Non-prompt J/#psi");
   pre->SetTextFont(42);
   pre->SetTextSize(0.05);
-  TLatex *l1 = new TLatex(25,1.3,"PbPb #sqrt{s_{NN}} = 2.76 TeV");
-  l1->SetTextFont(42);
-  l1->SetTextSize(0.05);
-  TLatex *ly = new TLatex(20.0,0.16875,"|y| < 2.4");
-  TLatex *lpt = new TLatex(20.0,0.075,"6.5 < p_{T} < 30 GeV/c");
-  
+
+  TLatex *ly = new TLatex(190.0,0.9,"|y| < 2.4");
+  ly->SetTextFont(42);
+  ly->SetTextSize(0.05);
+  TLatex *lpt = new TLatex(190.0,0.8,"6.5 < p_{T} < 30 GeV/c");
+  lpt->SetTextFont(42);
+  lpt->SetTextSize(0.05);
 
 
   // ##################################################### pr plots
@@ -452,10 +473,10 @@ void makeRaa_cent(bool bSavePlots=1,
   }
   if(bAddLegend)
   {
-    pre->Draw();
-    l1->Draw();
+    pre_pr->Draw();
     ly->Draw();
     lpt->Draw();
+    CMS_lumi(c1,103,33);
   }
   
   gPrJpsiSyst->Draw("2");
@@ -463,15 +484,6 @@ void makeRaa_cent(bool bSavePlots=1,
   gPrJpsiP->Draw("P");
 
   c1->SetTitle(" ");
-  TLegend *leg10 = new TLegend(0.55,0.5,0.8,0.6);
-  leg10->SetFillStyle(0);
-  leg10->SetFillColor(0);
-  leg10->SetBorderSize(0);
-  leg10->SetMargin(0.2);
-  leg10->SetTextSize(0.05);
-  leg10->AddEntry(gPrJpsi,"Prompt J/#psi","");
-
-  if(bAddLegend) leg10->Draw();
 
   if(bSavePlots)
   {
@@ -504,7 +516,7 @@ void makeRaa_cent(bool bSavePlots=1,
   gPrJpsiP_pt6530y1624->Draw("P");
  
 
-  TLegend *leg11a = new TLegend(0.6,0.5,0.85,0.69);
+  TLegend *leg11a = new TLegend(0.6,0.5,0.85,0.65);
   leg11a->SetFillStyle(0);
   leg11a->SetFillColor(0);
   leg11a->SetBorderSize(0);
@@ -517,13 +529,13 @@ void makeRaa_cent(bool bSavePlots=1,
  
   if(bAddLegend)
   {
+    pre_pr->Draw();
     leg11a->Draw();
     
     c11a->Update();
-    pre->DrawLatex(25,1.4,"CMS Preliminary");
-    pre->DrawLatex(25,1.3,"PbPb #sqrt{s_{NN}} = 2.76 TeV");
-    pre->DrawLatex(50,1.05,"Prompt J/#psi");
-    pre->DrawLatex(25,0.09,"6.5<p_{T}<30 GeV/c");
+    CMS_lumi(c11a,103,33);
+
+    pre->DrawLatex(190,1.05,"6.5<p_{T}<30 GeV/c");
   }
   gPad->RedrawAxis();
 
@@ -553,7 +565,7 @@ void makeRaa_cent(bool bSavePlots=1,
     gPrJpsiP_pt365y1624->Draw("P");
   }
 
-  TLegend *leg11b = new TLegend(0.55,0.55,0.8,0.68);
+  TLegend *leg11b = new TLegend(0.5,0.52,0.8,0.65);
   leg11b->SetFillStyle(0);
   leg11b->SetFillColor(0);
   leg11b->SetBorderSize(0);
@@ -564,12 +576,11 @@ void makeRaa_cent(bool bSavePlots=1,
  
   if(bAddLegend)
   {
+    pre_pr->Draw();
     leg11b->Draw();
   
-    pre->DrawLatex(25,1.4,"CMS Preliminary");
-    pre->DrawLatex(25,1.3,"PbPb #sqrt{s_{NN}} = 2.76 TeV");
-    pre->DrawLatex(50,1.05,"Prompt J/#psi");
-    pre->DrawLatex(25,0.09,"1.6<|y|<2.4");
+    CMS_lumi(c11b,103,33);
+    pre->DrawLatex(190,1.05,"1.6<|y|<2.4");
   }
   gPad->RedrawAxis();
 
@@ -590,24 +601,14 @@ void makeRaa_cent(bool bSavePlots=1,
   if(bAddLegend)
   {
     pre->Draw();
-    l1->Draw();
     ly->Draw();
     lpt->Draw();
+    CMS_lumi(c2,103,33);
   }
   gNonPrJpsiSyst->Draw("2");
   gNonPrJpsi->Draw("P");
   gNonPrJpsiP->Draw("P");
       
-
-  TLegend *leg20 = new TLegend(0.55,0.5,0.8,0.6);
-  leg20->SetFillStyle(0);
-  leg20->SetFillColor(0);
-  leg20->SetBorderSize(0);
-  leg20->SetMargin(0.2);
-  leg20->SetTextSize(0.05);
-  leg20->AddEntry(gNonPrJpsi,"Non-prompt J/#psi","");
-  if(bAddLegend) leg20->Draw();
-
   gPad->RedrawAxis();
 
    if(bSavePlots)
@@ -645,7 +646,7 @@ void makeRaa_cent(bool bSavePlots=1,
   // gNonPrJpsiP_pt330y1624->Draw("P");
   // gNonPrJpsiP_pt365y1624->Draw("P");
 
-  TLegend *leg21a = new TLegend(0.6,0.5,0.85,0.69);
+  TLegend *leg21a = new TLegend(0.6,0.5,0.85,0.65);
   leg21a->SetFillStyle(0);
   leg21a->SetFillColor(0);
   leg21a->SetBorderSize(0);
@@ -656,12 +657,12 @@ void makeRaa_cent(bool bSavePlots=1,
   leg21a->AddEntry(gNonPrJpsi_pt6530y1624,"1.6<|y|<2.4","P");
   if(bAddLegend)
   {
+    pre->Draw();
     leg21a->Draw();
     c21a->Update();
-    pre->DrawLatex(25,1.4,"CMS Preliminary");
-    pre->DrawLatex(25,1.3,"PbPb #sqrt{s_{NN}} = 2.76 TeV");
-    pre->DrawLatex(50,1.05,"Non-prompt J/#psi");
-    pre->DrawLatex(25,0.09,"6.5<p_{T}<30 GeV/c");
+    CMS_lumi(c21a,103,33);
+
+    pre->DrawLatex(190,1.05,"6.5<p_{T}<30 GeV/c");
   }
   gPad->RedrawAxis();
 
@@ -692,7 +693,7 @@ void makeRaa_cent(bool bSavePlots=1,
     gNonPrJpsi_pt365y1624->Draw("P");
     gNonPrJpsiP_pt365y1624->Draw("P");
   }
-  TLegend *leg21b = new TLegend(0.55,0.55,0.8,0.68);
+  TLegend *leg21b = new TLegend(0.55,0.5,0.8,0.65);
   leg21b->SetFillStyle(0);
   leg21b->SetFillColor(0);
   leg21b->SetBorderSize(0);
@@ -703,12 +704,10 @@ void makeRaa_cent(bool bSavePlots=1,
 
   if(bAddLegend)
   {
+    pre->Draw();
     leg21b->Draw();
-    
-    pre->DrawLatex(25,1.4,"CMS Preliminary");
-    pre->DrawLatex(25,1.3,"PbPb #sqrt{s_{NN}} = 2.76 TeV");
-    pre->DrawLatex(50,1.05,"Non-prompt J/#psi");
-    pre->DrawLatex(25,0.09,"1.6<|y|<2.4");
+    CMS_lumi(c21b,103,33);
+    pre->DrawLatex(190,1.05,"1.6<|y|<2.4");
   }
   gPad->RedrawAxis();
 

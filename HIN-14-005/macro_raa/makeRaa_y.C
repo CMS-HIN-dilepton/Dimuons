@@ -29,6 +29,9 @@ Output: the Raa vs rpaidity.
 #include "TLatex.h"
 #include "TLegend.h"
 #include "dataBinning_2015.h"
+
+#include "../CMS_lumi.C"
+#include "../tdrstyle.C"
 #endif
 
 void makeRaa_y(   bool bSavePlots=1,
@@ -36,33 +39,47 @@ void makeRaa_y(   bool bSavePlots=1,
       bool bAddLumi = 0, // add the lumi boxes at raa=1
       bool bAddLegend = 1, 
       bool bOnlyLowPtCent=0,
-      int weight = 0, //0=raw yields, will be corrected on the fly, in the traditional way, 1=corrected yields
+      int weight = 1, //0=raw yields, will be corrected on the fly, in the traditional way, 1=corrected yields
       const char* inputDir="../readFitTable", // the place where the input root files, with the histograms are
-      const char* outputDir="figs")// where the output figures will be
+      const char* outputDir="figs/noTnP")// where the output figures will be
 {
   gSystem->mkdir(Form("./%s/png",outputDir), kTRUE);
+  gSystem->mkdir(Form("./%s/pdf",outputDir), kTRUE);
 
-  gROOT->Macro("../logon.C+");
+  // set the style
+  setTDRStyle();
   gStyle->SetOptFit(0);
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(kFALSE);
 
   // input files: 
+  // Lxy with TnP
   // const char* yieldHistFile_yesWeight[2] = {"histsRaaYields_20150127_PbPb_raa_weightedEff_InEta.root",
   //              "histsRaaYields_20150127_pp_raa_weightedEff_InEta.root"};
   // const char* yieldHistFile_noWeight[2]  = {"histsRaaYields_20150127_PbPb_raa_noWeight_InEta.root",
   //              "histsRaaYields_20150127_pp_raa_noWeight_InEta.root"};
 
 
-  // name of input files
+  // Lxyz with Tnp
+  // const char* yieldHistFile_yesWeight[2] = {
+  //  "histsRaaYields_20150823_PbPb_Lxyz_weightedEff_Lxyz_pTtune_PRMC.root",
+  //  "histsRaaYields_20150823_pp_Lxyz_weightedEff_Lxyz_finerpT_PRMC.root"
+  // };
+  
+  // const char* yieldHistFile_noWeight[2] = {
+  //  "histsRaaYields_20150823_PbPb_Lxyz_noWeight_Lxyz_pTtune_PRMC.root",
+  //  "histsRaaYields_20150823_pp_Lxyz_noWeight_Lxyz_finerpT_PRMC.root"
+  // };
+  
+  // Lxyz, no Tnp
   const char* yieldHistFile_yesWeight[2] = {
-   "histsRaaYields_20150823_PbPb_Lxyz_weightedEff_Lxyz_pTtune_PRMC.root",
-   "histsRaaYields_20150823_pp_Lxyz_weightedEff_Lxyz_finerpT_PRMC.root"
+   "histsRaaYields_20150826_PbPb_Lxyz_noTnPCorr_weightedEff_Lxyz_pTtune_PRMC_noTnPCorr.root",
+   "histsRaaYields_20150826_pp_Lxyz_noTnPCorr_weightedEff_Lxyz_finerpT_PRMC_noTnPCorr.root"
   };
   
   const char* yieldHistFile_noWeight[2] = {
-   "histsRaaYields_20150823_PbPb_Lxyz_noWeight_Lxyz_pTtune_PRMC.root",
-   "histsRaaYields_20150823_pp_Lxyz_noWeight_Lxyz_finerpT_PRMC.root"
+   "histsRaaYields_20150826_PbPb_Lxyz_noTnPCorr_noWeight_Lxyz_pTtune_PRMC_noTnPCorr.root",
+   "histsRaaYields_20150826_pp_Lxyz_noTnPCorr_noWeight_Lxyz_finerpT_PRMC_noTnPCorr.root"
   };
 
   const char* effHistFile[2] = {
@@ -315,6 +332,7 @@ void makeRaa_y(   bool bSavePlots=1,
   TF1 *f4 = new TF1("f4","1",0,2.4);
   f4->SetLineWidth(1);
   f4->GetXaxis()->SetTitle("|y|");
+  f4->GetXaxis()->SetNdivisions(-6);
   f4->GetYaxis()->SetTitle("R_{AA}");
   f4->GetYaxis()->SetRangeUser(0.0,1.5);
   f4->GetXaxis()->CenterTitle(kTRUE);
@@ -325,17 +343,18 @@ void makeRaa_y(   bool bSavePlots=1,
 
 
   //---------------- general stuff
-  TLatex *pre = new TLatex(0.2,1.375,"CMS Preliminary");//0.78125
+  TLatex *pre = new TLatex(0.2,1.35,"Non-prompt J/#psi");
   pre->SetTextFont(42);
   pre->SetTextSize(0.05);
-  TLatex *l1 = new TLatex(0.2,1.3,"PbPb #sqrt{s_{NN}} = 2.76 TeV");
-  l1->SetTextFont(42);
-  l1->SetTextSize(0.05);
+
+  TLatex *pre_pr = new TLatex(0.2,1.35,"Prompt J/#psi");
+  pre_pr->SetTextFont(42);
+  pre_pr->SetTextSize(0.05);
 
   TLatex *lpt = new TLatex(0.12,0.075,"6.5 < p_{T} < 30 GeV/c");
   lpt->SetTextFont(42);
   lpt->SetTextSize(0.05);
-  TLatex *lcent = new TLatex(0.12,0.16875,"Cent. 0-100%");
+  TLatex *lcent = new TLatex(19,1.03,"Cent. 0-100%");
   lcent->SetTextFont(42);
   lcent->SetTextSize(0.05);
 
@@ -351,11 +370,10 @@ void makeRaa_y(   bool bSavePlots=1,
   }
   if(bAddLegend)
   {
-    pre->Draw();
-    l1->Draw();
+    CMS_lumi(c1,103,33);
+    pre_pr->Draw();
     lcent->Draw();
     lpt->Draw();
-    pre->DrawLatex(0.2,1.05,"Prompt J/#psi");
   }
 
   gPrJpsiSyst->Draw("2");
@@ -385,12 +403,10 @@ void makeRaa_y(   bool bSavePlots=1,
  
   if(bAddLegend)
   {
-    pre->Draw();
-    l1->Draw();
+    pre_pr->Draw();
     lcent->Draw();
     lpt->Draw();
-
-    pre->DrawLatex(0.2,1.05,"Prompt J/#psi");
+    CMS_lumi(c11b,103,33);
   }
   gPad->RedrawAxis();
 
@@ -413,9 +429,8 @@ void makeRaa_y(   bool bSavePlots=1,
   }
   if(bAddLegend)
   {
-    pre->DrawLatex(0.2,1.4,"CMS Preliminary");
-    pre->DrawLatex(0.2,1.05,"Non-prompt J/#psi");
-    l1->Draw();
+    CMS_lumi(c2,103,33);
+    pre->Draw();
     lcent->Draw();
     lpt->Draw();
   }
@@ -447,11 +462,10 @@ void makeRaa_y(   bool bSavePlots=1,
 
   if(bAddLegend)
   {
-    pre->DrawLatex(0.2,1.4,"CMS Preliminary");
-    l1->Draw();
+    CMS_lumi(c22b,103,33);
+    pre->Draw();
     lcent->Draw();
     lpt->Draw();
-    pre->DrawLatex(0.2,1.05,"Non-prompt J/#psi");
   }
   gPad->RedrawAxis();
 

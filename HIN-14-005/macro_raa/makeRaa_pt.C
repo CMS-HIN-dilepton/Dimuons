@@ -30,6 +30,8 @@ Output: the Raa vs pt.
 #include "TLatex.h"
 #include "TLegend.h"
 #include "dataBinning_2015.h"
+#include "../CMS_lumi.C"
+#include "../tdrstyle.C"
 #endif
 
 void makeRaa_pt( bool bSavePlots=1,
@@ -42,18 +44,21 @@ void makeRaa_pt( bool bSavePlots=1,
       const char* outputDir="figs")// where the output figures will be
 {
   gSystem->mkdir(Form("./%s/png",outputDir), kTRUE);
-
-  gROOT->Macro("../logon.C+");
+  gSystem->mkdir(Form("./%s/pdf",outputDir), kTRUE);
+ // set the style
+  setTDRStyle();
   gStyle->SetOptFit(0);
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(kFALSE);
 
   // input files: 
+  // lxy fits and TnP corrections
   // const char* yieldHistFile_yesWeight[2] = {"histsRaaYields_20150127_PbPb_raa_weightedEff_InEta.root",
   //              "histsRaaYields_20150127_pp_raa_weightedEff_InEta.root"};
   // const char* yieldHistFile_noWeight[2]  = {"histsRaaYields_20150127_PbPb_raa_noWeight_InEta.root",
   //              "histsRaaYields_20150127_pp_raa_noWeight_InEta.root"};
 
+  // Lxyz and TnP corrections
   const char* yieldHistFile_yesWeight[2] = {
    "histsRaaYields_20150823_PbPb_Lxyz_weightedEff_Lxyz_pTtune_PRMC.root",
    "histsRaaYields_20150823_pp_Lxyz_weightedEff_Lxyz_finerpT_PRMC.root"
@@ -64,10 +69,18 @@ void makeRaa_pt( bool bSavePlots=1,
    "histsRaaYields_20150823_pp_Lxyz_noWeight_Lxyz_finerpT_PRMC.root"
   };
 
-  const char* effHistFile[2] = {
-   "histEff_pbpb_tradEff_0823.root",
-   "histEff_pp_tradEff_0823.root"
-  };
+  // Lxyz and no_TnP corrections
+  // const char* yieldHistFile_yesWeight[2] = {
+  //  "histsRaaYields_20150826_PbPb_Lxyz_noTnPCorr_weightedEff_Lxyz_pTtune_PRMC_noTnPCorr.root",
+  //  "histsRaaYields_20150826_pp_Lxyz_noTnPCorr_weightedEff_Lxyz_finerpT_PRMC_noTnPCorr.root"
+  // };
+  
+  // const char* yieldHistFile_noWeight[2] = {
+  //  "histsRaaYields_20150826_PbPb_Lxyz_noTnPCorr_noWeight_Lxyz_pTtune_PRMC_noTnPCorr.root",
+  //  "histsRaaYields_20150826_pp_Lxyz_noTnPCorr_noWeight_Lxyz_finerpT_PRMC_noTnPCorr.root"
+  // };
+
+  const char* effHistFile[2] = {"histEff_pbpb_tradEff_0823.root", "histEff_pp_tradEff_0823.root"};
   const int nInHist = 4;
   const char* yieldHistNames[nInHist] = {"pt", "ptLow", "ptLow_mb", "mb"};
 
@@ -343,19 +356,55 @@ void makeRaa_pt( bool bSavePlots=1,
 
 
   //---------------- general stuff
-  TLatex *pre = new TLatex(2,1.4,"CMS Preliminary");
-  pre->SetTextFont(42);
-  pre->SetTextSize(0.05);
-  TLatex *l1 = new TLatex(2,1.3,"PbPb #sqrt{s_{NN}} = 2.76 TeV");
-  l1->SetTextFont(42);
-  l1->SetTextSize(0.05);
   TLatex *ly     = new TLatex(20.0,0.05,"|y| < 2.4");
   ly->SetTextFont(42);
   ly->SetTextSize(0.05);
-  TLatex *lcent = new TLatex(19,0.15,"Cent. 0-100%");
+  TLatex *lcent = new TLatex(19,1.03,"Cent. 0-100%");
   lcent->SetTextFont(42);
   lcent->SetTextSize(0.05);
 
+  TLatex *pre = new TLatex(2,1.35,"Non-prompt J/#psi");
+  pre->SetTextFont(42);
+  pre->SetTextSize(0.05);
+
+  TLegend *leg11a = new TLegend(0.65,0.52,0.8,0.65);
+  leg11a->SetFillStyle(0);
+  leg11a->SetFillColor(0);
+  leg11a->SetBorderSize(0);
+  leg11a->SetMargin(0.2);
+  leg11a->SetTextSize(0.04);
+  leg11a->AddEntry(gPrJpsi,"|y|<2.4","P");
+  leg11a->AddEntry(gPrJpsi_pt365y1624,"1.6<|y|<2.4","P");
+
+  TLegend *leg11b = new TLegend(0.65,0.52,0.8,0.65);
+  leg11b->SetFillStyle(0);
+  leg11b->SetFillColor(0);
+  leg11b->SetBorderSize(0);
+  leg11b->SetMargin(0.2);
+  leg11b->SetTextSize(0.04);
+  
+  leg11b->AddEntry(gPrJpsi_mb,"|y|<2.4","P");
+  leg11b->AddEntry(gPrJpsi_y1624_mb,"1.6<|y|<2.4","P");
+
+  TLegend *leg22a = new TLegend(0.65,0.52,0.8,0.65);
+  leg22a->SetFillStyle(0);
+  leg22a->SetFillColor(0);
+  leg22a->SetBorderSize(0);
+  leg22a->SetMargin(0.2);
+  leg22a->SetTextSize(0.04);
+  leg22a->AddEntry(gNonPrJpsi,"|y|<2.4","P");
+  leg22a->AddEntry(gNonPrJpsi_pt365y1624,"1.6<|y|<2.4","P");
+ 
+  TLegend *leg22b = new TLegend(0.65,0.52,0.8,0.65);
+  leg22b->SetFillStyle(0);
+  leg22b->SetFillColor(0);
+  leg22b->SetBorderSize(0);
+  leg22b->SetMargin(0.2);
+  leg22b->SetTextSize(0.04);
+  
+  leg22b->AddEntry(gNonPrJpsi_mb,"|y|<2.4","P");
+  leg22b->AddEntry(gNonPrJpsi_y1624_mb,"1.6<|y|<2.4","P");
+ 
 
   // ##################################################### pr plots
   TCanvas *c1 = new TCanvas("c1","c1");
@@ -368,8 +417,7 @@ void makeRaa_pt( bool bSavePlots=1,
   }
   if(bAddLegend)
   {
-    pre->Draw();
-    l1->Draw();
+    CMS_lumi(c1,103,33);
     lcent->Draw();
   }
   
@@ -380,21 +428,11 @@ void makeRaa_pt( bool bSavePlots=1,
   gPrJpsiSyst_pt365y1624->Draw("2");
   gPrJpsi_pt365y1624->Draw("P");
   gPrJpsiP_pt365y1624->Draw("P");
-
-
-  TLegend *leg11a = new TLegend(0.65,0.55,0.8,0.68);
-  leg11a->SetFillStyle(0);
-  leg11a->SetFillColor(0);
-  leg11a->SetBorderSize(0);
-  leg11a->SetMargin(0.2);
-  leg11a->SetTextSize(0.04);
-  leg11a->AddEntry(gPrJpsi,"|y|<2.4","P");
-  leg11a->AddEntry(gPrJpsi_pt365y1624,"1.6<|y|<2.4","P");
  
   if(bAddLegend)
   {
     leg11a->Draw();
-    pre->DrawLatex(2,1.05,"Prompt J/#psi");
+    pre->Draw();
   }
 
   if(bSavePlots)
@@ -418,24 +456,14 @@ void makeRaa_pt( bool bSavePlots=1,
   gPrJpsiSyst_y1624_mb->Draw("2");
   gPrJpsi_y1624_mb->Draw("P");
  
-  TLegend *leg11b = new TLegend(0.65,0.55,0.8,0.68);
-  leg11b->SetFillStyle(0);
-  leg11b->SetFillColor(0);
-  leg11b->SetBorderSize(0);
-  leg11b->SetMargin(0.2);
-  leg11b->SetTextSize(0.04);
-  
-  leg11b->AddEntry(gPrJpsi_mb,"|y|<2.4","P");
-  leg11b->AddEntry(gPrJpsi_y1624_mb,"1.6<|y|<2.4","P");
  
   if(bAddLegend)
   {
-    pre->Draw();
-    l1->Draw();
+    CMS_lumi(c11b,103,33);
     lcent->Draw();
   
     leg11b->Draw();
-    pre->DrawLatex(2,1.05,"Prompt J/#psi");
+    pre->Draw();
   }
   gPad->RedrawAxis();
 
@@ -457,8 +485,7 @@ void makeRaa_pt( bool bSavePlots=1,
   }
   if(bAddLegend)
   {
-    pre->DrawLatex(2,1.4,"CMS Preliminary");
-    l1->Draw();
+    CMS_lumi(c2,103,33);
     lcent->Draw();
   }
   
@@ -470,20 +497,10 @@ void makeRaa_pt( bool bSavePlots=1,
   gNonPrJpsi_pt365y1624->Draw("P");
   gNonPrJpsiP_pt365y1624->Draw("P");
 
-
-  TLegend *leg22a = new TLegend(0.65,0.55,0.8,0.68);
-  leg22a->SetFillStyle(0);
-  leg22a->SetFillColor(0);
-  leg22a->SetBorderSize(0);
-  leg22a->SetMargin(0.2);
-  leg22a->SetTextSize(0.04);
-  leg22a->AddEntry(gNonPrJpsi,"|y|<2.4","P");
-  leg22a->AddEntry(gNonPrJpsi_pt365y1624,"1.6<|y|<2.4","P");
- 
   if(bAddLegend)
   {
     leg22a->Draw();
-    pre->DrawLatex(2,1.05,"Non-prompt J/#psi");
+    pre->Draw();
   }
 
   if(bSavePlots)
@@ -506,25 +523,14 @@ void makeRaa_pt( bool bSavePlots=1,
  
   gNonPrJpsiSyst_y1624_mb->Draw("2");
   gNonPrJpsi_y1624_mb->Draw("P");
- 
-  TLegend *leg22b = new TLegend(0.65,0.55,0.8,0.68);
-  leg22b->SetFillStyle(0);
-  leg22b->SetFillColor(0);
-  leg22b->SetBorderSize(0);
-  leg22b->SetMargin(0.2);
-  leg22b->SetTextSize(0.04);
-  
-  leg22b->AddEntry(gNonPrJpsi_mb,"|y|<2.4","P");
-  leg22b->AddEntry(gNonPrJpsi_y1624_mb,"1.6<|y|<2.4","P");
- 
+
   if(bAddLegend)
   {
-    pre->DrawLatex(2,1.4,"CMS Preliminary");
-    l1->Draw();
+    CMS_lumi(c22b,103,33);
     lcent->Draw();
   
     leg22b->Draw();
-    pre->DrawLatex(2,1.05,"Non-prompt J/#psi");
+    pre->Draw();
   }
   gPad->RedrawAxis();
 
