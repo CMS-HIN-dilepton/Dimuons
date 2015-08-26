@@ -12,9 +12,9 @@ double binsNpart3[nBinsNpart3]   = {32.75, 158.5653, 308.3853};
 double binsNpart3Err[nBinsNpart3]= {0,0,0};
 double binsNpart3X[nBinsNpart3]  = {10,10,10};
 
-double adTaa5[nBinsNpart3]       = {0.85, 6.95, 18.84};
-double adTaa5Err[nBinsNpart3]    = {0.11, 0.58, 0.99}; // this is wrong. to be fixed later
-double adDeltaCent5[nBinsNpart3] = {0.6,  0.2,  0.2};
+double adTaa3[nBinsNpart3]       = {0.85, 6.95, 18.84};
+double adTaa3Err[nBinsNpart3]    = {0.11, 0.58, 0.99}; // this is wrong. to be fixed later
+double adDeltaCent3[nBinsNpart3] = {0.6,  0.2,  0.2};
 
 // 50-100, 50-40, 40-30,30-20, 20-10, 10-0
 const int nBinsNpart6 = 6;
