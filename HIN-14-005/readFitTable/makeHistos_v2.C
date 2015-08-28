@@ -39,7 +39,7 @@ using namespace std;
 
 void makeHistos_v2(int nDphiBins = 4, 
                    int sample = 0, // 0=PbPb
-                   int weight = 1, // 0=noWeight, 1=weight
+                   int weight = 0, // 0=noWeight, 1=weight
                    const char* inputFitDataFileLocation = "../data/v2/"
                    ) 
 {
@@ -60,13 +60,13 @@ void makeHistos_v2(int nDphiBins = 4,
   TFile *pfOutput;
   pfOutput = new TFile(Form("%s_%s_%s_dPhiBins%d.root",outputHistDataFile[0],whichSample[sample],whichWeight[weight],nDphiBins),"RECREATE");
 
-  TH1F *hInc[300];
+  TH1F *hBkg[300];
   TH1F *hPrp[300];
   TH1F *hNPrp[300];
   
   double x[300];
   double prpt[300], prptErr[300], nprpt[300], nprptErr[300];
-  double inc[300], incErr[300];
+  double bkg[300], bkgErr[300];
   double rap1[300], rap2[300], pT1[300], pT2[300];//, cent1[300], cent2[300];
   int cent1[300], cent2[300];
   char tmp[512]={' '};
@@ -85,8 +85,8 @@ void makeHistos_v2(int nDphiBins = 4,
     pT1[nline]   = x[2];  pT2[nline]      = fabs(x[3]); // pt (second value comes with '-')
     cent1[nline] = x[4];  cent2[nline]    = fabs(x[5]);// centrlaity (second value comes with '-')
     // [6]&[7] is the phi interval
-    inc[nline]   = x[8];  incErr[nline]   = fabs(x[9]);  // inclusive yield and error
-    //[10]&[11] is the bkg and bkg error
+    bkg[nline]   = x[10];  bkgErr[nline]   = fabs(x[11]);  // bkg yield and error
+    //[7]&[8] is the inclusive and inclusive error
     prpt[nline]  = x[12]; prptErr[nline]  = fabs(x[13]); // prompt yield and error
     nprpt[nline] = x[14]; nprptErr[nline] = fabs(x[15]); // non-prompt yield and error
     //[16]&[17] is the b-fraction
@@ -98,7 +98,7 @@ void makeHistos_v2(int nDphiBins = 4,
       cout<<rap1[nline]<<" "<<rap2[nline]<<" ";
       cout<<pT1[nline]<<" "<<pT2[nline]<<" ";
       cout<<cent1[nline]<<" "<<cent2[nline]<<" ";
-      cout<<inc[nline]<<" "<<prpt[nline] <<" "<<prptErr[nline]<<" "<<nprpt[nline] <<" "<<nprptErr[nline]<<endl;
+      cout<<bkg[nline]<<" "<<prpt[nline] <<" "<<prptErr[nline]<<" "<<nprpt[nline] <<" "<<nprptErr[nline]<<endl;
     }
     nline++;
   }
@@ -111,20 +111,20 @@ void makeHistos_v2(int nDphiBins = 4,
   {
     if(nDphiBins==4)
     {
-      // inclusive histograms
-      TString histIncl(Form("Rap_%0.1f%0.1f_pT_%0.1f%0.1f_Cent_%d%d_Inc",rap1[5*j],rap2[5*j],pT1[5*j],pT2[5*j],cent1[5*j],cent2[5*j]));
-      histIncl.ReplaceAll(".","");
-      hInc[j] = new TH1F(histIncl,";#Delta #phi;",4,0,PI/2);
+      // bkg histograms
+      TString histBkg(Form("Rap_%0.1f%0.1f_pT_%0.1f%0.1f_Cent_%d%d_Bkg",rap1[5*j],rap2[5*j],pT1[5*j],pT2[5*j],cent1[5*j],cent2[5*j]));
+      histBkg.ReplaceAll(".","");
+      hBkg[j] = new TH1F(histBkg,";#Delta #phi;",4,0,PI/2);
       
-      hInc[j]->Sumw2();
-      hInc[j]->SetBinContent(1, inc[5*j]);
-      hInc[j]->SetBinContent(2, inc[5*j+2]);
-      hInc[j]->SetBinContent(3, inc[5*j+3]);
-      hInc[j]->SetBinContent(4, inc[5*j+4]);
-      hInc[j]->SetBinError(1, incErr[5*j]);
-      hInc[j]->SetBinError(2, incErr[5*j+2]);
-      hInc[j]->SetBinError(3, incErr[5*j+3]);
-      hInc[j]->SetBinError(4, incErr[5*j+4]);
+      hBkg[j]->Sumw2();
+      hBkg[j]->SetBinContent(1, bkg[5*j]);
+      hBkg[j]->SetBinContent(2, bkg[5*j+2]);
+      hBkg[j]->SetBinContent(3, bkg[5*j+3]);
+      hBkg[j]->SetBinContent(4, bkg[5*j+4]);
+      hBkg[j]->SetBinError(1, bkgErr[5*j]);
+      hBkg[j]->SetBinError(2, bkgErr[5*j+2]);
+      hBkg[j]->SetBinError(3, bkgErr[5*j+3]);
+      hBkg[j]->SetBinError(4, bkgErr[5*j+4]);
       //cout<<tmp<<endl;
   
       //prompt histograms
@@ -158,16 +158,16 @@ void makeHistos_v2(int nDphiBins = 4,
 
     if(nDphiBins==2)
     {
-      // inclusive histograms
-      TString histIncl(Form("Rap_%0.1f%0.1f_pT_%0.1f%0.1f_Cent_%d%d_Inc",rap1[3*j],rap2[3*j],pT1[3*j],pT2[3*j],cent1[3*j],cent2[3*j]));
-      histIncl.ReplaceAll(".","");
-      hInc[j] = new TH1F(histIncl,";#Delta #phi;",2,0,PI/2);
+      // background histograms
+      TString histBkg(Form("Rap_%0.1f%0.1f_pT_%0.1f%0.1f_Cent_%d%d_Bkg",rap1[3*j],rap2[3*j],pT1[3*j],pT2[3*j],cent1[3*j],cent2[3*j]));
+      histBkg.ReplaceAll(".","");
+      hBkg[j] = new TH1F(histBkg,";#Delta #phi;",2,0,PI/2);
       
-      hInc[j]->Sumw2();
-      hInc[j]->SetBinContent(1, inc[3*j]);
-      hInc[j]->SetBinContent(2, inc[3*j+2]);
-      hInc[j]->SetBinError(1, incErr[3*j]);
-      hInc[j]->SetBinError(2, incErr[3*j+2]);
+      hBkg[j]->Sumw2();
+      hBkg[j]->SetBinContent(1, bkg[3*j]);
+      hBkg[j]->SetBinContent(2, bkg[3*j+2]);
+      hBkg[j]->SetBinError(1, bkgErr[3*j]);
+      hBkg[j]->SetBinError(2, bkgErr[3*j+2]);
 
       //cout<<tmp<<endl;
   
