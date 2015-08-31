@@ -23,15 +23,15 @@
   const char* centBinsName[nCentBins] = {"1060","010", "1020","2030","3060", "010","1030","3060"};
 
 
-  const char* ptBinsLegend[nPtBins]     = {"6.5<p_{T}<30",// MB
+  const char* ptBinsLegend[nPtBins]     = {"6.5<p_{T}<30 GeV/c",// MB
 					   "3<p_{T}<6.5","6.5<p_{T}<8","8<p_{T}<10","10<p_{T}<30",//prompt
 					   "3<p_{T}<6.5","6.5<p_{T}<10","10<p_{T}<30"}; // non-prompt
   const char* yBinsLegend[nYBins]       = {"|y|<2.4",// MB
 					   "|y|<1.2","1.2<|y|<1.6","1.6<|y|<2.4",//prompt
 					   "|y|<1.2","1.2<|y|<2.4"}; // non-prompt
   const char* centBinsLegend[nCentBins] = {"Cent. 10-60\%",// MB
-					   "Cent. 0-10\%", "Cent. 10-20\%","Cent. 20-30\%","Cent. 30-60\%",//prompt
-					   "Cent. 0-10\%","Cent. 10-30\%","Cent. 30-60\%"}; // non-prompt
+					   "10-0\%","20-10\%","30-20\%","60-30\%",//prompt
+					   "10-0\%","30-10\%","60-30\%"}; // non-prompt
 
 //------------------------------------- BINNING and limits
   // prompt bins
@@ -72,9 +72,17 @@
   double adWidth_low_systBox[1] = {0.5}; // width of the systm. uncert.
 
 // rapidity axis
+  double adXaxisY_np_l[] = {0.6,0.6};
+  double adXaxisY_np_h[] = {0.6,0.6};
+  double adXaxisY_np[]   = {0.6,1.8};
 
+  double adXaxisY_pr[]    = {0.6, 1.4, 2.0};// location on x-axis  
+  double adXaxisY_pr_l[]  = {0.6, 0.2, 0.4}; // bin width to the left
+  double adXaxisY_pr_h[]  = {0.6, 0.2, 0.4};// bin width to the right
+ 
 // cent axis
-
+double adXaxisCent_pr[]   = {90,187,261,355}; // Npart (60-30, 30-20, 20-10, 10-0)
+double adXaxisCent_np[]   = {90,224,355}; // Npart (60-30, 30-10, 10-0)
 // ------------------------------------------------------- systematic uncert (these are bogus for the moment)
   double adV2Pt_pr_syst[nPtBins_pr]     = {0.011,0.011,0.011};
   double adV2Y_pr_syst[nYBins_pr]       = {0.011,0.011,0.011};
