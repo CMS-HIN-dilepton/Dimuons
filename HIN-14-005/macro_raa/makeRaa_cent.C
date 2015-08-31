@@ -72,13 +72,13 @@ void makeRaa_cent(bool bSavePlots=1,
 
   // Lxyz no TnP
   // const char* yieldHistFile_yesWeight[2] = {
-  //  "histsRaaYields_20150826_PbPb_Lxyz_noTnPCorr_weightedEff_Lxyz_pTtune_PRMC_noTnPCorr.root",
-  //  "histsRaaYields_20150826_pp_Lxyz_noTnPCorr_weightedEff_Lxyz_finerpT_PRMC_noTnPCorr.root"
+  //  "histsRaaYields_20150830_PbPb_Lxyz_noTnPCorr_v1_weightedEff_Lxyz_pTtune_PRMC_TnPCorr_v1.root",
+  //  "histsRaaYields_20150830_pp_Lxyz_noTnPCorr_v1_weightedEff_Lxyz_finerpT_PRMC_TnPCorr_v1.root"
   // };
   
   // const char* yieldHistFile_noWeight[2] = {
-  //  "histsRaaYields_20150826_PbPb_Lxyz_noTnPCorr_noWeight_Lxyz_pTtune_PRMC_noTnPCorr.root",
-  //  "histsRaaYields_20150826_pp_Lxyz_noTnPCorr_noWeight_Lxyz_finerpT_PRMC_noTnPCorr.root"
+  //  "histsRaaYields_20150830_PbPb_Lxyz_noTnPCorr_v1_noWeight_Lxyz_pTtune_PRMC_TnPCorr_v1.root",
+  //  "histsRaaYields_20150830_pp_Lxyz_noTnPCorr_v1_noWeight_Lxyz_finerpT_PRMC_TnPCorr_v1.root"
   // };
 
 
@@ -488,7 +488,7 @@ void makeRaa_cent(bool bSavePlots=1,
   if(bSavePlots)
   {
     c1->SaveAs(Form("%s/pdf/PrJpsi_vsCent_weight%d.pdf",outputDir,weight));
-    c1->SaveAs(Form("%s/png/PrJpsi_vsCent_weight%d.pdf",outputDir,weight));
+    c1->SaveAs(Form("%s/png/PrJpsi_vsCent_weight%d.png",outputDir,weight));
   }
   
   //------------------- (pt, y) dependence

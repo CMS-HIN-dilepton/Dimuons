@@ -71,14 +71,14 @@ void makeRaa_pt( bool bSavePlots=1,
 
   // Lxyz and no_TnP corrections
   // const char* yieldHistFile_yesWeight[2] = {
-  //  "histsRaaYields_20150826_PbPb_Lxyz_noTnPCorr_weightedEff_Lxyz_pTtune_PRMC_noTnPCorr.root",
-  //  "histsRaaYields_20150826_pp_Lxyz_noTnPCorr_weightedEff_Lxyz_finerpT_PRMC_noTnPCorr.root"
+  //  "histsRaaYields_20150830_PbPb_Lxyz_noTnPCorr_v1_weightedEff_Lxyz_pTtune_PRMC_TnPCorr_v1.root",
+  //  "histsRaaYields_20150830_pp_Lxyz_noTnPCorr_v1_weightedEff_Lxyz_finerpT_PRMC_TnPCorr_v1.root"
   // };
   
   // const char* yieldHistFile_noWeight[2] = {
-  //  "histsRaaYields_20150826_PbPb_Lxyz_noTnPCorr_noWeight_Lxyz_pTtune_PRMC_noTnPCorr.root",
-  //  "histsRaaYields_20150826_pp_Lxyz_noTnPCorr_noWeight_Lxyz_finerpT_PRMC_noTnPCorr.root"
-  // };
+  //  "histsRaaYields_20150830_PbPb_Lxyz_noTnPCorr_v1_noWeight_Lxyz_pTtune_PRMC_TnPCorr_v1.root",
+  //  "histsRaaYields_20150830_pp_Lxyz_noTnPCorr_v1_noWeight_Lxyz_finerpT_PRMC_TnPCorr_v1.root"
+  // };;
 
   const char* effHistFile[2] = {"histEff_pbpb_tradEff_0823.root", "histEff_pp_tradEff_0823.root"};
   const int nInHist = 4;
@@ -438,7 +438,7 @@ void makeRaa_pt( bool bSavePlots=1,
   if(bSavePlots)
   {
     c1->SaveAs(Form("%s/pdf/PrJpsi_vsPt_weight%d.pdf",outputDir,weight));
-    c1->SaveAs(Form("%s/png/PrJpsi_vsPt_weight%d.pdf",outputDir,weight));
+    c1->SaveAs(Form("%s/png/PrJpsi_vsPt_weight%d.png",outputDir,weight));
   }
   
   //-------------------minbias dependence
@@ -506,7 +506,7 @@ void makeRaa_pt( bool bSavePlots=1,
   if(bSavePlots)
   {
     c2->SaveAs(Form("%s/pdf/nonPrJpsi_vsPt_weight%d.pdf",outputDir,weight));
-    c2->SaveAs(Form("%s/png/nonPrJpsi_vsPt_weight%d.pdf",outputDir,weight));
+    c2->SaveAs(Form("%s/png/nonPrJpsi_vsPt_weight%d.png",outputDir,weight));
   }
   
   //-------------------minbias dependence

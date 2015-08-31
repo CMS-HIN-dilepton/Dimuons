@@ -41,7 +41,7 @@ void makeRaa_y(   bool bSavePlots=1,
       bool bOnlyLowPtCent=0,
       int weight = 1, //0=raw yields, will be corrected on the fly, in the traditional way, 1=corrected yields
       const char* inputDir="../readFitTable", // the place where the input root files, with the histograms are
-      const char* outputDir="figs/noTnP")// where the output figures will be
+      const char* outputDir="figs")// where the output figures will be
 {
   gSystem->mkdir(Form("./%s/png",outputDir), kTRUE);
   gSystem->mkdir(Form("./%s/pdf",outputDir), kTRUE);
@@ -61,26 +61,26 @@ void makeRaa_y(   bool bSavePlots=1,
 
 
   // Lxyz with Tnp
-  // const char* yieldHistFile_yesWeight[2] = {
-  //  "histsRaaYields_20150823_PbPb_Lxyz_weightedEff_Lxyz_pTtune_PRMC.root",
-  //  "histsRaaYields_20150823_pp_Lxyz_weightedEff_Lxyz_finerpT_PRMC.root"
-  // };
-  
-  // const char* yieldHistFile_noWeight[2] = {
-  //  "histsRaaYields_20150823_PbPb_Lxyz_noWeight_Lxyz_pTtune_PRMC.root",
-  //  "histsRaaYields_20150823_pp_Lxyz_noWeight_Lxyz_finerpT_PRMC.root"
-  // };
-  
-  // Lxyz, no Tnp
   const char* yieldHistFile_yesWeight[2] = {
-   "histsRaaYields_20150826_PbPb_Lxyz_noTnPCorr_weightedEff_Lxyz_pTtune_PRMC_noTnPCorr.root",
-   "histsRaaYields_20150826_pp_Lxyz_noTnPCorr_weightedEff_Lxyz_finerpT_PRMC_noTnPCorr.root"
+   "histsRaaYields_20150823_PbPb_Lxyz_weightedEff_Lxyz_pTtune_PRMC.root",
+   "histsRaaYields_20150823_pp_Lxyz_weightedEff_Lxyz_finerpT_PRMC.root"
   };
   
   const char* yieldHistFile_noWeight[2] = {
-   "histsRaaYields_20150826_PbPb_Lxyz_noTnPCorr_noWeight_Lxyz_pTtune_PRMC_noTnPCorr.root",
-   "histsRaaYields_20150826_pp_Lxyz_noTnPCorr_noWeight_Lxyz_finerpT_PRMC_noTnPCorr.root"
+   "histsRaaYields_20150823_PbPb_Lxyz_noWeight_Lxyz_pTtune_PRMC.root",
+   "histsRaaYields_20150823_pp_Lxyz_noWeight_Lxyz_finerpT_PRMC.root"
   };
+  
+  // Lxyz, no Tnp
+  // const char* yieldHistFile_yesWeight[2] = {
+  //  "histsRaaYields_20150826_PbPb_Lxyz_noTnPCorr_weightedEff_Lxyz_pTtune_PRMC_noTnPCorr.root",
+  //  "histsRaaYields_20150826_pp_Lxyz_noTnPCorr_weightedEff_Lxyz_finerpT_PRMC_noTnPCorr.root"
+  // };
+  
+  // const char* yieldHistFile_noWeight[2] = {
+  //  "histsRaaYields_20150826_PbPb_Lxyz_noTnPCorr_noWeight_Lxyz_pTtune_PRMC_noTnPCorr.root",
+  //  "histsRaaYields_20150826_pp_Lxyz_noTnPCorr_noWeight_Lxyz_finerpT_PRMC_noTnPCorr.root"
+  // };
 
   const char* effHistFile[2] = {
    "histEff_pbpb_tradEff_0823.root",
@@ -383,7 +383,7 @@ void makeRaa_y(   bool bSavePlots=1,
   if(bSavePlots)
   {
     c1->SaveAs(Form("%s/pdf/PrJpsi_vsY_weight%d.pdf",outputDir,weight));
-    c1->SaveAs(Form("%s/png/PrJpsi_vsY_weight%d.pdf",outputDir,weight));
+    c1->SaveAs(Form("%s/png/PrJpsi_vsY_weight%d.png",outputDir,weight));
   }
   
   //-------------------minbias dependence
@@ -442,7 +442,7 @@ void makeRaa_y(   bool bSavePlots=1,
   if(bSavePlots)
   {
     c2->SaveAs(Form("%s/pdf/nonPrJpsi_vsY_weight%d.pdf",outputDir,weight));
-    c2->SaveAs(Form("%s/png/nonPrJpsi_vsY_weight%d.pdf",outputDir,weight));
+    c2->SaveAs(Form("%s/png/nonPrJpsi_vsY_weight%d.png",outputDir,weight));
   }
   
   //-------------------minbias dependence

@@ -42,9 +42,14 @@ void makeHistos_raa(int sample = 0, // 0=PbPb,     1= pp
                    ) 
 {
   //latest
-  const char* whichSample[2]    = {"20150823_PbPb_Lxyz",    "20150823_pp_Lxyz"};
-  const char* whichWeight[2]    = {"noWeight_Lxyz_pTtune_PRMC", "weightedEff_Lxyz_pTtune_PRMC"};
-  const char* whichWeight_pp[2] = {"noWeight_Lxyz_finerpT_PRMC","weightedEff_Lxyz_finerpT_PRMC"};
+  // const char* whichSample[2]    = {"20150823_PbPb_Lxyz",    "20150823_pp_Lxyz"};
+  // const char* whichWeight[2]    = {"noWeight_Lxyz_pTtune_PRMC", "weightedEff_Lxyz_pTtune_PRMC"};
+  // const char* whichWeight_pp[2] = {"noWeight_Lxyz_finerpT_PRMC","weightedEff_Lxyz_finerpT_PRMC"};
+
+ const char* whichSample[2]     = {"20150830_PbPb_Lxyz_noTnPCorr_v1",      "20150830_pp_Lxyz_noTnPCorr_v1"};
+  const char* whichWeight[2]    = {"noWeight_Lxyz_pTtune_PRMC_TnPCorr_v1", "weightedEff_Lxyz_pTtune_PRMC_TnPCorr_v1"};
+  const char* whichWeight_pp[2] = {"noWeight_Lxyz_finerpT_PRMC_TnPCorr_v1","weightedEff_Lxyz_finerpT_PRMC_TnPCorr_v1"};
+
 
   const char* effFileName[2]        = {"pbpb_tradEff_0823","pp_tradEff_0823"};
   const char* outputHistDataFile[2] = {"histsRaaYields","histEff"};
