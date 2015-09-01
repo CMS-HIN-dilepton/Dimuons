@@ -34,26 +34,25 @@ Output: the Raa vs rpaidity.
 #include "../tdrstyle.C"
 #endif
 
-void makeRaa_y(bool bSavePlots=1,
-	       bool bDoDebug = 0, // adds some numbers, numerator, denominator, to help figure out if things are read properly
-	       bool bAddLumi = 0, // add the lumi boxes at raa=1
-	       int  whichSample     = 1,//0: no TnP corrections; 1: w/ TnP corr on Data; 2: w/ TnP corr on MC; 3: lxy w/ TnP on MC
-	       const char* inputDir="../readFitTable", // the place where the input root files, with the histograms are
-	       const char* outputDir="figs")// where the output figures will be
+void compare_y(bool bSavePlots       = 0,
+	       bool bDoDebug         = 1, // adds some numbers, numerator, denominator, to help figure out if things are read properly
+	       int whichCompare      = 1,//0: no TnP corrections; 1: w/ TnP corr on Data; 2: w/ TnP corr on MC; 3: lxy w/ TnP on MC
+	       const char* inputDir  = "../readFitTable", // the place where the input root files, with the histograms are
+	       const char* outputDir = "figs/compare")// where the output figures will be
 {
   gSystem->mkdir(Form("./%s/png",outputDir), kTRUE);
   gSystem->mkdir(Form("./%s/pdf",outputDir), kTRUE);
 
   // set the style
   setTDRStyle();
- 
-  // type of available comparisons:
-  const char* sample[4] = {"noTnP","dataTnP","mcTnP","lxyTnP"};
+
+ // type of available comparisons:
+  const char* compWhat[4] = {"noTnP","dataTnP","mcTnP","lxyTnP"};
 
   const int nInHist = 3;
   const char* yieldHistNames[nInHist] = {"y", "y_mb", "mb"};
 
-  
+  //-----------------------------------------
   // input files: 
   // lxy fits and TnP corrections
   const char* yieldHistFile_yesWeight_3[2] = {"histsRaaYields_20150127_PbPb_raa_weightedEff_InEta.root",
@@ -96,8 +95,9 @@ void makeRaa_y(bool bSavePlots=1,
 
   const char* effHistFile_1[2] = {"histEff_pbpb_tradEff_0823.root", "histEff_pp_tradEff_0823.root"};
   const char* effHistFile_0[2] = {"histEff_pbpb_tradEff_0823.root", "histEff_pp_tradEff_0823.root"};
+ 
 
-  // open the files with yields and do the math
+ // open the files with yields and do the math
   TFile *fYesWeighFile_aa   = new TFile(Form("%s/%s",inputDir,yieldHistFile_yesWeight_1[0]));
   TFile *fYesWeighFile_pp   = new TFile(Form("%s/%s",inputDir,yieldHistFile_yesWeight_1[1]));
   
@@ -107,7 +107,7 @@ void makeRaa_y(bool bSavePlots=1,
   TFile *fEffFile_aa = new TFile(Form("%s/%s",inputDir,effHistFile_1[0]));
   TFile *fEffFile_pp = new TFile(Form("%s/%s",inputDir,effHistFile_1[1]));
 
- switch(whichSample){
+  switch(whichCompare){
   case 0:
     fYesWeighFile_aa   = new TFile(Form("%s/%s",inputDir,yieldHistFile_yesWeight_0[0]));
     fYesWeighFile_pp   = new TFile(Form("%s/%s",inputDir,yieldHistFile_yesWeight_0[1]));
@@ -140,6 +140,7 @@ void makeRaa_y(bool bSavePlots=1,
     break;
 
   }
+ 
   if (!fYesWeighFile_aa->IsOpen() || !fYesWeighFile_pp->IsOpen()|| !fNoWeighFile_aa->IsOpen() || !fNoWeighFile_pp->IsOpen() || !fEffFile_aa->IsOpen() || !fEffFile_pp->IsOpen()) {
     cout << "One or more input files are missing" << endl;
     return ;
@@ -158,6 +159,13 @@ void makeRaa_y(bool bSavePlots=1,
   TH1F *phRaw_npr_aa; 
   TH1F *phCorr_npr_aa;
   TH1F *phEff_npr_aa;
+
+ // to store the ratio of ev-by-ev  and traditionally corrected yields in each case
+  TH1F *ahRatio_pr_pp[nInHist];
+  TH1F *ahRatio_npr_pp[nInHist];
+  TH1F *ahRatio_pr_aa[nInHist];
+  TH1F *ahRatio_npr_aa[nInHist];
+
   
   for(int ih=0; ih<nInHist;ih++) // for each kinematic range
   {
@@ -184,6 +192,28 @@ void makeRaa_y(bool bSavePlots=1,
     phEff_pr_aa  = (TH1F*)fEffFile_aa->Get(hist_pr);
     phEff_npr_aa = (TH1F*)fEffFile_aa->Get(hist_npr);
 
+ //---------------  corrected yields in the traditional way (simple division for the moment)
+    // store the yield_Ratio histos:  ev_by_ev/(raw*eff), 
+    ahRatio_pr_pp[ih]  = (TH1F *)phCorr_pr_pp->Clone();
+    ahRatio_pr_pp[ih]->SetDirectory(0);
+    ahRatio_pr_pp[ih]->Divide(phRaw_pr_pp);
+    ahRatio_pr_pp[ih]->Multiply(phEff_pr_pp);// correct the raw with it's efficiency
+
+    ahRatio_npr_pp[ih]  = (TH1F *)phCorr_npr_pp->Clone();
+    ahRatio_npr_pp[ih]->SetDirectory(0);
+    ahRatio_npr_pp[ih]->Divide(phRaw_npr_pp);
+    ahRatio_npr_pp[ih]->Multiply(phEff_npr_pp);
+
+    ahRatio_pr_aa[ih]  = (TH1F *)phCorr_pr_aa->Clone();
+    ahRatio_pr_aa[ih]->SetDirectory(0);
+    ahRatio_pr_aa[ih]->Divide(phRaw_pr_aa);
+    ahRatio_pr_aa[ih]->Multiply(phEff_pr_aa);
+
+    ahRatio_npr_aa[ih]  = (TH1F *)phCorr_npr_aa->Clone();
+    ahRatio_npr_aa[ih]->SetDirectory(0);
+    ahRatio_npr_aa[ih]->Divide(phRaw_npr_aa);
+    ahRatio_npr_aa[ih]->Multiply(phEff_npr_aa);
+
     double scaleFactor = ppLumi/nMbEvents;
     double scale_cent = 1/(adTaaMB[0]*adDeltaCentMB[0]);
   
@@ -197,48 +227,69 @@ void makeRaa_y(bool bSavePlots=1,
     for(int ibin=1; ibin<=numBins; ibin++)
     {
       double raa_pr=0, raaErr_pr=0, raa_npr=0, raaErr_npr=0;
+      double raaTrad_pr=0, raaTradErr_pr=0, raaTrad_npr=0, raaTradErr_npr=0;
 
       //prompt
       double dRelErrRaw_pr_pp  = phRaw_pr_pp->GetBinError(ibin)/phRaw_pr_pp->GetBinContent(ibin);
       double dRelErrRaw_pr_aa  = phRaw_pr_aa->GetBinError(ibin)/phRaw_pr_aa->GetBinContent(ibin);
+    
       double yieldRatio_pr     = phCorr_pr_aa->GetBinContent(ibin)/phCorr_pr_pp->GetBinContent(ibin);
-  
+      
+      double yieldRatioTrad_pr = (phRaw_pr_aa->GetBinContent(ibin)/phRaw_pr_pp->GetBinContent(ibin))
+	* (phEff_pr_pp->GetBinContent(ibin)/phEff_pr_aa->GetBinContent(ibin));
+
       raa_pr      =  yieldRatio_pr * scaleFactor * scale_cent;
       raaErr_pr   = TMath::Sqrt(TMath::Power(dRelErrRaw_pr_pp,2)+TMath::Power(dRelErrRaw_pr_aa,2))*raa_pr;
+
+      raaTrad_pr      =  yieldRatioTrad_pr * scaleFactor * scale_cent;
+      raaTradErr_pr   = TMath::Sqrt(TMath::Power(dRelErrRaw_pr_pp,2)+TMath::Power(dRelErrRaw_pr_aa,2))*raaTrad_pr;
 
       //non-prompt
       // get the rel uncert from the raw sample
       double dRelErrRaw_npr_pp  = phRaw_npr_pp->GetBinError(ibin)/phRaw_npr_pp->GetBinContent(ibin);
       double dRelErrRaw_npr_aa  = phRaw_npr_aa->GetBinError(ibin)/phRaw_npr_aa->GetBinContent(ibin);
       double yieldRatio_npr     = phCorr_npr_aa->GetBinContent(ibin)/phCorr_npr_pp->GetBinContent(ibin);
-   
+      double yieldRatioTrad_npr = phRaw_npr_aa->GetBinContent(ibin)/phRaw_npr_pp->GetBinContent(ibin)
+          * (phEff_npr_pp->GetBinContent(ibin)/phEff_npr_aa->GetBinContent(ibin));
+
       raa_npr    = yieldRatio_npr * scaleFactor * scale_cent;
       raaErr_npr = TMath::Sqrt(TMath::Power(dRelErrRaw_npr_pp,2)+TMath::Power(dRelErrRaw_npr_aa,2))*raa_npr;
+
+      raaTrad_npr= yieldRatioTrad_npr * scaleFactor * scale_cent;
+      raaTradErr_npr = TMath::Sqrt(TMath::Power(dRelErrRaw_npr_pp,2)+TMath::Power(dRelErrRaw_npr_aa,2))*raaTrad_npr;
+
      
       // fill the corresponding array
       switch(ih){
       case 0:
-        prJpsi_y[ibin-1]    = raa_pr;
-        prJpsiErr_y[ibin-1] = raaErr_pr;
-              
+        prJpsi_y[ibin-1]       = raa_pr;
+        prJpsiErr_y[ibin-1]    = raaErr_pr;
         nonPrJpsi_y[ibin-1]    = raa_npr;
         nonPrJpsiErr_y[ibin-1] = raaErr_npr;
+
+	prJpsiTrad_y[ibin-1]       = raaTrad_pr;
+        prJpsiTradErr_y[ibin-1]    = raaTradErr_pr;              
+        nonPrJpsiTrad_y[ibin-1]    = raaTrad_npr;
+        nonPrJpsiTradErr_y[ibin-1] = raaTradErr_npr;
 
         if(bDoDebug)
         {
 	  cout<<"yield_pr_aa "<<phCorr_pr_aa->GetBinContent(ibin)<<"\t yield_pr_pp "<<phCorr_pr_pp->GetBinContent(ibin)<<endl;
           cout<<"yield_npr_aa "<<phCorr_npr_aa->GetBinContent(ibin)<<"\t yield_npr_pp "<<phCorr_npr_pp->GetBinContent(ibin)<<endl;
-	  cout<<setprecision(2);
-          cout<<"!!!!! raa_pr = "<<raa_pr<<"\t raa_npr= "<<raa_npr<<endl;
+	  cout<<"!!!!! raa_pr = "<<raa_pr<<"\t raa_npr= "<<raa_npr<<endl;
         }
         break;
    
       case 1:
         prJpsi_y_y[ibin-1]        = raa_pr;
         prJpsiErr_y_y[ibin-1]     = raaErr_pr;
-
         nonPrJpsi_y_y[ibin-1]     = raa_npr;
         nonPrJpsiErr_y_y[ibin-1]  = raaErr_npr;
+
+	prJpsiTrad_y_y[ibin-1]        = raaTrad_pr;
+        prJpsiTradErr_y_y[ibin-1]     = raaTradErr_pr;
+        nonPrJpsiTrad_y_y[ibin-1]     = raaTrad_npr;
+        nonPrJpsiTradErr_y_y[ibin-1]  = raaTradErr_npr;
 
         if(bDoDebug)
         {
@@ -250,11 +301,17 @@ void makeRaa_y(bool bSavePlots=1,
 
       case 2:
         // mb
-        prJpsi_mb[0]     = raa_pr;
-        prJpsiErr_mb[0]  = raaErr_pr;
-        
-        nonPrJpsi_mb[0]     = raa_npr;
-        nonPrJpsiErr_mb[0]  = raaErr_npr;
+        prJpsi_mb[0]         = raa_pr;
+        prJpsiErr_mb[0]      = raaErr_pr;       
+        nonPrJpsi_mb[0]      = raa_npr;
+        nonPrJpsiErr_mb[0]      = raaErr_npr;
+
+	prJpsiTrad_mb[0]     = raaTrad_pr;
+        prJpsiTradErr_mb[0]  = raaTradErr_pr;       
+        nonPrJpsiTrad_mb[0]  = raaTrad_npr;
+        nonPrJpsiTradErr_mb[0]  = raaTradErr_npr;
+
+
         break;
       }
     }//loop end: for(int ibin=1; ibin<=numBins; ibin++)
@@ -263,36 +320,30 @@ void makeRaa_y(bool bSavePlots=1,
   // ***** //Drawing
   // pr
   TGraphErrors *gPrJpsi     = new TGraphErrors(nBinsY, binsY, prJpsi_y, binsYErr, prJpsiErr_y);
-  TGraphErrors *gPrJpsiP    = new TGraphErrors(nBinsY, binsY, prJpsi_y, binsYErr, prJpsiErr_y);
-  TGraphErrors *gPrJpsiSyst = new TGraphErrors(nBinsY, binsY, prJpsi_y, binsYX, prJpsiErrSyst_y);
-
-  TGraphErrors *gPrJpsi_mb     = new TGraphErrors(nBinsMB, binsYMB, prJpsi_mb, binsYMBErr, prJpsiErr_mb);
-  TGraphErrors *gPrJpsiP_mb    = new TGraphErrors(nBinsMB, binsYMB, prJpsi_mb, binsYMBErr, prJpsiErr_mb);
-  TGraphErrors *gPrJpsiSyst_mb = new TGraphErrors(nBinsMB, binsYMB, prJpsi_mb, binsYMBX  , prJpsiErrSyst_mb);
- 
-  TGraphErrors *gPrJpsi_y_y     = new TGraphErrors(nBinsY3, binsY3, prJpsi_y_y, binsY3Err, prJpsiErr_y_y);
-  TGraphErrors *gPrJpsiP_y_y    = new TGraphErrors(nBinsY3, binsY3, prJpsi_y_y, binsY3Err, prJpsiErr_y_y);
-  TGraphErrors *gPrJpsiSyst_y_y = new TGraphErrors(nBinsY3, binsY3, prJpsi_y_y, binsY3X,   prJpsiErrSyst_y_y);
+  TGraphErrors *gPrJpsi_mb  = new TGraphErrors(nBinsMB, binsYMB, prJpsi_mb, binsYMBErr, prJpsiErr_mb);
+  TGraphErrors *gPrJpsi_y_y = new TGraphErrors(nBinsY3, binsY3, prJpsi_y_y, binsY3Err, prJpsiErr_y_y);
  
   // nonPr   
-  TGraphErrors *gNonPrJpsi     = new TGraphErrors(nBinsY, binsY, nonPrJpsi_y, binsYErr, nonPrJpsiErr_y);
-  TGraphErrors *gNonPrJpsiP    = new TGraphErrors(nBinsY, binsY, nonPrJpsi_y, binsYErr, nonPrJpsiErr_y);
-  TGraphErrors *gNonPrJpsiSyst = new TGraphErrors(nBinsY, binsY, nonPrJpsi_y, binsYX, nonPrJpsiErrSyst_y);
+  TGraphErrors *gNonPrJpsi    = new TGraphErrors(nBinsY, binsY, nonPrJpsi_y, binsYErr, nonPrJpsiErr_y);
+  TGraphErrors *gNonPrJpsi_mb = new TGraphErrors(nBinsMB, binsYMB, nonPrJpsi_mb, binsYMBErr, nonPrJpsiErr_mb);
+  TGraphErrors *gNonPrJpsi_y_y= new TGraphErrors(nBinsY3, binsY3, nonPrJpsi_y_y, binsY3Err, nonPrJpsiErr_y_y);
 
-  TGraphErrors *gNonPrJpsi_mb     = new TGraphErrors(nBinsMB, binsYMB, nonPrJpsi_mb, binsYMBErr, nonPrJpsiErr_mb);
-  TGraphErrors *gNonPrJpsiP_mb    = new TGraphErrors(nBinsMB, binsYMB, nonPrJpsi_mb, binsYMBErr, nonPrJpsiErr_mb);
-  TGraphErrors *gNonPrJpsiSyst_mb = new TGraphErrors(nBinsMB, binsYMB, nonPrJpsi_mb, binsYMBX, nonPrJpsiErrSyst_mb);
-
-
-  TGraphErrors *gNonPrJpsi_y_y     = new TGraphErrors(nBinsY3, binsY3, nonPrJpsi_y_y, binsY3Err, nonPrJpsiErr_y_y);
-  TGraphErrors *gNonPrJpsiP_y_y    = new TGraphErrors(nBinsY3, binsY3, nonPrJpsi_y_y, binsY3Err, nonPrJpsiErr_y_y);
-  TGraphErrors *gNonPrJpsiSyst_y_y = new TGraphErrors(nBinsY3, binsY3, nonPrJpsi_y_y, binsY3X,   nonPrJpsiErrSyst_y_y);
+  //------------ trad
+// pr
+  TGraphErrors *gPrJpsiTrad    = new TGraphErrors(nBinsY, binsY, prJpsiTrad_y, binsYErr, prJpsiTradErr_y);
+  TGraphErrors *gPrJpsiTrad_mb = new TGraphErrors(nBinsMB, binsYMB, prJpsiTrad_mb, binsYMBErr, prJpsiTradErr_mb);
+  TGraphErrors *gPrJpsiTrad_y_y= new TGraphErrors(nBinsY3, binsY3, prJpsiTrad_y_y, binsY3Err, prJpsiTradErr_y_y);
+ 
+  // nonPr   
+  TGraphErrors *gNonPrJpsiTrad    = new TGraphErrors(nBinsY, binsY, nonPrJpsiTrad_y, binsYErr, nonPrJpsiTradErr_y);
+  TGraphErrors *gNonPrJpsiTrad_mb = new TGraphErrors(nBinsMB, binsYMB, nonPrJpsiTrad_mb, binsYMBErr, nonPrJpsiTradErr_mb);
+  TGraphErrors *gNonPrJpsiTrad_y_y= new TGraphErrors(nBinsY3, binsY3, nonPrJpsiTrad_y_y, binsY3Err, nonPrJpsiTradErr_y_y);
 
   //-------------------------------------------------------------------
   // **************** marker colors
   gPrJpsi->SetMarkerColor(kRed);
   gNonPrJpsi->SetMarkerColor(kOrange+2);
-  
+
   //mnbias colors
   gPrJpsi_mb->SetMarkerColor(kCyan+2);
   gNonPrJpsi_mb->SetMarkerColor(kCyan+2);
@@ -301,59 +352,62 @@ void makeRaa_y(bool bSavePlots=1,
   gNonPrJpsi_y_y->SetMarkerColor(kBlue-4);
 
   //--------- marker style  
-  // pr
   gPrJpsi->SetMarkerStyle(21);
-  gPrJpsiP->SetMarkerStyle(25);
-
   gPrJpsi_y_y->SetMarkerStyle(34);
-  gPrJpsiP_y_y->SetMarkerStyle(28);
-
-  // non-pr
   gNonPrJpsi->SetMarkerStyle(29);
-  gNonPrJpsiP->SetMarkerStyle(30);
-  
   gNonPrJpsi_y_y->SetMarkerStyle(34);
-  gNonPrJpsiP_y_y->SetMarkerStyle(28);
 
   //mb
-  gPrJpsi_mb->SetMarkerStyle(28);
-  gNonPrJpsi_mb->SetMarkerStyle(28);
+  gPrJpsi_mb->SetMarkerStyle(33);
+  gNonPrJpsi_mb->SetMarkerStyle(33);
   
-  // ************** contour
-   // pr
-  gPrJpsiP->SetMarkerColor(kBlack);
-  gPrJpsiP_mb->SetMarkerColor(kBlack);
-
-  // nonPr
-  gNonPrJpsiP->SetMarkerColor(kBlack);
-  gNonPrJpsiP_mb->SetMarkerColor(kBlack);
-
-
   // marker size
-  // pr
   gPrJpsi->SetMarkerSize(1.2);
-  gPrJpsiP->SetMarkerSize(1.2);
-
-  gPrJpsiP_y_y->SetMarkerSize(1.7);
   gPrJpsi_y_y->SetMarkerSize(1.7);
+  gNonPrJpsi->SetMarkerSize(1.7);
+  gNonPrJpsi_y_y->SetMarkerSize(1.7);
 
+  //mb
   gPrJpsi_mb->SetMarkerSize(1.5);
   gNonPrJpsi_mb->SetMarkerSize(1.5);
 
-  // nonPr
-  gNonPrJpsi->SetMarkerSize(1.7);
-  gNonPrJpsiP->SetMarkerSize(1.7);
+
+  //--------------- traditional stuff
+  gPrJpsiTrad->SetMarkerStyle(25);
+  gPrJpsiTrad_y_y->SetMarkerStyle(28);
+  gNonPrJpsiTrad->SetMarkerStyle(30);
+  gNonPrJpsiTrad_y_y->SetMarkerStyle(28);
+
+  //mb
+  gPrJpsiTrad_mb->SetMarkerStyle(27);
+  gNonPrJpsiTrad_mb->SetMarkerStyle(27);
   
-  gNonPrJpsiP_y_y->SetMarkerSize(1.7);
-  gNonPrJpsi_y_y->SetMarkerSize(1.7);
+  // marker size
+  gPrJpsiTrad->SetMarkerSize(1.2);
+  gPrJpsiTrad_y_y->SetMarkerSize(1.7);
+  gNonPrJpsiTrad->SetMarkerSize(1.7);
+  gNonPrJpsiTrad_y_y->SetMarkerSize(1.7);
 
-  //stat boxes
-  gPrJpsiSyst->SetFillColor(kRed-9);
-  gPrJpsiSyst_y_y->SetFillColor(kViolet-9);
+  //mb
+  gPrJpsiTrad_mb->SetMarkerSize(1.5);
+  gNonPrJpsiTrad_mb->SetMarkerSize(1.5);
 
-  // non-pr
-  gNonPrJpsiSyst->SetFillColor(kOrange-9);
-  gNonPrJpsiSyst_y_y->SetFillColor(kViolet-9);
+ // same for the raa denominator and nominator yields histograms
+  for(int ih=0; ih<nInHist;ih++) // for each kinematic range
+  {
+    ahRatio_pr_pp[ih]->SetMarkerStyle(20);
+    ahRatio_npr_pp[ih]->SetMarkerStyle(20);
+    ahRatio_pr_aa[ih]->SetMarkerStyle(20);
+    ahRatio_npr_aa[ih]->SetMarkerStyle(20);
+    if(ih==2)
+      {
+	ahRatio_pr_pp[ih]->SetMarkerColor(kCyan+2);
+	ahRatio_npr_pp[ih]->SetMarkerColor(kCyan+2);
+	ahRatio_pr_aa[ih]->SetMarkerColor(kCyan+2);
+	ahRatio_npr_aa[ih]->SetMarkerColor(kCyan+2);
+      }
+  }
+
 
   //-------------------------------------------
   TF1 *f4 = new TF1("f4","1",0,2.4);
@@ -364,12 +418,15 @@ void makeRaa_y(bool bSavePlots=1,
   f4->GetYaxis()->SetRangeUser(0.0,1.5);
   f4->GetXaxis()->CenterTitle(kTRUE);
 
- // sqrt(sig_lumi(6%)*sig_lumi(6%)+sig_taa(5.7%)*sig_taa(5.7%)) = 0.083
-  TBox *lumi = new TBox(0.0,0.917,1.,1.083);
-  lumi->SetFillColor(kGray+1);
-
-
   //---------------- general stuff
+  TLatex *lcent = new TLatex(1.1,1.03,"Cent. 0-100%");
+  lcent->SetTextFont(42);
+  lcent->SetTextSize(0.05);
+
+  TLatex *lpt = new TLatex(1.1,0.9,"6.5 < p_{T} < 30 GeV/c");
+  lpt->SetTextFont(42);
+  lpt->SetTextSize(0.05);
+
   TLatex *lPr = new TLatex(0.2,1.35,"Prompt J/#psi");
   lPr->SetTextFont(42);
   lPr->SetTextSize(0.05);
@@ -378,117 +435,177 @@ void makeRaa_y(bool bSavePlots=1,
   lNpr->SetTextFont(42);
   lNpr->SetTextSize(0.05);
 
-  TLatex *lpt = new TLatex(0.12,0.075,"6.5 < p_{T} < 30 GeV/c");
-  lpt->SetTextFont(42);
-  lpt->SetTextSize(0.05);
-  TLatex *lcent = new TLatex(19,1.03,"Cent. 0-100%");
-  lcent->SetTextFont(42);
-  lcent->SetTextSize(0.05);
+ //  -----------------------for comparison purposes
+  // axis for the yields
+  TF1 *fBin = new TF1("fBin","1",0,8);
+  fBin->SetLineWidth(1);
+  fBin->GetXaxis()->SetTitle("Bin p_{T}");
+  fBin->GetYaxis()->SetTitle("Yield");
+  fBin->GetYaxis()->SetRangeUser(0.5,2);
+  fBin->GetXaxis()->CenterTitle(kTRUE);
+
+  TLatex *lRatio = new TLatex(0.5,1.7,"Yield: Ev-by-Ev/Trad. correction");
+  lRatio->SetTextFont(42);
+  lRatio->SetTextSize(0.05);
+
+  TLatex *lPP = new TLatex(0.5,1.8,"pp@2.76TeV");
+  lPP->SetTextFont(42);
+  lPP->SetTextSize(0.05);
+
+  TLatex *lAA = new TLatex(0.5,1.8,"PbPb@2.76TeV");
+  lAA->SetTextFont(42);
+  lAA->SetTextSize(0.05);
+
 
 
   // ##################################################### pr plots
-  TCanvas *c1 = new TCanvas("c1","c1");
-  // general stuff
+  TCanvas *c1 = new TCanvas("c1","c1",1200,400);
+  c1->Divide(3,1);
+  c1->cd(1);
   f4->Draw();// axis
-  if(bAddLumi) 
-  {
-    lumi->Draw();
-    f4->Draw("same");
-  }
-  CMS_lumi(c1,103,33);
   lPr->Draw();
   lcent->Draw();
   lpt->Draw();
 
-  gPrJpsiSyst->Draw("2");
   gPrJpsi->Draw("P");
-  gPrJpsiP->Draw("P");
+  gPrJpsiTrad->Draw("P");
 
-  if(bSavePlots)
-  {
-    c1->SaveAs(Form("%s/pdf/PrJpsi_vsY_%s.pdf",outputDir,sample[whichSample]));
-    c1->SaveAs(Form("%s/png/PrJpsi_vsY_%s.pdf",outputDir,sample[whichSample]));
-  }
+  c1->cd(2);
+  fBin->Draw();// axis
+  gPad->SetGridy();
+  lPP->Draw();
+  lRatio->Draw();
+
+  ahRatio_pr_pp[0]->Draw("sames");
   
-  //-------------------minbias dependence
-  TCanvas *c11b = new TCanvas("c11b","c11b");
-  f4->Draw();
-  if(bAddLumi)
-  {
-    lumi->Draw();
-    f4->Draw("same");
-  }
- 
-  lPr->Draw();
-  lcent->Draw();
-  lpt->Draw();
-  CMS_lumi(c11b,103,33);
+  c1->cd(3);
+  fBin->Draw();// axis
+  gPad->SetGridy();
+  lAA->Draw();
+  lRatio->Draw();
 
-  gPrJpsiSyst_mb->Draw("2");
-  gPrJpsi_mb->Draw("P");
+  ahRatio_pr_aa[0]->Draw("sames");
+
+ if(bSavePlots)
+    {
+      c1->SaveAs(Form("%s/pdf/PrJpsi_vsY_%s.pdf",outputDir,compWhat[whichCompare]));
+      c1->SaveAs(Form("%s/png/PrJpsi_vsY_%s.pdf",outputDir,compWhat[whichCompare]));
+    }
+  //-------------------minbias dependence
+ TCanvas *c11b = new TCanvas("c11b","c11b",1200,400);
+ c11b->Divide(3,1);
+ c11b->cd(1);
+ f4->Draw();
+
+ lPr->Draw();
+ lcent->Draw();
+ lpt->Draw();
+
+ gPrJpsi_mb->Draw("P");
+ gPrJpsi_y_y->Draw("P");
+
+ gPrJpsiTrad_mb->Draw("P");
+ gPrJpsiTrad_y_y->Draw("P");
  
-  gPrJpsiSyst_y_y->Draw("2");
-  gPrJpsi_y_y->Draw("P");
- 
+ c11b->cd(2);
+ fBin->Draw();
+ gPad->SetGridy();
+ lPP->Draw();
+ lRatio->Draw();
+
+ ahRatio_pr_pp[1]->Draw("sames");
+ ahRatio_pr_pp[2]->Draw("sames");
+
+ c11b->cd(3);
+ fBin->Draw();
+ gPad->SetGridy();
+ lAA->Draw();
+ lRatio->Draw();
+ ahRatio_pr_aa[1]->Draw("sames");
+ ahRatio_pr_aa[2]->Draw("sames");
+
   gPad->RedrawAxis();
 
   if(bSavePlots)
   {
-    c11b->SaveAs(Form("%s/pdf/PrJpsi_vsY_mb_%s.pdf",outputDir,sample[whichSample]));
-    c11b->SaveAs(Form("%s/png/PrJpsi_vsY_mb_%s.png",outputDir,sample[whichSample]));
+    c11b->SaveAs(Form("%s/pdf/PrJpsi_vsY_mb_%s.pdf",outputDir,compWhat[whichCompare]));
+    c11b->SaveAs(Form("%s/png/PrJpsi_vsY_mb_%s.png",outputDir,compWhat[whichCompare]));
   }
 
-  
-  // ############################################## non-pr 
-  // ############################################## non-pr
-  TCanvas *c2 = new TCanvas("c2","c2");
-  // general stuff
+ //  // ############################################## non-pr   
+ //  // ############################################## non-pr 
+ //  // ############################################## non-pr
+ TCanvas *c2 = new TCanvas("c2","c2",1200,400);
+  c2->Divide(3,1);
+  c2->cd(1);
   f4->Draw();// axis
-  if(bAddLumi) 
-  {
-    lumi->Draw();
-    f4->Draw("same");
-  }
-  CMS_lumi(c2,103,33);
   lNpr->Draw();
   lcent->Draw();
   lpt->Draw();
 
-  gNonPrJpsiSyst->Draw("2");
   gNonPrJpsi->Draw("P");
-  gNonPrJpsiP->Draw("P");
+  gNonPrJpsiTrad->Draw("P");
 
-  if(bSavePlots)
-  {
-    c2->SaveAs(Form("%s/pdf/nonPrJpsi_vsY_%s.pdf",outputDir,sample[whichSample]));
-    c2->SaveAs(Form("%s/png/nonPrJpsi_vsY_%s.pdf",outputDir,sample[whichSample]));
-  }
+  c2->cd(2);
+  fBin->Draw();// axis
+  gPad->SetGridy();
+  lPP->Draw();
+  lRatio->Draw();
+
+  ahRatio_npr_pp[0]->Draw("sames");
   
-  //-------------------minbias dependence
-  TCanvas *c22b = new TCanvas("c22b","c22b");
-  f4->Draw();
-  if(bAddLumi)
-  {
-    lumi->Draw();
-    f4->Draw("same");
-  }
-  CMS_lumi(c22b,103,33);
-  lNpr->Draw();
-  lcent->Draw();
-  lpt->Draw();
+  c2->cd(3);
+  fBin->Draw();// axis
+  gPad->SetGridy();
+  lAA->Draw();
+  lRatio->Draw();
 
-  gNonPrJpsiSyst_mb->Draw("2");
-  gNonPrJpsi_mb->Draw("P");
+  ahRatio_npr_aa[0]->Draw("sames");
+
+ if(bSavePlots)
+    {
+      c1->SaveAs(Form("%s/pdf/NonPrJpsi_vsY_%s.pdf",outputDir,compWhat[whichCompare]));
+      c1->SaveAs(Form("%s/png/NonPrJpsi_vsY_%s.pdf",outputDir,compWhat[whichCompare]));
+    }
+  //-------------------minbias dependence
+ TCanvas *c22b = new TCanvas("c22b","c22b",1200,400);
+ c22b->Divide(3,1);
+ c22b->cd(1);
+ f4->Draw();
+
+ lNpr->Draw();
+ lcent->Draw();
+ lpt->Draw();
+
+ gNonPrJpsi_mb->Draw("P");
+ gNonPrJpsi_y_y->Draw("P");
+
+ gNonPrJpsiTrad_mb->Draw("P");
+ gNonPrJpsiTrad_y_y->Draw("P");
  
-  gNonPrJpsiSyst_y_y->Draw("2");
-  gNonPrJpsi_y_y->Draw("P");
+ c22b->cd(2);
+ fBin->Draw();
+ gPad->SetGridy();
+ lPP->Draw();
+ lRatio->Draw();
+
+ ahRatio_npr_pp[1]->Draw("sames");
+ ahRatio_npr_pp[2]->Draw("sames");
+
+ c22b->cd(3);
+ fBin->Draw();
+ gPad->SetGridy();
+ lAA->Draw();
+ lRatio->Draw();
+ ahRatio_npr_aa[1]->Draw("sames");
+ ahRatio_npr_aa[2]->Draw("sames");
 
   gPad->RedrawAxis();
 
   if(bSavePlots)
   {
-    c22b->SaveAs(Form("%s/pdf/nonPrJpsi_vsY_mb_%s.pdf",outputDir,sample[whichSample]));
-    c22b->SaveAs(Form("%s/png/nonPrJpsi_vsY_mb_%s.png",outputDir,sample[whichSample]));
+    c11b->SaveAs(Form("%s/pdf/NonPrJpsi_vsY_mb_%s.pdf",outputDir,compWhat[whichCompare]));
+    c11b->SaveAs(Form("%s/png/NonPrJpsi_vsY_mb_%s.png",outputDir,compWhat[whichCompare]));
   }
 
   

@@ -116,7 +116,7 @@ double binsY3X[nBinsY3] = {0.05, 0.05, 0.05}; //  6.5--30
   double prJpsiErrSyst_y[nBinsY] = {0};
 
 // 3 y-bins
-double prJpsi_y_y[nBinsY3]        = {0};
+  double prJpsi_y_y[nBinsY3]        = {0};
   double prJpsiErr_y_y[nBinsY3]     = {0};
   double prJpsiErrSyst_y_y[nBinsY3] = {0};
 
@@ -199,6 +199,91 @@ double nonPrJpsi_y_y[nBinsY3]        = {0};
   double nonPrJpsiErr_pt365y1624_cent[nBinsNpart5]    = {0};
   double nonPrJpsiErrSyst_pt365y1624_cent[nBinsNpart5]= {0};
 
+//-------------------------- for testing purposes, the traditionally corrected yields & raa
+// pr RAA
+// mb
+  double prJpsiTrad_mb[nBinsMB]        = {0};
+  double prJpsiTradErr_mb[nBinsMB]     = {0};
+
+// 1D
+  double prJpsiTrad_cent[nBinsNpart12]        = {0};
+  double prJpsiTradErr_cent[nBinsNpart12]     = {0};
+ 
+  double prJpsiTrad_pt[nBinsPt]        = {0};
+  double prJpsiTradErr_pt[nBinsPt]     = {0};
+ 
+  double prJpsiTrad_y[nBinsY]        = {0};
+  double prJpsiTradErr_y[nBinsY]     = {0};
+ 
+// 3 y-bins
+  double prJpsiTrad_y_y[nBinsY3]        = {0};
+  double prJpsiTradErr_y_y[nBinsY3]     = {0};
+ 
+  // 2D rapidity dependence of high-pT
+  double prJpsiTrad_pt6530y012_cent[nBinsNpart6]        = {0};
+  double prJpsiTradErr_pt6530y012_cent[nBinsNpart6]     = {0};
+ 
+  double prJpsiTrad_pt6530y1216_cent[nBinsNpart6]         = {0};
+  double prJpsiTradErr_pt6530y1216_cent[nBinsNpart6]      = {0};
+ 
+  double prJpsiTrad_pt6530y1624_cent[nBinsNpart6]         = {0};
+  double prJpsiTradErr_pt6530y1624_cent[nBinsNpart6]      = {0};
+ 
+// low-pt fwd region
+// minbias in 3 pt bins: 3-6.5, 6.5-30, 3-30
+  double prJpsiTrad_y1624MB_pt[nBinsMB3]       = {0};
+  double prJpsiTradErr_y1624MB_pt[nBinsMB3]    = {0};
+ 
+  double prJpsiTrad_pt365y1624_pt[nBinsPt3]        = {0};
+  double prJpsiTradErr_pt365y1624_pt[nBinsPt3]     = {0};
+ 
+  double prJpsiTrad_pt365y1624_cent[nBinsNpart5]        = {0};
+  double prJpsiTradErr_pt365y1624_cent[nBinsNpart5]     = {0};
+ 
+  // ----------- non-pr 
+// mb
+  double nonPrJpsiTrad_mb[nBinsMB]        = {0};
+  double nonPrJpsiTradErr_mb[nBinsMB]     = {0};
+
+
+  // 1D 
+  double nonPrJpsiTrad_cent[nBinsNpart12]        = {0};
+  double nonPrJpsiTradErr_cent[nBinsNpart12]     = {0};
+ 
+  double nonPrJpsiTrad_pt[nBinsPt]        = {0};
+  double nonPrJpsiTradErr_pt[nBinsPt]     = {0};
+ 
+  double nonPrJpsiTrad_y[nBinsY]        = {0};
+  double nonPrJpsiTradErr_y[nBinsY]     = {0};
+ 
+// 3 y-bins
+  double nonPrJpsiTrad_y_y[nBinsY3]        = {0};
+  double nonPrJpsiTradErr_y_y[nBinsY3]     = {0};
+  
+  // 2D rapidity dependence of high-pT
+  double nonPrJpsiTrad_pt6530y012_cent[nBinsNpart6]        = {0};
+  double nonPrJpsiTradErr_pt6530y012_cent[nBinsNpart6]     = {0};
+  
+  double nonPrJpsiTrad_pt6530y1216_cent[nBinsNpart6]        = {0};
+  double nonPrJpsiTradErr_pt6530y1216_cent[nBinsNpart6]     = {0};
+  
+  double nonPrJpsiTrad_pt6530y1624_cent[nBinsNpart6]        = {0};
+  double nonPrJpsiTradErr_pt6530y1624_cent[nBinsNpart6]     = {0};
+  
+// low-pt fwd region
+// minbias in 3 pt bins: 3-6.5, 6.5-30, 3-30
+  double nonPrJpsiTrad_y1624MB_pt[nBinsMB3]       = {0};
+  double nonPrJpsiTradErr_y1624MB_pt[nBinsMB3]    = {0};
+  
+  double nonPrJpsiTrad_pt365y1624_pt[nBinsPt3]        = {0};
+  double nonPrJpsiTradErr_pt365y1624_pt[nBinsPt3]     = {0};
+  
+  double nonPrJpsiTrad_pt365y1624_cent[nBinsNpart5]       = {0};
+  double nonPrJpsiTradErr_pt365y1624_cent[nBinsNpart5]    = {0};
+  
+
+
+//--------------------------------------------------------------------------------------------
 // bins for histograms
 double bins1[2] = {0,1};
 double bins3[4] = {0,1, 2, 3};

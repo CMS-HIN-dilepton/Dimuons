@@ -35,64 +35,110 @@ Output: the Raa vs pt.
 #endif
 
 void makeRaa_pt( bool bSavePlots=1,
-      bool bDoDebug = 0, // adds some numbers, numerator, denominator, to help figure out if things are read properly
-      bool bAddLumi = 0, // add the lumi boxes at raa=1
-      bool bAddLegend = 1, 
-      bool bOnlyLowPtCent=0,
-      int weight = 1, //0=raw yields, will be corrected on the fly, in the traditional way, 1=corrected yields
-      const char* inputDir="../readFitTable", // the place where the input root files, with the histograms are
-      const char* outputDir="figs")// where the output figures will be
+		 bool bDoDebug = 0, // adds some numbers, numerator, denominator, to help figure out if things are read properly
+		 bool bAddLumi = 0, // add the lumi boxes at raa=1
+		 int  whichSample     = 1,//0: no TnP corrections; 1: w/ TnP corr on Data; 2: w/ TnP corr on MC; 3: lxy w/ TnP on MC
+		 const char* inputDir="../readFitTable", // the place where the input root files, with the histograms are
+		 const char* outputDir="figs")// where the output figures will be
 {
   gSystem->mkdir(Form("./%s/png",outputDir), kTRUE);
   gSystem->mkdir(Form("./%s/pdf",outputDir), kTRUE);
  // set the style
   setTDRStyle();
-  gStyle->SetOptFit(0);
-  gStyle->SetOptStat(0);
-  gStyle->SetOptTitle(kFALSE);
+ 
+  // type of available comparisons:
+  const char* sample[4] = {"noTnP","dataTnP","mcTnP","lxyTnP"};
 
-  // input files: 
+  const int nInHist = 4;
+  const char* yieldHistNames[nInHist] = {"pt", "ptLow", "ptLow_mb", "mb"};
+
+
+ // input files: 
   // lxy fits and TnP corrections
-  // const char* yieldHistFile_yesWeight[2] = {"histsRaaYields_20150127_PbPb_raa_weightedEff_InEta.root",
-  //              "histsRaaYields_20150127_pp_raa_weightedEff_InEta.root"};
-  // const char* yieldHistFile_noWeight[2]  = {"histsRaaYields_20150127_PbPb_raa_noWeight_InEta.root",
-  //              "histsRaaYields_20150127_pp_raa_noWeight_InEta.root"};
+  const char* yieldHistFile_yesWeight_3[2] = {"histsRaaYields_20150127_PbPb_raa_weightedEff_InEta.root",
+               "histsRaaYields_20150127_pp_raa_weightedEff_InEta.root"};
+  const char* yieldHistFile_noWeight_3[2]  = {"histsRaaYields_20150127_PbPb_raa_noWeight_InEta.root",
+               "histsRaaYields_20150127_pp_raa_noWeight_InEta.root"};
 
-  // Lxyz and TnP corrections
-  const char* yieldHistFile_yesWeight[2] = {
+  // Lxyz with TnP corrections applied to the MC 4D efficiencies)  
+  const char* yieldHistFile_yesWeight_2[2] = {
    "histsRaaYields_20150823_PbPb_Lxyz_weightedEff_Lxyz_pTtune_PRMC.root",
    "histsRaaYields_20150823_pp_Lxyz_weightedEff_Lxyz_finerpT_PRMC.root"
   };
   
-  const char* yieldHistFile_noWeight[2] = {
+  const char* yieldHistFile_noWeight_2[2] = {
    "histsRaaYields_20150823_PbPb_Lxyz_noWeight_Lxyz_pTtune_PRMC.root",
    "histsRaaYields_20150823_pp_Lxyz_noWeight_Lxyz_finerpT_PRMC.root"
   };
 
-  // Lxyz and no_TnP corrections
-  // const char* yieldHistFile_yesWeight[2] = {
-  //  "histsRaaYields_20150830_PbPb_Lxyz_noTnPCorr_v1_weightedEff_Lxyz_pTtune_PRMC_TnPCorr_v1.root",
-  //  "histsRaaYields_20150830_pp_Lxyz_noTnPCorr_v1_weightedEff_Lxyz_finerpT_PRMC_TnPCorr_v1.root"
-  // };
+  // Lxyz with TnP corrections applied to data (not to the MC 4D efficiencies)
+  const char* yieldHistFile_yesWeight_1[2] = {
+   "histsRaaYields_20150830_PbPb_Lxyz_noTnPCorr_v1_weightedEff_Lxyz_pTtune_PRMC_TnPCorr_v1.root",
+   "histsRaaYields_20150830_pp_Lxyz_noTnPCorr_v1_weightedEff_Lxyz_finerpT_PRMC_TnPCorr_v1.root"
+  };
   
-  // const char* yieldHistFile_noWeight[2] = {
-  //  "histsRaaYields_20150830_PbPb_Lxyz_noTnPCorr_v1_noWeight_Lxyz_pTtune_PRMC_TnPCorr_v1.root",
-  //  "histsRaaYields_20150830_pp_Lxyz_noTnPCorr_v1_noWeight_Lxyz_finerpT_PRMC_TnPCorr_v1.root"
-  // };;
+  const char* yieldHistFile_noWeight_1[2] = {
+   "histsRaaYields_20150830_PbPb_Lxyz_noTnPCorr_v1_noWeight_Lxyz_pTtune_PRMC_TnPCorr_v1.root",
+   "histsRaaYields_20150830_pp_Lxyz_noTnPCorr_v1_noWeight_Lxyz_finerpT_PRMC_TnPCorr_v1.root"
+  };
 
-  const char* effHistFile[2] = {"histEff_pbpb_tradEff_0823.root", "histEff_pp_tradEff_0823.root"};
-  const int nInHist = 4;
-  const char* yieldHistNames[nInHist] = {"pt", "ptLow", "ptLow_mb", "mb"};
+  // Lxyz no TnP corrections
+  const char* yieldHistFile_yesWeight_0[2] = {
+   "histsRaaYields_20150830_PbPb_Lxyz_noTnPCorr_v1_weightedEff_Lxyz_pTtune_PRMC_TnPCorr_v1.root",
+   "histsRaaYields_20150830_pp_Lxyz_noTnPCorr_v1_weightedEff_Lxyz_finerpT_PRMC_TnPCorr_v1.root"
+  };
+  
+  const char* yieldHistFile_noWeight_0[2] = {
+   "histsRaaYields_20150830_PbPb_Lxyz_noTnPCorr_v1_noWeight_Lxyz_pTtune_PRMC_TnPCorr_v1.root",
+   "histsRaaYields_20150830_pp_Lxyz_noTnPCorr_v1_noWeight_Lxyz_finerpT_PRMC_TnPCorr_v1.root"
+  };
+
+  const char* effHistFile_1[2] = {"histEff_pbpb_tradEff_0823.root", "histEff_pp_tradEff_0823.root"};
+  const char* effHistFile_0[2] = {"histEff_pbpb_tradEff_0823.root", "histEff_pp_tradEff_0823.root"};
 
   // open the files with yields and do the math
-  TFile *fYesWeighFile_aa   = new TFile(Form("%s/%s",inputDir,yieldHistFile_yesWeight[0]));
-  TFile *fYesWeighFile_pp   = new TFile(Form("%s/%s",inputDir,yieldHistFile_yesWeight[1]));
+  TFile *fYesWeighFile_aa   = new TFile(Form("%s/%s",inputDir,yieldHistFile_yesWeight_1[0]));
+  TFile *fYesWeighFile_pp   = new TFile(Form("%s/%s",inputDir,yieldHistFile_yesWeight_1[1]));
   
-  TFile *fNoWeighFile_aa = new TFile(Form("%s/%s",inputDir,yieldHistFile_noWeight[0]));
-  TFile *fNoWeighFile_pp = new TFile(Form("%s/%s",inputDir,yieldHistFile_noWeight[1]));
+  TFile *fNoWeighFile_aa = new TFile(Form("%s/%s",inputDir,yieldHistFile_noWeight_1[0]));
+  TFile *fNoWeighFile_pp = new TFile(Form("%s/%s",inputDir,yieldHistFile_noWeight_1[1]));
 
-  TFile *fEffFile_aa = new TFile(Form("%s/%s",inputDir,effHistFile[0]));
-  TFile *fEffFile_pp = new TFile(Form("%s/%s",inputDir,effHistFile[1]));
+  TFile *fEffFile_aa = new TFile(Form("%s/%s",inputDir,effHistFile_1[0]));
+  TFile *fEffFile_pp = new TFile(Form("%s/%s",inputDir,effHistFile_1[1]));
+
+ switch(whichSample){
+  case 0:
+    fYesWeighFile_aa   = new TFile(Form("%s/%s",inputDir,yieldHistFile_yesWeight_0[0]));
+    fYesWeighFile_pp   = new TFile(Form("%s/%s",inputDir,yieldHistFile_yesWeight_0[1]));
+  
+    fNoWeighFile_aa = new TFile(Form("%s/%s",inputDir,yieldHistFile_noWeight_0[0]));
+    fNoWeighFile_pp = new TFile(Form("%s/%s",inputDir,yieldHistFile_noWeight_0[1]));
+
+    fEffFile_aa = new TFile(Form("%s/%s",inputDir,effHistFile_0[0]));
+    fEffFile_pp = new TFile(Form("%s/%s",inputDir,effHistFile_0[1]));
+    break;
+
+  case 2:
+    fYesWeighFile_aa   = new TFile(Form("%s/%s",inputDir,yieldHistFile_yesWeight_2[0]));
+    fYesWeighFile_pp   = new TFile(Form("%s/%s",inputDir,yieldHistFile_yesWeight_2[1]));
+  
+    fNoWeighFile_aa = new TFile(Form("%s/%s",inputDir,yieldHistFile_noWeight_2[0]));
+    fNoWeighFile_pp = new TFile(Form("%s/%s",inputDir,yieldHistFile_noWeight_2[1]));
+    break;
+
+  case 3: 
+    fYesWeighFile_aa   = new TFile(Form("%s/%s",inputDir,yieldHistFile_yesWeight_3[0]));
+    fYesWeighFile_pp   = new TFile(Form("%s/%s",inputDir,yieldHistFile_yesWeight_3[1]));
+  
+    fNoWeighFile_aa = new TFile(Form("%s/%s",inputDir,yieldHistFile_noWeight_3[0]));
+    fNoWeighFile_pp = new TFile(Form("%s/%s",inputDir,yieldHistFile_noWeight_3[1]));
+    break;
+
+  default:
+    cout<<" Donno what you are doing, chose what you want to compare, options from 0->3!"<<endl;
+    break;
+
+  }
 
   if (!fYesWeighFile_aa->IsOpen() || !fYesWeighFile_pp->IsOpen()|| !fNoWeighFile_aa->IsOpen() || !fNoWeighFile_pp->IsOpen() || !fEffFile_aa->IsOpen() || !fEffFile_pp->IsOpen()) {
     cout << "One or more input files are missing" << endl;
@@ -154,9 +200,7 @@ void makeRaa_pt( bool bSavePlots=1,
       double dRelErrRaw_pr_pp  = phRaw_pr_pp->GetBinError(ibin)/phRaw_pr_pp->GetBinContent(ibin);
       double dRelErrRaw_pr_aa  = phRaw_pr_aa->GetBinError(ibin)/phRaw_pr_aa->GetBinContent(ibin);
       double yieldRatio_pr     = phCorr_pr_aa->GetBinContent(ibin)/phCorr_pr_pp->GetBinContent(ibin);
-      if(weight==0) yieldRatio_pr = (phRaw_pr_aa->GetBinContent(ibin)/phRaw_pr_pp->GetBinContent(ibin))
-          * (phEff_pr_pp->GetBinContent(ibin)/phEff_pr_aa->GetBinContent(ibin));
-
+     
       raa_pr      =  yieldRatio_pr * scaleFactor * scale_cent;
       raaErr_pr   = TMath::Sqrt(TMath::Power(dRelErrRaw_pr_pp,2)+TMath::Power(dRelErrRaw_pr_aa,2))*raa_pr;
 
@@ -165,9 +209,7 @@ void makeRaa_pt( bool bSavePlots=1,
       double dRelErrRaw_npr_pp  = phRaw_npr_pp->GetBinError(ibin)/phRaw_npr_pp->GetBinContent(ibin);
       double dRelErrRaw_npr_aa  = phRaw_npr_aa->GetBinError(ibin)/phRaw_npr_aa->GetBinContent(ibin);
       double yieldRatio_npr     = phCorr_npr_aa->GetBinContent(ibin)/phCorr_npr_pp->GetBinContent(ibin);
-      if(weight==0) yieldRatio_npr = phRaw_npr_aa->GetBinContent(ibin)/phRaw_npr_pp->GetBinContent(ibin)
-          * (phEff_npr_pp->GetBinContent(ibin)/phEff_npr_aa->GetBinContent(ibin));
-
+    
       raa_npr    = yieldRatio_npr * scaleFactor * scale_cent;
       raaErr_npr = TMath::Sqrt(TMath::Power(dRelErrRaw_npr_pp,2)+TMath::Power(dRelErrRaw_npr_aa,2))*raa_npr;
      
@@ -198,23 +240,18 @@ void makeRaa_pt( bool bSavePlots=1,
 
         if(bDoDebug)
         {
-          // cout<<"weight_pr_aa = "<<phEff_pr_aa->GetBinContent(ibin)<<"\t weight_pr_pp = "<<phEff_pr_pp->GetBinContent(ibin)<<endl;
-          //cout<<"yield_pr_aa "<<phCorr_pr_aa->GetBinContent(ibin)<<"\t yield_pr_pp "<<phCorr_pr_pp->GetBinContent(ibin)<<endl;
-          cout<<"yield_npr_aa "<<phCorr_npr_aa->GetBinContent(ibin)<<"\t yield_pr_pp "<<phCorr_npr_pp->GetBinContent(ibin)<<endl;
-        
-          //cout<<"pr_aa= "<<phRaw_pr_aa->GetBinContent(ibin)/phEff_pr_aa->GetBinContent(ibin)<<"\t pr_pp= "<<phRaw_pr_pp->GetBinContent(ibin)/phEff_pr_pp->GetBinContent(ibin)<<endl;
-          cout<<setprecision(2);
+	  cout<<"yield_npr_aa "<<phCorr_npr_aa->GetBinContent(ibin)<<"\t yield_pr_pp "<<phCorr_npr_pp->GetBinContent(ibin)<<endl;
+	  cout<<setprecision(2);
           cout<<"!!!!! raa_pr = "<<raa_pr<<"\t raa_npr= "<<raa_npr<<endl;
         }
         break;
-
       case 3:
         // mb
         prJpsi_mb[0]     = raa_pr;
         prJpsiErr_mb[0]  = raaErr_pr;
         
-        nonPrJpsi_mb[0]  = raa_npr;
-        nonPrJpsi_mb[0]  = raaErr_npr;
+        nonPrJpsi_mb[0]     = raa_npr;
+        nonPrJpsiErr_mb[0]  = raaErr_npr;
         break;
       }
     }//loop end: for(int ibin=1; ibin<=numBins; ibin++)
@@ -261,17 +298,14 @@ void makeRaa_pt( bool bSavePlots=1,
 
   //-------------------------------------------------------------------
   // **************** marker colors
-  if(weight==1)
-  {
-    //prompt
-    gPrJpsi->SetMarkerColor(kRed);
-    gPrJpsi_pt365y1624->SetMarkerColor(kViolet+2);
+  //prompt
+  gPrJpsi->SetMarkerColor(kRed);
+  gPrJpsi_pt365y1624->SetMarkerColor(kViolet+2);
     
-    // non-prompt
-    gNonPrJpsi->SetMarkerColor(kOrange+2);
-    gNonPrJpsi_pt365y1624->SetMarkerColor(kViolet+2);
+  // non-prompt
+  gNonPrJpsi->SetMarkerColor(kOrange+2);
+  gNonPrJpsi_pt365y1624->SetMarkerColor(kViolet+2);
 
-  }
   //mnbias colors
   gPrJpsi_mb->SetMarkerColor(kCyan+2);
   gNonPrJpsi_mb->SetMarkerColor(kCyan+2);
@@ -363,9 +397,13 @@ void makeRaa_pt( bool bSavePlots=1,
   lcent->SetTextFont(42);
   lcent->SetTextSize(0.05);
 
-  TLatex *pre = new TLatex(2,1.35,"Non-prompt J/#psi");
-  pre->SetTextFont(42);
-  pre->SetTextSize(0.05);
+  TLatex *lPr = new TLatex(2,1.35,"Prompt J/#psi");
+  lPr->SetTextFont(42);
+  lPr->SetTextSize(0.05);
+
+  TLatex *lNpr = new TLatex(2,1.35,"Non-prompt J/#psi");
+  lNpr->SetTextFont(42);
+  lNpr->SetTextSize(0.05);
 
   TLegend *leg11a = new TLegend(0.65,0.52,0.8,0.65);
   leg11a->SetFillStyle(0);
@@ -415,11 +453,11 @@ void makeRaa_pt( bool bSavePlots=1,
     lumi->Draw();
     f4->Draw("same");
   }
-  if(bAddLegend)
-  {
-    CMS_lumi(c1,103,33);
-    lcent->Draw();
-  }
+ 
+  CMS_lumi(c1,103,33);
+  lcent->Draw();
+  lPr->Draw();
+  leg11a->Draw();
   
   gPrJpsiSyst->Draw("2");
   gPrJpsi->Draw("P");
@@ -428,17 +466,12 @@ void makeRaa_pt( bool bSavePlots=1,
   gPrJpsiSyst_pt365y1624->Draw("2");
   gPrJpsi_pt365y1624->Draw("P");
   gPrJpsiP_pt365y1624->Draw("P");
- 
-  if(bAddLegend)
-  {
-    leg11a->Draw();
-    pre->Draw();
-  }
+
 
   if(bSavePlots)
   {
-    c1->SaveAs(Form("%s/pdf/PrJpsi_vsPt_weight%d.pdf",outputDir,weight));
-    c1->SaveAs(Form("%s/png/PrJpsi_vsPt_weight%d.png",outputDir,weight));
+    c1->SaveAs(Form("%s/pdf/PrJpsi_vsPt_%s.pdf",outputDir,sample[whichSample]));
+    c1->SaveAs(Form("%s/png/PrJpsi_vsPt_%s.pdf",outputDir,sample[whichSample]));
   }
   
   //-------------------minbias dependence
@@ -449,31 +482,27 @@ void makeRaa_pt( bool bSavePlots=1,
     lumi->Draw();
     f4->Draw("same");
   }
- 
+  CMS_lumi(c11b,103,33);
+  lcent->Draw();
+  lPr->Draw();
+  leg11b->Draw();
+  
   gPrJpsiSyst_mb->Draw("2");
   gPrJpsi_mb->Draw("P");
  
   gPrJpsiSyst_y1624_mb->Draw("2");
   gPrJpsi_y1624_mb->Draw("P");
  
- 
-  if(bAddLegend)
-  {
-    CMS_lumi(c11b,103,33);
-    lcent->Draw();
-  
-    leg11b->Draw();
-    pre->Draw();
-  }
   gPad->RedrawAxis();
 
   if(bSavePlots)
   {
-    c11b->SaveAs(Form("%s/pdf/PrJpsi_vsPt_mb_weight%d_onlyLow%d.pdf",outputDir,weight,bOnlyLowPtCent));
-    c11b->SaveAs(Form("%s/png/PrJpsi_vsPt_mb_weight%d_onlyLow%d.png",outputDir,weight,bOnlyLowPtCent));
+    c11b->SaveAs(Form("%s/pdf/PrJpsi_vsPt_mb_%s.pdf",outputDir,sample[whichSample]));
+    c11b->SaveAs(Form("%s/png/PrJpsi_vsPt_mb_%s.png",outputDir,sample[whichSample]));
   }
 
   //   // ############################################## non-pr 
+  //   // ############################################## non-pr
   //   // ############################################## non-pr
   TCanvas *c2 = new TCanvas("c2","c2");
   // general stuff
@@ -483,12 +512,12 @@ void makeRaa_pt( bool bSavePlots=1,
     lumi->Draw();
     f4->Draw("same");
   }
-  if(bAddLegend)
-  {
-    CMS_lumi(c2,103,33);
-    lcent->Draw();
-  }
-  
+ 
+  CMS_lumi(c2,103,33);
+  lcent->Draw();
+  lNpr->Draw(0);
+  leg22a->Draw();
+
   gNonPrJpsiSyst->Draw("2");
   gNonPrJpsi->Draw("P");
   gNonPrJpsiP->Draw("P");
@@ -497,16 +526,10 @@ void makeRaa_pt( bool bSavePlots=1,
   gNonPrJpsi_pt365y1624->Draw("P");
   gNonPrJpsiP_pt365y1624->Draw("P");
 
-  if(bAddLegend)
-  {
-    leg22a->Draw();
-    pre->Draw();
-  }
-
   if(bSavePlots)
   {
-    c2->SaveAs(Form("%s/pdf/nonPrJpsi_vsPt_weight%d.pdf",outputDir,weight));
-    c2->SaveAs(Form("%s/png/nonPrJpsi_vsPt_weight%d.png",outputDir,weight));
+    c2->SaveAs(Form("%s/pdf/nonPrJpsi_vsPt_%s.pdf",outputDir,sample[whichSample]));
+    c2->SaveAs(Form("%s/png/nonPrJpsi_vsPt_%s.pdf",outputDir,sample[whichSample]));
   }
   
   //-------------------minbias dependence
@@ -517,27 +540,25 @@ void makeRaa_pt( bool bSavePlots=1,
     lumi->Draw();
     f4->Draw("same");
   }
- 
+
+  CMS_lumi(c22b,103,33);
+  lcent->Draw();
+  lNpr->Draw(0);
+  leg22b->Draw();
+   
   gNonPrJpsiSyst_mb->Draw("2");
   gNonPrJpsi_mb->Draw("P");
  
   gNonPrJpsiSyst_y1624_mb->Draw("2");
   gNonPrJpsi_y1624_mb->Draw("P");
 
-  if(bAddLegend)
-  {
-    CMS_lumi(c22b,103,33);
-    lcent->Draw();
-  
-    leg22b->Draw();
-    pre->Draw();
-  }
+ 
   gPad->RedrawAxis();
 
   if(bSavePlots)
   {
-    c22b->SaveAs(Form("%s/pdf/nonPrJpsi_vsPt_mb_weight%d_onlyLow%d.pdf",outputDir,weight,bOnlyLowPtCent));
-    c22b->SaveAs(Form("%s/png/nonPrJpsi_vsPt_mb_weight%d_onlyLow%d.png",outputDir,weight,bOnlyLowPtCent));
+    c22b->SaveAs(Form("%s/pdf/nonPrJpsi_vsPt_mb_%s.pdf",outputDir,sample[whichSample]));
+    c22b->SaveAs(Form("%s/png/nonPrJpsi_vsPt_mb_%s.png",outputDir,sample[whichSample]));
   }
 
 
