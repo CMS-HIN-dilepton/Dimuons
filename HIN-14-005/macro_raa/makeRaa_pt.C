@@ -474,7 +474,7 @@ void makeRaa_pt( bool bSavePlots=1,
   if(bSavePlots)
   {
     c1->SaveAs(Form("%s/pdf/PrJpsi_vsPt_%s.pdf",outputDir,sample[whichSample]));
-    c1->SaveAs(Form("%s/png/PrJpsi_vsPt_%s.pdf",outputDir,sample[whichSample]));
+    c1->SaveAs(Form("%s/png/PrJpsi_vsPt_%s.png",outputDir,sample[whichSample]));
   }
   
   //-------------------minbias dependence
@@ -532,7 +532,7 @@ void makeRaa_pt( bool bSavePlots=1,
   if(bSavePlots)
   {
     c2->SaveAs(Form("%s/pdf/nonPrJpsi_vsPt_%s.pdf",outputDir,sample[whichSample]));
-    c2->SaveAs(Form("%s/png/nonPrJpsi_vsPt_%s.pdf",outputDir,sample[whichSample]));
+    c2->SaveAs(Form("%s/png/nonPrJpsi_vsPt_%s.png",outputDir,sample[whichSample]));
   }
   
   //-------------------minbias dependence

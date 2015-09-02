@@ -36,7 +36,7 @@ Output: yields and raa (traditional vs ev-by-ev)
 
 void compare_pt( bool bSavePlots    = true,
 	      bool bDoDebug         = 0, // adds some numbers, numerator, denominator, to help figure out if things are read properly
-	      int whichCompare      = 2,//0: no TnP corrections; 1: w/ TnP corr on Data; 2: w/ TnP corr on MC; 3: lxy w/ TnP on MC
+	      int whichCompare      = 1,//0: no TnP corrections; 1: w/ TnP corr on Data; 2: w/ TnP corr on MC; 3: lxy w/ TnP on MC
 	      const char* inputDir  = "../readFitTable", // the place where the input root files, with the histograms are
 	      const char* outputDir = "figs/compare")// where the output figures will be
 {
@@ -572,7 +572,7 @@ void compare_pt( bool bSavePlots    = true,
   if(bSavePlots)
     {
       c1->SaveAs(Form("%s/pdf/PrJpsi_vsPt_%s.pdf",outputDir,compWhat[whichCompare]));
-      c1->SaveAs(Form("%s/png/PrJpsi_vsPt_%s.pdf",outputDir,compWhat[whichCompare]));
+      c1->SaveAs(Form("%s/png/PrJpsi_vsPt_%s.png",outputDir,compWhat[whichCompare]));
     }
       
       //-------------------minbias dependence
@@ -664,7 +664,7 @@ void compare_pt( bool bSavePlots    = true,
   if(bSavePlots)
     {
       c2->SaveAs(Form("%s/pdf/nonPrJpsi_vsPt_%s.pdf",outputDir,compWhat[whichCompare]));
-      c2->SaveAs(Form("%s/png/nonPrJpsi_vsPt_%s.pdf",outputDir,compWhat[whichCompare]));
+      c2->SaveAs(Form("%s/png/nonPrJpsi_vsPt_%s.png",outputDir,compWhat[whichCompare]));
     }
   
   //-------------------minbias dependence

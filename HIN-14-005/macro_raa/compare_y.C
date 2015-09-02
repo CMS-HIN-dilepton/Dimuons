@@ -492,7 +492,7 @@ void compare_y(bool bSavePlots       = 0,
  if(bSavePlots)
     {
       c1->SaveAs(Form("%s/pdf/PrJpsi_vsY_%s.pdf",outputDir,compWhat[whichCompare]));
-      c1->SaveAs(Form("%s/png/PrJpsi_vsY_%s.pdf",outputDir,compWhat[whichCompare]));
+      c1->SaveAs(Form("%s/png/PrJpsi_vsY_%s.png",outputDir,compWhat[whichCompare]));
     }
   //-------------------minbias dependence
  TCanvas *c11b = new TCanvas("c11b","c11b",1200,400);
@@ -568,7 +568,7 @@ void compare_y(bool bSavePlots       = 0,
  if(bSavePlots)
     {
       c1->SaveAs(Form("%s/pdf/NonPrJpsi_vsY_%s.pdf",outputDir,compWhat[whichCompare]));
-      c1->SaveAs(Form("%s/png/NonPrJpsi_vsY_%s.pdf",outputDir,compWhat[whichCompare]));
+      c1->SaveAs(Form("%s/png/NonPrJpsi_vsY_%s.png",outputDir,compWhat[whichCompare]));
     }
   //-------------------minbias dependence
  TCanvas *c22b = new TCanvas("c22b","c22b",1200,400);

@@ -35,9 +35,9 @@ Output: the Raa vs cent.
 
 using namespace std;
 
-void compare_cent(bool bSavePlots       = 0,
+void compare_cent(bool bSavePlots       = 1,
 		  bool bDoDebug         = 1, // adds some numbers, numerator, denominator, to help figure out if things are read properly
-		  int whichCompare      = 2,//0: no TnP corrections; 1: w/ TnP corr on Data; 2: w/ TnP corr on MC; 3: lxy w/ TnP on MC
+		  int whichCompare      = 1,//0: no TnP corrections; 1: w/ TnP corr on Data; 2: w/ TnP corr on MC; 3: lxy w/ TnP on MC
 		  const char* inputDir  = "../readFitTable", // the place where the input root files, with the histograms are
 		  const char* outputDir = "figs/compare")// where the output figures will be
 {
@@ -622,7 +622,7 @@ void compare_cent(bool bSavePlots       = 0,
  if(bSavePlots)
     {
       c1->SaveAs(Form("%s/pdf/PrJpsi_vsCent_%s.pdf",outputDir,compWhat[whichCompare]));
-      c1->SaveAs(Form("%s/png/PrJpsi_vsCent_%s.pdf",outputDir,compWhat[whichCompare]));
+      c1->SaveAs(Form("%s/png/PrJpsi_vsCent_%s.png",outputDir,compWhat[whichCompare]));
     }
   
   //------------------- (pt, y) dependence
@@ -749,7 +749,7 @@ void compare_cent(bool bSavePlots       = 0,
  if(bSavePlots)
    {
      c1->SaveAs(Form("%s/pdf/NonPrJpsi_vsCent_%s.pdf",outputDir,compWhat[whichCompare]));
-     c1->SaveAs(Form("%s/png/NonPrJpsi_vsCent_%s.pdf",outputDir,compWhat[whichCompare]));
+     c1->SaveAs(Form("%s/png/NonPrJpsi_vsCent_%s.png",outputDir,compWhat[whichCompare]));
    }
   
   //------------------- (pt, y) dependence
