@@ -641,10 +641,14 @@ void compare_cent(bool bSavePlots       = 1,
 
  c11a->cd(2);
  fBin->Draw();
+ lRatio->Draw();
+
  ahRatio_pr_pp[1]->Draw("sames");
 
  c11a->cd(3);
  fBin->Draw();
+ lRatio->Draw();
+
  ahRatio_pr_aa[1]->Draw("sames");
 
  c11a->cd(4);
@@ -680,10 +684,13 @@ void compare_cent(bool bSavePlots       = 1,
  fBin->Draw();
  ahRatio_pr_pp[3]->Draw("sames");
  lPP->Draw();
+ lRatio->Draw();
 
  c11b->cd(3);
  fBin->Draw();
  lAA->Draw();
+ lRatio->Draw();
+
  ahRatio_pr_aa[3]->Draw("sames");
 
  c11b->cd(4);
@@ -768,10 +775,14 @@ void compare_cent(bool bSavePlots       = 1,
 
  c22a->cd(2);
  fBin->Draw();
+ lRatio->Draw();
+
  ahRatio_npr_pp[1]->Draw("sames");
 
  c22a->cd(3);
  fBin->Draw();
+ lRatio->Draw();
+
  ahRatio_npr_aa[1]->Draw("sames");
 
  c22a->cd(4);
@@ -807,10 +818,13 @@ void compare_cent(bool bSavePlots       = 1,
  fBin->Draw();
  ahRatio_npr_pp[3]->Draw("sames");
  lPP->Draw();
+ lRatio->Draw();
 
  c22b->cd(3);
  fBin->Draw();
  lAA->Draw();
+ lRatio->Draw();
+
  ahRatio_npr_aa[3]->Draw("sames");
 
  c22b->cd(4);
@@ -820,6 +834,7 @@ void compare_cent(bool bSavePlots       = 1,
 
  c22b->cd(5);
  fBin->Draw();
+
  ahRatio_npr_pp[4]->Draw("sames");
 
  c22b->cd(6);
