@@ -37,7 +37,7 @@ using namespace std;
 
 void compare_cent(bool bSavePlots       = 0,
 		  bool bDoDebug         = 1, // adds some numbers, numerator, denominator, to help figure out if things are read properly
-		  int whichCompare      = 1,//0: no TnP corrections; 1: w/ TnP corr on Data; 2: w/ TnP corr on MC; 3: lxy w/ TnP on MC
+		  int whichCompare      = 2,//0: no TnP corrections; 1: w/ TnP corr on Data; 2: w/ TnP corr on MC; 3: lxy w/ TnP on MC
 		  const char* inputDir  = "../readFitTable", // the place where the input root files, with the histograms are
 		  const char* outputDir = "figs/compare")// where the output figures will be
 {
@@ -95,33 +95,34 @@ void compare_cent(bool bSavePlots       = 0,
    "histsRaaYields_20150830_pp_Lxyz_noTnPCorr_v1_noWeight_Lxyz_finerpT_PRMC_TnPCorr_v1.root"
   };
 
-  const char* effHistFile_1[2] = {"histEff_pbpb_tradEff_0823.root", "histEff_pp_tradEff_0823.root"};
-  const char* effHistFile_0[2] = {"histEff_pbpb_tradEff_0823.root", "histEff_pp_tradEff_0823.root"};
- 
+  const char* effHistFile[2]       = {"histEff_pbpb_tradEff_0823.root", "histEff_pp_tradEff_0823.root"};
+  const char* effHistFile_noTnP[2] = {"histEff_pbpb_tradEff_0823.root", "histEff_pp_tradEff_0823.root"};
 
- // open the files with yields and do the math
+  // open the files with yields and do the math
   TFile *fYesWeighFile_aa   = new TFile(Form("%s/%s",inputDir,yieldHistFile_yesWeight_1[0]));
   TFile *fYesWeighFile_pp   = new TFile(Form("%s/%s",inputDir,yieldHistFile_yesWeight_1[1]));
   
   TFile *fNoWeighFile_aa = new TFile(Form("%s/%s",inputDir,yieldHistFile_noWeight_1[0]));
   TFile *fNoWeighFile_pp = new TFile(Form("%s/%s",inputDir,yieldHistFile_noWeight_1[1]));
 
-  TFile *fEffFile_aa = new TFile(Form("%s/%s",inputDir,effHistFile_1[0]));
-  TFile *fEffFile_pp = new TFile(Form("%s/%s",inputDir,effHistFile_1[1]));
+  TFile *fEffFile_aa = new TFile(Form("%s/%s",inputDir,effHistFile[0]));
+  TFile *fEffFile_pp = new TFile(Form("%s/%s",inputDir,effHistFile[1]));
 
-  switch(whichCompare){
+   switch(whichCompare){
   case 0:
+    cout << "You are making Raa, with NOT TnP corrections whatsoever!"<<endl;
     fYesWeighFile_aa   = new TFile(Form("%s/%s",inputDir,yieldHistFile_yesWeight_0[0]));
     fYesWeighFile_pp   = new TFile(Form("%s/%s",inputDir,yieldHistFile_yesWeight_0[1]));
   
     fNoWeighFile_aa = new TFile(Form("%s/%s",inputDir,yieldHistFile_noWeight_0[0]));
     fNoWeighFile_pp = new TFile(Form("%s/%s",inputDir,yieldHistFile_noWeight_0[1]));
 
-    fEffFile_aa = new TFile(Form("%s/%s",inputDir,effHistFile_0[0]));
-    fEffFile_pp = new TFile(Form("%s/%s",inputDir,effHistFile_0[1]));
+    fEffFile_aa = new TFile(Form("%s/%s",inputDir,effHistFile_noTnP[0]));
+    fEffFile_pp = new TFile(Form("%s/%s",inputDir,effHistFile_noTnP[1]));
     break;
 
   case 2:
+    cout << "You are making Raa, with TnP corrections applied on MC!"<<endl;
     fYesWeighFile_aa   = new TFile(Form("%s/%s",inputDir,yieldHistFile_yesWeight_2[0]));
     fYesWeighFile_pp   = new TFile(Form("%s/%s",inputDir,yieldHistFile_yesWeight_2[1]));
   
@@ -130,6 +131,7 @@ void compare_cent(bool bSavePlots       = 0,
     break;
 
   case 3: 
+    cout << "You are making Raa, with Lxy and TnP corrections applie on MC!"<<endl;
     fYesWeighFile_aa   = new TFile(Form("%s/%s",inputDir,yieldHistFile_yesWeight_3[0]));
     fYesWeighFile_pp   = new TFile(Form("%s/%s",inputDir,yieldHistFile_yesWeight_3[1]));
   
@@ -137,10 +139,10 @@ void compare_cent(bool bSavePlots       = 0,
     fNoWeighFile_pp = new TFile(Form("%s/%s",inputDir,yieldHistFile_noWeight_3[1]));
     break;
 
+  case 1:
   default:
-    cout<<" Donno what you are doing, chose what you want to compare, options from 0->3!"<<endl;
+    cout<<" You are doing Raa Nominal: TnP on data!"<<endl;
     break;
-
   }
 
   if (!fYesWeighFile_aa->IsOpen() || !fYesWeighFile_pp->IsOpen()|| !fNoWeighFile_aa->IsOpen() || !fNoWeighFile_pp->IsOpen() || !fEffFile_aa->IsOpen() || !fEffFile_pp->IsOpen()) {
