@@ -29,13 +29,16 @@ Output: yields and raa (traditional vs ev-by-ev)
 #include "TPaveStats.h"
 #include "TLatex.h"
 #include "TLegend.h"
+
 #include "dataBinning_2015.h"
+#include "filesRaa_2015.h"
+
 #include "../CMS_lumi.C"
 #include "../tdrstyle.C"
 #endif
 
 void compare_pt( bool bSavePlots    = true,
-	      bool bDoDebug         = 0, // adds some numbers, numerator, denominator, to help figure out if things are read properly
+	      bool bDoDebug         = 1, // adds some numbers, numerator, denominator, to help figure out if things are read properly
 	      int whichCompare      = 1,//0: no TnP corrections; 1: w/ TnP corr on Data; 2: w/ TnP corr on MC; 3: lxy w/ TnP on MC
 	      const char* inputDir  = "../readFitTable", // the place where the input root files, with the histograms are
 	      const char* outputDir = "figs/compare")// where the output figures will be
@@ -53,48 +56,7 @@ void compare_pt( bool bSavePlots    = true,
   const int nInHist = 4;
   const char* yieldHistNames[nInHist] = {"pt", "ptLow", "ptLow_mb", "mb"};
 
-  // input files: 
-  // lxy fits and TnP corrections
-  const char* yieldHistFile_yesWeight_3[2] = {"histsRaaYields_20150127_PbPb_raa_weightedEff_InEta.root",
-               "histsRaaYields_20150127_pp_raa_weightedEff_InEta.root"};
-  const char* yieldHistFile_noWeight_3[2]  = {"histsRaaYields_20150127_PbPb_raa_noWeight_InEta.root",
-               "histsRaaYields_20150127_pp_raa_noWeight_InEta.root"};
-
-  // Lxyz with TnP corrections applied to the MC 4D efficiencies)  
-  const char* yieldHistFile_yesWeight_2[2] = {
-   "histsRaaYields_20150823_PbPb_Lxyz_weightedEff_Lxyz_pTtune_PRMC.root",
-   "histsRaaYields_20150823_pp_Lxyz_weightedEff_Lxyz_finerpT_PRMC.root"
-  };
-  
-  const char* yieldHistFile_noWeight_2[2] = {
-   "histsRaaYields_20150823_PbPb_Lxyz_noWeight_Lxyz_pTtune_PRMC.root",
-   "histsRaaYields_20150823_pp_Lxyz_noWeight_Lxyz_finerpT_PRMC.root"
-  };
-
-  // Lxyz with TnP corrections applied to data (not to the MC 4D efficiencies)
-  const char* yieldHistFile_yesWeight_1[2] = {
-   "histsRaaYields_20150830_PbPb_Lxyz_noTnPCorr_v1_weightedEff_Lxyz_pTtune_PRMC_TnPCorr_v1.root",
-   "histsRaaYields_20150830_pp_Lxyz_noTnPCorr_v1_weightedEff_Lxyz_finerpT_PRMC_TnPCorr_v1.root"
-  };
-  
-  const char* yieldHistFile_noWeight_1[2] = {
-   "histsRaaYields_20150830_PbPb_Lxyz_noTnPCorr_v1_noWeight_Lxyz_pTtune_PRMC_TnPCorr_v1.root",
-   "histsRaaYields_20150830_pp_Lxyz_noTnPCorr_v1_noWeight_Lxyz_finerpT_PRMC_TnPCorr_v1.root"
-  };
-
-  // Lxyz no TnP corrections
-  const char* yieldHistFile_yesWeight_0[2] = {
-   "histsRaaYields_20150830_PbPb_Lxyz_noTnPCorr_v1_weightedEff_Lxyz_pTtune_PRMC_TnPCorr_v1.root",
-   "histsRaaYields_20150830_pp_Lxyz_noTnPCorr_v1_weightedEff_Lxyz_finerpT_PRMC_TnPCorr_v1.root"
-  };
-  
-  const char* yieldHistFile_noWeight_0[2] = {
-   "histsRaaYields_20150830_PbPb_Lxyz_noTnPCorr_v1_noWeight_Lxyz_pTtune_PRMC_TnPCorr_v1.root",
-   "histsRaaYields_20150830_pp_Lxyz_noTnPCorr_v1_noWeight_Lxyz_finerpT_PRMC_TnPCorr_v1.root"
-  };
-
-  const char* effHistFile[2]       = {"histEff_pbpb_tradEff_0823.root", "histEff_pp_tradEff_0823.root"};
-  const char* effHistFile_noTnP[2] = {"histEff_pbpb_tradEff_0823.root", "histEff_pp_tradEff_0823.root"};
+  // input files: are in the filesRaa_2015.h
 
   // open the files with yields and do the math
   TFile *fYesWeighFile_aa   = new TFile(Form("%s/%s",inputDir,yieldHistFile_yesWeight_1[0]));
@@ -287,6 +249,17 @@ void compare_pt( bool bSavePlots    = true,
 
         nonPrJpsiTrad_pt365y1624_pt[ibin-1]     = raaTrad_npr;
         nonPrJpsiTradErr_pt365y1624_pt[ibin-1]  = raaTradErr_npr;
+
+	if(bDoDebug)
+	  {
+	    cout<<"yield_npr_aa: raw "<<phRaw_npr_aa->GetBinContent(ibin)<<"\t eff:  "<<phEff_npr_aa->GetBinContent(ibin)<<endl;
+	    cout<<"yield_npr_aa: corr "<<phCorr_npr_aa->GetBinContent(ibin)<<endl;
+	  
+	    cout<<"yield_npr_pp: raw "<<phRaw_npr_pp->GetBinContent(ibin)<<"\t eff:  "<<phEff_npr_pp->GetBinContent(ibin)<<endl;
+	    cout<<"yield_npr_pp: corr "<<phCorr_npr_pp->GetBinContent(ibin)<<endl;
+
+	  }
+
         break;
 
       case 2:

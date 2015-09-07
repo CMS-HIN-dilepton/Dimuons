@@ -28,15 +28,17 @@ Output: the Raa vs rpaidity.
 #include "TPaveStats.h"
 #include "TLatex.h"
 #include "TLegend.h"
+
 #include "dataBinning_2015.h"
+#include "filesRaa_2015.h"
 
 #include "../CMS_lumi.C"
 #include "../tdrstyle.C"
 #endif
 
-void compare_y(bool bSavePlots       = 0,
+void compare_y(bool bSavePlots       = true,
 	       bool bDoDebug         = 1, // adds some numbers, numerator, denominator, to help figure out if things are read properly
-	       int whichCompare      = 1,//0: no TnP corrections; 1: w/ TnP corr on Data; 2: w/ TnP corr on MC; 3: lxy w/ TnP on MC
+	       int whichCompare      = 0,//0: no TnP corrections; 1: w/ TnP corr on Data; 2: w/ TnP corr on MC; 3: lxy w/ TnP on MC
 	       const char* inputDir  = "../readFitTable", // the place where the input root files, with the histograms are
 	       const char* outputDir = "figs/compare")// where the output figures will be
 {
@@ -53,49 +55,8 @@ void compare_y(bool bSavePlots       = 0,
   const char* yieldHistNames[nInHist] = {"y", "y_mb", "mb"};
 
   //-----------------------------------------
-  // input files: 
-  // lxy fits and TnP corrections
-  const char* yieldHistFile_yesWeight_3[2] = {"histsRaaYields_20150127_PbPb_raa_weightedEff_InEta.root",
-               "histsRaaYields_20150127_pp_raa_weightedEff_InEta.root"};
-  const char* yieldHistFile_noWeight_3[2]  = {"histsRaaYields_20150127_PbPb_raa_noWeight_InEta.root",
-               "histsRaaYields_20150127_pp_raa_noWeight_InEta.root"};
+  // input files: are in the filesRaa_2015.h
 
-  // Lxyz with TnP corrections applied to the MC 4D efficiencies)  
-  const char* yieldHistFile_yesWeight_2[2] = {
-   "histsRaaYields_20150823_PbPb_Lxyz_weightedEff_Lxyz_pTtune_PRMC.root",
-   "histsRaaYields_20150823_pp_Lxyz_weightedEff_Lxyz_finerpT_PRMC.root"
-  };
-  
-  const char* yieldHistFile_noWeight_2[2] = {
-   "histsRaaYields_20150823_PbPb_Lxyz_noWeight_Lxyz_pTtune_PRMC.root",
-   "histsRaaYields_20150823_pp_Lxyz_noWeight_Lxyz_finerpT_PRMC.root"
-  };
-
-  // Lxyz with TnP corrections applied to data (not to the MC 4D efficiencies)
-  const char* yieldHistFile_yesWeight_1[2] = {
-   "histsRaaYields_20150830_PbPb_Lxyz_noTnPCorr_v1_weightedEff_Lxyz_pTtune_PRMC_TnPCorr_v1.root",
-   "histsRaaYields_20150830_pp_Lxyz_noTnPCorr_v1_weightedEff_Lxyz_finerpT_PRMC_TnPCorr_v1.root"
-  };
-  
-  const char* yieldHistFile_noWeight_1[2] = {
-   "histsRaaYields_20150830_PbPb_Lxyz_noTnPCorr_v1_noWeight_Lxyz_pTtune_PRMC_TnPCorr_v1.root",
-   "histsRaaYields_20150830_pp_Lxyz_noTnPCorr_v1_noWeight_Lxyz_finerpT_PRMC_TnPCorr_v1.root"
-  };
-
-  // Lxyz no TnP corrections
-  const char* yieldHistFile_yesWeight_0[2] = {
-   "histsRaaYields_20150830_PbPb_Lxyz_noTnPCorr_v1_weightedEff_Lxyz_pTtune_PRMC_TnPCorr_v1.root",
-   "histsRaaYields_20150830_pp_Lxyz_noTnPCorr_v1_weightedEff_Lxyz_finerpT_PRMC_TnPCorr_v1.root"
-  };
-  
-  const char* yieldHistFile_noWeight_0[2] = {
-   "histsRaaYields_20150830_PbPb_Lxyz_noTnPCorr_v1_noWeight_Lxyz_pTtune_PRMC_TnPCorr_v1.root",
-   "histsRaaYields_20150830_pp_Lxyz_noTnPCorr_v1_noWeight_Lxyz_finerpT_PRMC_TnPCorr_v1.root"
-  };
-
-  const char* effHistFile[2]       = {"histEff_pbpb_tradEff_0823.root", "histEff_pp_tradEff_0823.root"};
-  const char* effHistFile_noTnP[2] = {"histEff_pbpb_tradEff_0823.root", "histEff_pp_tradEff_0823.root"};
- 
 
  // open the files with yields and do the math
   TFile *fYesWeighFile_aa   = new TFile(Form("%s/%s",inputDir,yieldHistFile_yesWeight_1[0]));
@@ -489,7 +450,7 @@ void compare_y(bool bSavePlots       = 0,
 
   ahRatio_pr_aa[0]->Draw("sames");
 
- if(bSavePlots)
+  if(bSavePlots)
     {
       c1->SaveAs(Form("%s/pdf/PrJpsi_vsY_%s.pdf",outputDir,compWhat[whichCompare]));
       c1->SaveAs(Form("%s/png/PrJpsi_vsY_%s.png",outputDir,compWhat[whichCompare]));
