@@ -38,7 +38,7 @@ Output: the Raa vs rpaidity.
 
 void compare_y(bool bSavePlots       = true,
 	       bool bDoDebug         = 1, // adds some numbers, numerator, denominator, to help figure out if things are read properly
-	       int whichCompare      = 0,//0: no TnP corrections; 1: w/ TnP corr on Data; 2: w/ TnP corr on MC; 3: lxy w/ TnP on MC
+	       int whichCompare      = 1,//0: no TnP corrections; 1: w/ TnP corr on Data; 2: w/ TnP corr on MC; 3: lxy w/ TnP on MC
 	       const char* inputDir  = "../readFitTable", // the place where the input root files, with the histograms are
 	       const char* outputDir = "figs/compare")// where the output figures will be
 {

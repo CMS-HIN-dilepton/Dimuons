@@ -36,7 +36,7 @@ The output root files of this macro, wich contains the histograms with the yield
 #include "dataBinning_2015.h"
 
 void makeHistos_raa(int sample = 0, // 0=PbPb,     1= pp
-                   int weight = 0, // 0=noWeight, 1=weight
+                   int weight = 1, // 0=noWeight, 1=weight
                    int isEffFile = 0,// 0=no, 1=yes needed when making efficiency histograms
                    const char* inputFitDataFileLocation = "../data/raa"
                    ) 
@@ -46,12 +46,12 @@ void makeHistos_raa(int sample = 0, // 0=PbPb,     1= pp
   // const char* whichWeight[2]    = {"noWeight_Lxyz_pTtune_PRMC", "weightedEff_Lxyz_pTtune_PRMC"};
   // const char* whichWeight_pp[2] = {"noWeight_Lxyz_finerpT_PRMC","weightedEff_Lxyz_finerpT_PRMC"};
 
- const char* whichSample[2]     = {"20150830_PbPb_Lxyz_noTnPCorr_v1",      "20150830_pp_Lxyz_noTnPCorr_v1"};
-  const char* whichWeight[2]    = {"noWeight_Lxyz_pTtune_PRMC_TnPCorr_v1", "weightedEff_Lxyz_pTtune_PRMC_TnPCorr_v1"};
-  const char* whichWeight_pp[2] = {"noWeight_Lxyz_finerpT_PRMC_TnPCorr_v1","weightedEff_Lxyz_finerpT_PRMC_TnPCorr_v1"};
+  const char* whichSample[2]     = {"20150915_PbPb",      "20150915_pp"};
+  const char* whichWeight[2]    = {"noWeight_TnPAtRD_4DEff_RapPtEffMap2", "weightedEff_TnPAtRD_3DEff_RapPtEffMap2"};
+  const char* whichWeight_pp[2] = {"noWeight_TnPAtRD_4DEff_RapPtEffMap2", "weightedEff_TnPAtRD_3DEff_RapPtEffMap2"};
 
 
-  const char* effFileName[2]        = {"pbpb_tradEff_0823","pp_tradEff_0823"};
+  const char* effFileName[2]        = {"20150915_PbPb_Eff_wTnP_M2.95-3.25","20150915_pp_Eff_wTnP_M2.95-3.25"};
   const char* outputHistDataFile[2] = {"histsRaaYields","histEff"};
 
   TFile *pfOutput;

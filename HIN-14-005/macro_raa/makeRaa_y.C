@@ -39,7 +39,7 @@ Output: the Raa vs rpaidity.
 void makeRaa_y(bool bSavePlots=1,
 	       bool bDoDebug = 0, // adds some numbers, numerator, denominator, to help figure out if things are read properly
 	       bool bAddLumi = 0, // add the lumi boxes at raa=1
-	       int  whichSample     = 0,//0: no TnP corrections; 1: w/ TnP corr on Data; 2: w/ TnP corr on MC; 3: lxy w/ TnP on MC
+	       int  whichSample     = 1,//0: no TnP corrections; 1: w/ TnP corr on Data; 2: w/ TnP corr on MC; 3: lxy w/ TnP on MC
 	       const char* inputDir="../readFitTable", // the place where the input root files, with the histograms are
 	       const char* outputDir="figs")// where the output figures will be
 {

@@ -41,17 +41,17 @@ using namespace std;
 void makeRaa_cent( bool bSavePlots=1,
 		 bool bDoDebug = 0, // adds some numbers, numerator, denominator, to help figure out if things are read properly
 		 bool bAddLumi = 0, // add the lumi boxes at raa=1
-		 int  whichSample     = 2,//0: no TnP corrections; 1: w/ TnP corr on Data; 2: w/ TnP corr on MC; 3: lxy w/ TnP on MC
+		 int  whichSample     = 1,//0: no TnP corrections; 1: w/ TnP corr on Data; 2: w/ TnP corr on MC; 3: lxy w/ TnP on MC
 		 const char* inputDir="../readFitTable", // the place where the input root files, with the histograms are
 		 const char* outputDir="figs")// where the output figures will be
 {
   gSystem->mkdir(Form("./%s/png",outputDir), kTRUE);
   gSystem->mkdir(Form("./%s/pdf",outputDir), kTRUE);
 
- // set the style
+  // set the style
   setTDRStyle();
  
-// type of available comparisons:
+  // type of available comparisons:
   const char* sample[4] = {"noTnP","dataTnP","mcTnP","lxyTnP"};
 
   const int nInHist = 5;
