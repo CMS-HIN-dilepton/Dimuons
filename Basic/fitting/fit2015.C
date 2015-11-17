@@ -17,7 +17,10 @@ int centralitymin = 0;
 int centralitymax = 200;
 
 
-void fit2015(const char *filename="/afs/cern.ch/user/e/echapon/workspace/public/RunPrep2015/fitting_utils/dimuonTree_MCtest_upsi1S_5TeV_3.8T_RunMCtest_trigBit2_allTriggers1.root", bool ispbpb=false, int oniamode=2, bool isdata=false) {
+void fit2015(const char *filename="/afs/cern.ch/user/e/echapon/workspace/public/RunPrep2015/oniatree_upsi1S_5TeV_3.8T.root", 
+      bool ispbpb=false, 
+      int oniamode=2, 
+      bool isdata=false) {
    // ispbpb = false for pp, true for PbPb
    // oniamode = 1 for J/psi, 2 for upsilon
    // isdata = false for MC, true for data
