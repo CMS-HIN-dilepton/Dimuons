@@ -26,6 +26,16 @@ void fit2015(const char *filename="/afs/cern.ch/user/e/echapon/workspace/public/
    // isdata = false for MC, true for data
 
    TString colltag = "PbPb";
+   int signalModel, bkgdModel;
+
+   if (isdata) {
+      signalModel = 2; // gaussian
+      bkgdModel = 3;
+   }
+   else {
+      signalModel = 2; // gaussian
+      bkgdModel = 3;
+   }
 
    if (!ispbpb) {
       centralitymin=-1;
@@ -57,8 +67,8 @@ void fit2015(const char *filename="/afs/cern.ch/user/e/echapon/workspace/public/
          dimu_ptmin,dimu_ptmax, 
          centralitymin,centralitymax );
 
-   if (oniamode==1) buildModelJpsi2015(myws, 2, 3);
-   else if (oniamode==2) buildModelUpsi2015(myws, 2, 3);
+   if (oniamode==1) buildModelJpsi2015(myws, signalModel, bkgdModel);
+   else if (oniamode==2) buildModelUpsi2015(myws, signalModel, bkgdModel);
 
    RooRealVar* mass =(RooRealVar*) myws.var("invariantMass"); //
    RooDataSet* data0_fit =(RooDataSet*) myws.data("data");
