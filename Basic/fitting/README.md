@@ -1,4 +1,4 @@
-# fitting_
+# fitting
 Utilities related to fitting onia
 
 # HOWTO
