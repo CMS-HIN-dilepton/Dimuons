@@ -154,7 +154,7 @@ void makeRaa_cent( bool bSavePlots=1,
 
     int numBins = 0;
     if(ih==0) numBins = nBinsNpart12;
-    if(ih==4) numBins = nBinsNpart5;
+    if(ih==4) numBins = nBinsNpart6;
     if(ih==1 || ih==2 || ih==3) numBins = nBinsNpart6;
 
     for(int ibin=1; ibin<=numBins; ibin++)
@@ -168,7 +168,7 @@ void makeRaa_cent( bool bSavePlots=1,
         scale_cent = 1/(adTaa12[ibin-1]*adDeltaCent12[ibin-1]);
         scale_cent_np = 1/(adTaa6[ibin-1]*adDeltaCent6[ibin-1]);
       }
-      if(ih==4)          scale_cent = 1/(adTaa5[ibin-1]*adDeltaCent5[ibin-1]);
+      if(ih==4)          scale_cent = 1/(adTaa6[ibin-1]*adDeltaCent6[ibin-1]);
       if(ih!=0 && ih!=4) scale_cent = 1/(adTaa6[ibin-1]*adDeltaCent6[ibin-1]);
       //prompt
       double dRelErrRaw_pr_pp  = phRaw_pr_pp->GetBinError(ibin)/phRaw_pr_pp->GetBinContent(ibin);
@@ -268,9 +268,9 @@ void makeRaa_cent( bool bSavePlots=1,
   TGraphErrors *gPrJpsiSyst_pt6530y1624 = new TGraphErrors(nBinsNpart6, binsNpart6_shiftPlus, prJpsi_pt6530y1624_cent, binsNpart6X, prJpsiErrSyst_pt6530y1624_cent);
 
 
-  TGraphErrors *gPrJpsi_pt365y1624     = new TGraphErrors(nBinsNpart5, binsNpart5, prJpsi_pt365y1624_cent, binsNpart5Err, prJpsiErr_pt365y1624_cent);
-  TGraphErrors *gPrJpsiP_pt365y1624    = new TGraphErrors(nBinsNpart5, binsNpart5, prJpsi_pt365y1624_cent, binsNpart5Err, prJpsiErr_pt365y1624_cent);
-  TGraphErrors *gPrJpsiSyst_pt365y1624 = new TGraphErrors(nBinsNpart5, binsNpart5,    prJpsi_pt365y1624_cent, binsNpart5X, prJpsiErrSyst_pt365y1624_cent);
+  TGraphErrors *gPrJpsi_pt365y1624     = new TGraphErrors(nBinsNpart6, binsNpart6, prJpsi_pt365y1624_cent, binsNpart6Err, prJpsiErr_pt365y1624_cent);
+  TGraphErrors *gPrJpsiP_pt365y1624    = new TGraphErrors(nBinsNpart6, binsNpart6, prJpsi_pt365y1624_cent, binsNpart6Err, prJpsiErr_pt365y1624_cent);
+  TGraphErrors *gPrJpsiSyst_pt365y1624 = new TGraphErrors(nBinsNpart6, binsNpart6,    prJpsi_pt365y1624_cent, binsNpart6X, prJpsiErrSyst_pt365y1624_cent);
 
  
   // nonPr
@@ -293,9 +293,9 @@ void makeRaa_cent( bool bSavePlots=1,
   TGraphErrors *gNonPrJpsiSyst_pt6530y1624 = new TGraphErrors(nBinsNpart6, binsNpart6_shiftPlus, nonPrJpsi_pt6530y1624_cent, binsNpart6X,    nonPrJpsiErrSyst_pt6530y1624_cent);
 
 
-  TGraphErrors *gNonPrJpsi_pt365y1624     = new TGraphErrors(nBinsNpart5, binsNpart5, nonPrJpsi_pt365y1624_cent, binsNpart5Err, nonPrJpsiErr_pt365y1624_cent);
-  TGraphErrors *gNonPrJpsiP_pt365y1624    = new TGraphErrors(nBinsNpart5, binsNpart5, nonPrJpsi_pt365y1624_cent, binsNpart5Err, nonPrJpsiErr_pt365y1624_cent);
-  TGraphErrors *gNonPrJpsiSyst_pt365y1624 = new TGraphErrors(nBinsNpart5, binsNpart5, nonPrJpsi_pt365y1624_cent, binsNpart5X, nonPrJpsiErrSyst_pt365y1624_cent);
+  TGraphErrors *gNonPrJpsi_pt365y1624     = new TGraphErrors(nBinsNpart6, binsNpart6, nonPrJpsi_pt365y1624_cent, binsNpart6Err, nonPrJpsiErr_pt365y1624_cent);
+  TGraphErrors *gNonPrJpsiP_pt365y1624    = new TGraphErrors(nBinsNpart6, binsNpart6, nonPrJpsi_pt365y1624_cent, binsNpart6Err, nonPrJpsiErr_pt365y1624_cent);
+  TGraphErrors *gNonPrJpsiSyst_pt365y1624 = new TGraphErrors(nBinsNpart6, binsNpart6, nonPrJpsi_pt365y1624_cent, binsNpart6X, nonPrJpsiErrSyst_pt365y1624_cent);
 
 
   //-------------------------------------------------------------------

@@ -39,10 +39,10 @@ Output: the Raa vs cent.
 using namespace std;
 
 void compare_cent(bool bSavePlots       = true,
-		  bool bDoDebug         = 1, // adds some numbers, numerator, denominator, to help figure out if things are read properly
-		  int whichCompare      = 1,//0: no TnP corrections; 1: w/ TnP corr on Data; 2: w/ TnP corr on MC; 3: lxy w/ TnP on MC
-		  const char* inputDir  = "../readFitTable", // the place where the input root files, with the histograms are
-		  const char* outputDir = "figs/compare")// where the output figures will be
+                  bool bDoDebug         = 1, // adds some numbers, numerator, denominator, to help figure out if things are read properly
+                  int whichCompare      = 1,//0: no TnP corrections; 1: w/ TnP corr on Data; 2: w/ TnP corr on MC; 3: lxy w/ TnP on MC
+                  const char* inputDir  = "../readFitTable", // the place where the input root files, with the histograms are
+                  const char* outputDir = "figs/compare")// where the output figures will be
 {
   gSystem->mkdir(Form("./%s/png",outputDir), kTRUE);
   gSystem->mkdir(Form("./%s/pdf",outputDir), kTRUE);
@@ -185,7 +185,7 @@ void compare_cent(bool bSavePlots       = true,
 
     int numBins = 0;
     if(ih==0) numBins = nBinsNpart12;
-    if(ih==4) numBins = nBinsNpart5;
+    if(ih==4) numBins = nBinsNpart6;
     if(ih==1 || ih==2 || ih==3) numBins = nBinsNpart6;
 
     for(int ibin=1; ibin<=numBins; ibin++)
@@ -200,7 +200,7 @@ void compare_cent(bool bSavePlots       = true,
         scale_cent = 1/(adTaa12[ibin-1]*adDeltaCent12[ibin-1]);
         scale_cent_np = 1/(adTaa6[ibin-1]*adDeltaCent6[ibin-1]);
       }
-      if(ih==4)          scale_cent = 1/(adTaa5[ibin-1]*adDeltaCent5[ibin-1]);
+      if(ih==4)          scale_cent = 1/(adTaa6[ibin-1]*adDeltaCent6[ibin-1]);
       if(ih!=0 && ih!=4) scale_cent = 1/(adTaa6[ibin-1]*adDeltaCent6[ibin-1]);
       //prompt
       double dRelErrRaw_pr_pp  = phRaw_pr_pp->GetBinError(ibin)/phRaw_pr_pp->GetBinContent(ibin);
@@ -221,19 +221,20 @@ void compare_cent(bool bSavePlots       = true,
       double dRelErrRaw_npr_pp  = phRaw_npr_pp->GetBinError(ibin)/phRaw_npr_pp->GetBinContent(ibin);
       double dRelErrRaw_npr_aa  = phRaw_npr_aa->GetBinError(ibin)/phRaw_npr_aa->GetBinContent(ibin);
       double yieldRatio_npr     = phCorr_npr_aa->GetBinContent(ibin)/phCorr_npr_pp->GetBinContent(ibin);
-      double yieldRatioTrad_npr = phRaw_npr_aa->GetBinContent(ibin)/phRaw_npr_pp->GetBinContent(ibin)
-	* (phEff_npr_pp->GetBinContent(ibin)/phEff_npr_aa->GetBinContent(ibin));
+      double yieldRatioTrad_npr =
+        (phRaw_npr_aa->GetBinContent(ibin)/phRaw_npr_pp->GetBinContent(ibin)) *
+        (phEff_npr_pp->GetBinContent(ibin)/phEff_npr_aa->GetBinContent(ibin));
 
       if(ih==0)
-	{
-	  raa_npr     = yieldRatio_npr * scaleFactor * scale_cent_np;// the 1D nonPr has 6 bins only
-	  raaTrad_npr = yieldRatioTrad_npr * scaleFactor * scale_cent_np;
-	}
+      {
+        raa_npr     = yieldRatio_npr * scaleFactor * scale_cent_np;// the 1D nonPr has 6 bins only
+        raaTrad_npr = yieldRatioTrad_npr * scaleFactor * scale_cent_np;
+      }
       else 
-	{
-	  raa_npr     = yieldRatio_npr * scaleFactor * scale_cent;
-	  raaTrad_npr = yieldRatioTrad_npr * scaleFactor * scale_cent;
-	}
+      {
+        raa_npr     = yieldRatio_npr * scaleFactor * scale_cent;
+        raaTrad_npr = yieldRatioTrad_npr * scaleFactor * scale_cent;
+      }
       raaErr_npr     = TMath::Sqrt(TMath::Power(dRelErrRaw_npr_pp,2)+TMath::Power(dRelErrRaw_npr_aa,2))*raa_npr;
       raaTradErr_npr = TMath::Sqrt(TMath::Power(dRelErrRaw_npr_pp,2)+TMath::Power(dRelErrRaw_npr_aa,2))*raaTrad_npr;
       
@@ -247,13 +248,13 @@ void compare_cent(bool bSavePlots       = true,
         nonPrJpsi_cent[ibin-1]    = raa_npr;
         nonPrJpsiErr_cent[ibin-1] = raaErr_npr;
        
-	prJpsiTrad_cent[ibin-1]    = raaTrad_pr;
+        prJpsiTrad_cent[ibin-1]    = raaTrad_pr;
         prJpsiTradErr_cent[ibin-1] = raaTradErr_pr;
        
         nonPrJpsiTrad_cent[ibin-1]    = raaTrad_npr;
         nonPrJpsiTradErr_cent[ibin-1] = raaTradErr_npr;
 
-	 if(bDoDebug)
+         if(bDoDebug)
         {
           cout<<"weight_pr_aa = "<<phEff_pr_aa->GetBinContent(ibin)<<"\t weight_pr_pp = "<<phEff_pr_pp->GetBinContent(ibin)<<endl;
           cout<<"yield_pr_aa "<<phCorr_pr_aa->GetBinContent(ibin)<<"\t yield_pr_pp "<<phCorr_pr_pp->GetBinContent(ibin)<<endl;
@@ -265,7 +266,7 @@ void compare_cent(bool bSavePlots       = true,
           // cout<<"Scale_Cent= "<<scale_cent<<endl;
         }
 
-	break;
+        break;
         
       case 1:
         prJpsi_pt6530y012_cent[ibin-1]        = raa_pr;
@@ -274,7 +275,7 @@ void compare_cent(bool bSavePlots       = true,
         nonPrJpsi_pt6530y012_cent[ibin-1]     = raa_npr;
         nonPrJpsiErr_pt6530y012_cent[ibin-1]  = raaErr_npr;
 
-	prJpsiTrad_pt6530y012_cent[ibin-1]        = raaTrad_pr;
+        prJpsiTrad_pt6530y012_cent[ibin-1]        = raaTrad_pr;
         prJpsiTradErr_pt6530y012_cent[ibin-1]     = raaTradErr_pr;
 
         nonPrJpsiTrad_pt6530y012_cent[ibin-1]     = raaTrad_npr;
@@ -289,7 +290,7 @@ void compare_cent(bool bSavePlots       = true,
         nonPrJpsi_pt6530y1216_cent[ibin-1]    = raa_npr;
         nonPrJpsiErr_pt6530y1216_cent[ibin-1] = raaErr_npr;
 
-	prJpsiTrad_pt6530y1216_cent[ibin-1]       = raaTrad_pr;
+        prJpsiTrad_pt6530y1216_cent[ibin-1]       = raaTrad_pr;
         prJpsiTradErr_pt6530y1216_cent[ibin-1]    = raaTradErr_pr;
 
         nonPrJpsiTrad_pt6530y1216_cent[ibin-1]    = raaTrad_npr;
@@ -304,7 +305,7 @@ void compare_cent(bool bSavePlots       = true,
         nonPrJpsi_pt6530y1624_cent[ibin-1]    = raa_npr;
         nonPrJpsiErr_pt6530y1624_cent[ibin-1] = raaErr_npr;
 
-	prJpsiTrad_pt6530y1624_cent[ibin-1]       = raaTrad_pr;
+        prJpsiTrad_pt6530y1624_cent[ibin-1]       = raaTrad_pr;
         prJpsiTradErr_cent[ibin-1]                = raaTradErr_pr;
 
         nonPrJpsiTrad_pt6530y1624_cent[ibin-1]    = raaTrad_npr;
@@ -320,19 +321,19 @@ void compare_cent(bool bSavePlots       = true,
         nonPrJpsiErr_pt365y1624_cent[ibin-1]  = raaErr_npr;
 
 
-	prJpsiTrad_pt365y1624_cent[ibin-1]        = raaTrad_pr;
+        prJpsiTrad_pt365y1624_cent[ibin-1]        = raaTrad_pr;
         prJpsiTradErr_pt365y1624_cent[ibin-1]     = raaTradErr_pr;
 
         nonPrJpsiTrad_pt365y1624_cent[ibin-1]     = raaTrad_npr;
         nonPrJpsiTradErr_pt365y1624_cent[ibin-1]  = raaTradErr_npr;
 
-	if(bDoDebug)
+        if(bDoDebug)
         {
-	  cout<<"yield_npr_aa: raw "<<phRaw_npr_aa->GetBinContent(ibin)<<"\t eff:  "<<phEff_npr_aa->GetBinContent(ibin)<<endl;
-	  cout<<"yield_npr_aa: corr "<<phCorr_npr_aa->GetBinContent(ibin)<<endl;
-	  
-	  cout<<"yield_npr_pp: raw "<<phRaw_npr_pp->GetBinContent(ibin)<<"\t eff:  "<<phEff_npr_pp->GetBinContent(ibin)<<endl;
-	  cout<<"yield_npr_pp: corr "<<phCorr_npr_pp->GetBinContent(ibin)<<endl;
+          cout<<"yield_npr_aa: raw "<<phRaw_npr_aa->GetBinContent(ibin)<<"\t eff:  "<<phEff_npr_aa->GetBinContent(ibin)<<endl;
+          cout<<"yield_npr_aa: corr "<<phCorr_npr_aa->GetBinContent(ibin)<<endl;
+          
+          cout<<"yield_npr_pp: raw "<<phRaw_npr_pp->GetBinContent(ibin)<<"\t eff:  "<<phEff_npr_pp->GetBinContent(ibin)<<endl;
+          cout<<"yield_npr_pp: corr "<<phCorr_npr_pp->GetBinContent(ibin)<<endl;
 
           //  cout<<setprecision(2);
           cout<<"!!!!! raa = "<<prJpsi_cent[ibin-1]<<endl;
@@ -353,7 +354,7 @@ void compare_cent(bool bSavePlots       = true,
   TGraphErrors *gPrJpsi_pt6530y012     = new TGraphErrors(nBinsNpart6, binsNpart6_shiftMinus, prJpsi_pt6530y012_cent, binsNpart6Err, prJpsiErr_pt6530y012_cent);
   TGraphErrors *gPrJpsi_pt6530y1216     = new TGraphErrors(nBinsNpart6, binsNpart6, prJpsi_pt6530y1216_cent, binsNpart6Err, prJpsiErr_pt6530y1216_cent);
   TGraphErrors *gPrJpsi_pt6530y1624     = new TGraphErrors(nBinsNpart6, binsNpart6_shiftPlus, prJpsi_pt6530y1624_cent, binsNpart6Err, prJpsiErr_pt6530y1624_cent);
-  TGraphErrors *gPrJpsi_pt365y1624     = new TGraphErrors(nBinsNpart5, binsNpart5, prJpsi_pt365y1624_cent, binsNpart5Err, prJpsiErr_pt365y1624_cent);
+  TGraphErrors *gPrJpsi_pt365y1624     = new TGraphErrors(nBinsNpart6, binsNpart6, prJpsi_pt365y1624_cent, binsNpart6Err, prJpsiErr_pt365y1624_cent);
 
  
   // nonPr
@@ -361,7 +362,7 @@ void compare_cent(bool bSavePlots       = true,
   TGraphErrors *gNonPrJpsi_pt6530y012     = new TGraphErrors(nBinsNpart6, binsNpart6_shiftMinus,nonPrJpsi_pt6530y012_cent, binsNpart6Err, nonPrJpsiErr_pt6530y012_cent);
   TGraphErrors *gNonPrJpsi_pt6530y1216     = new TGraphErrors(nBinsNpart6, binsNpart6, nonPrJpsi_pt6530y1216_cent, binsNpart6Err, nonPrJpsiErr_pt6530y1216_cent);
   TGraphErrors *gNonPrJpsi_pt6530y1624     = new TGraphErrors(nBinsNpart6, binsNpart6_shiftPlus, nonPrJpsi_pt6530y1624_cent, binsNpart6Err, nonPrJpsiErr_pt6530y1624_cent);
-  TGraphErrors *gNonPrJpsi_pt365y1624     = new TGraphErrors(nBinsNpart5, binsNpart5, nonPrJpsi_pt365y1624_cent, binsNpart5Err, nonPrJpsiErr_pt365y1624_cent);
+  TGraphErrors *gNonPrJpsi_pt365y1624     = new TGraphErrors(nBinsNpart6, binsNpart6, nonPrJpsi_pt365y1624_cent, binsNpart6Err, nonPrJpsiErr_pt365y1624_cent);
   
   //-------------------------- traditional stuff
 
@@ -370,7 +371,7 @@ void compare_cent(bool bSavePlots       = true,
   TGraphErrors *gPrJpsiTrad_pt6530y012  = new TGraphErrors(nBinsNpart6, binsNpart6_shiftMinus, prJpsiTrad_pt6530y012_cent, binsNpart6Err, prJpsiTradErr_pt6530y012_cent);
   TGraphErrors *gPrJpsiTrad_pt6530y1216 = new TGraphErrors(nBinsNpart6, binsNpart6, prJpsiTrad_pt6530y1216_cent, binsNpart6Err, prJpsiTradErr_pt6530y1216_cent);
   TGraphErrors *gPrJpsiTrad_pt6530y1624 = new TGraphErrors(nBinsNpart6, binsNpart6_shiftPlus, prJpsiTrad_pt6530y1624_cent, binsNpart6Err, prJpsiTradErr_pt6530y1624_cent);
-  TGraphErrors *gPrJpsiTrad_pt365y1624  = new TGraphErrors(nBinsNpart5, binsNpart5, prJpsiTrad_pt365y1624_cent, binsNpart5Err, prJpsiTradErr_pt365y1624_cent);
+  TGraphErrors *gPrJpsiTrad_pt365y1624  = new TGraphErrors(nBinsNpart6, binsNpart6, prJpsiTrad_pt365y1624_cent, binsNpart6Err, prJpsiTradErr_pt365y1624_cent);
 
  
   // nonPr
@@ -378,7 +379,7 @@ void compare_cent(bool bSavePlots       = true,
   TGraphErrors *gNonPrJpsiTrad_pt6530y012 = new TGraphErrors(nBinsNpart6, binsNpart6_shiftMinus,nonPrJpsiTrad_pt6530y012_cent, binsNpart6Err, nonPrJpsiTradErr_pt6530y012_cent);
   TGraphErrors *gNonPrJpsiTrad_pt6530y1216= new TGraphErrors(nBinsNpart6, binsNpart6, nonPrJpsiTrad_pt6530y1216_cent, binsNpart6Err, nonPrJpsiTradErr_pt6530y1216_cent);
   TGraphErrors *gNonPrJpsiTrad_pt6530y1624= new TGraphErrors(nBinsNpart6, binsNpart6_shiftPlus, nonPrJpsiTrad_pt6530y1624_cent, binsNpart6Err, nonPrJpsiTradErr_pt6530y1624_cent);
-  TGraphErrors *gNonPrJpsiTrad_pt365y1624 = new TGraphErrors(nBinsNpart5, binsNpart5, nonPrJpsiTrad_pt365y1624_cent, binsNpart5Err, nonPrJpsiTradErr_pt365y1624_cent);
+  TGraphErrors *gNonPrJpsiTrad_pt365y1624 = new TGraphErrors(nBinsNpart6, binsNpart6, nonPrJpsiTrad_pt365y1624_cent, binsNpart6Err, nonPrJpsiTradErr_pt365y1624_cent);
   
 
 
@@ -542,12 +543,16 @@ void compare_cent(bool bSavePlots       = true,
   lpt->SetTextFont(42);
   lpt->SetTextSize(0.05);
 
+  TLatex *lpt2 = new TLatex(190.0,0.90,"6.5 < p_{T} < 30 GeV/c");
+  lpt2->SetTextFont(42);
+  lpt2->SetTextSize(0.05);
+
   //  -----------------------for comparison purposes
   // axis for the yields
   TF1 *fBin = new TF1("fBin","1",0,10);
   fBin->SetLineWidth(1);
-  fBin->GetXaxis()->SetTitle("Bin p_{T}");
-  fBin->GetYaxis()->SetTitle("Yield");
+  fBin->GetXaxis()->SetTitle("Bin number");
+  fBin->GetYaxis()->SetTitle("Yield ratio");
   fBin->GetYaxis()->SetRangeUser(0.5,2);
   fBin->GetXaxis()->CenterTitle(kTRUE);
 
@@ -567,17 +572,18 @@ void compare_cent(bool bSavePlots       = true,
   // ##################################################### pr plots
   TCanvas *c1 = new TCanvas("c1","c1",1200,400);
   c1->Divide(3,1);
+ 
   // general stuff
   c1->cd(1);
   f4->Draw();// axis
   lPr->Draw();
   ly->Draw();
-  lpt->Draw();
+  lpt2->Draw();
   
   gPrJpsi->Draw("P");
   gPrJpsiTrad->Draw("P");
 
-    // yields
+  // yields
   c1->cd(2);
   fBin->Draw();// axis
   gPad->SetGridy();
@@ -596,93 +602,100 @@ void compare_cent(bool bSavePlots       = true,
   lAA->Draw();
   lRatio->Draw();
 
-
- if(bSavePlots)
-    {
-      c1->SaveAs(Form("%s/pdf/PrJpsi_vsCent_%s.pdf",outputDir,compWhat[whichCompare]));
-      c1->SaveAs(Form("%s/png/PrJpsi_vsCent_%s.png",outputDir,compWhat[whichCompare]));
-    }
+  if(bSavePlots)
+  {
+    c1->SaveAs(Form("%s/pdf/PrJpsi_vsCent_%s.pdf",outputDir,compWhat[whichCompare]));
+    c1->SaveAs(Form("%s/png/PrJpsi_vsCent_%s.png",outputDir,compWhat[whichCompare]));
+  }
   
   //------------------- (pt, y) dependence
- TCanvas *c11a = new TCanvas("c11a","c11a",1200,800);
- c11a->Divide(3,2);
- c11a->cd(1);
- f4->Draw();
+  TCanvas *c11a = new TCanvas("c11a","c11a",1200,800);
+  c11a->Divide(3,2);
+  c11a->cd(1);
+  f4->Draw();
 
- gPrJpsi_pt6530y012->Draw("P");
- gPrJpsiTrad_pt6530y012->Draw("P");
+  gPrJpsi_pt6530y012->Draw("P");
+  gPrJpsiTrad_pt6530y012->Draw("P");
 
- lPr->Draw();
- leg11a->Draw();
- lpt->Draw();
- gPad->RedrawAxis();
+  lPr->Draw();
+  leg11a->Draw();
+  lpt->Draw();
+  gPad->RedrawAxis();
 
- c11a->cd(2);
- fBin->Draw();
- lRatio->Draw();
+  c11a->cd(2);
+  fBin->Draw();
+  gPad->SetGridy();
+  lRatio->Draw();
 
- ahRatio_pr_pp[1]->Draw("sames");
+  ahRatio_pr_pp[1]->Draw("sames");
 
- c11a->cd(3);
- fBin->Draw();
- lRatio->Draw();
+  c11a->cd(3);
+  fBin->Draw();
+  gPad->SetGridy();
+  lRatio->Draw();
 
- ahRatio_pr_aa[1]->Draw("sames");
+  ahRatio_pr_aa[1]->Draw("sames");
 
- c11a->cd(4);
- f4->Draw();
- gPrJpsi_pt6530y1216->Draw("P");
- gPrJpsiTrad_pt6530y1216->Draw("P");
+  c11a->cd(4);
+  f4->Draw();
+  gPrJpsi_pt6530y1216->Draw("P");
+  gPrJpsiTrad_pt6530y1216->Draw("P");
 
- c11a->cd(5);
- fBin->Draw();
- lPP->Draw();
- ahRatio_pr_pp[2]->Draw("sames");
+  c11a->cd(5);
+  fBin->Draw();
+  gPad->SetGridy();
+  lPP->Draw();
+  ahRatio_pr_pp[2]->Draw("sames");
 
- c11a->cd(6);
- fBin->Draw();
- lAA->Draw();
- ahRatio_pr_aa[2]->Draw("sames");
+  c11a->cd(6);
+  fBin->Draw();
+  gPad->SetGridy();
+  lAA->Draw();
+  ahRatio_pr_aa[2]->Draw("sames");
 
- //------------------- fwd region
- TCanvas *c11b = new TCanvas("c11b","c11b",1200,800);
- c11b->Divide(3,2);
+  //------------------- fwd region
+  TCanvas *c11b = new TCanvas("c11b","c11b",1200,800);
+  c11b->Divide(3,2);
 
- c11b->cd(1);
- f4->Draw();
+  c11b->cd(1);
+  f4->Draw();
 
- gPrJpsi_pt6530y1624->Draw("P");
- gPrJpsiTrad_pt6530y1624->Draw("P");
+  gPrJpsi_pt6530y1624->Draw("P");
+  gPrJpsiTrad_pt6530y1624->Draw("P");
 
- lPr->Draw();
- leg11b->Draw();
- gPad->RedrawAxis();
+  lPr->Draw();
+  leg11b->Draw();
+  gPad->RedrawAxis();
 
- c11b->cd(2);
- fBin->Draw();
- ahRatio_pr_pp[3]->Draw("sames");
- lPP->Draw();
- lRatio->Draw();
+  c11b->cd(2);
+  fBin->Draw();
+  gPad->SetGridy();
+  ahRatio_pr_pp[3]->Draw("sames");
+  lPP->Draw();
+  lRatio->Draw();
 
- c11b->cd(3);
- fBin->Draw();
- lAA->Draw();
- lRatio->Draw();
+  c11b->cd(3);
+  fBin->Draw();
+  gPad->SetGridy();
+  lAA->Draw();
+  lRatio->Draw();
 
- ahRatio_pr_aa[3]->Draw("sames");
+  ahRatio_pr_aa[3]->Draw("sames");
 
- c11b->cd(4);
- f4->Draw();
- gPrJpsi_pt365y1624->Draw("P");
- gPrJpsiTrad_pt365y1624->Draw("P");
+  c11b->cd(4);
+  f4->Draw();
+  gPrJpsi_pt365y1624->Draw("P");
+  gPrJpsiTrad_pt365y1624->Draw("P");
 
- c11b->cd(5);
- fBin->Draw();
- ahRatio_pr_pp[4]->Draw("sames");
+  c11b->cd(5);
+  fBin->Draw();
+  gPad->SetGridy();
+  ahRatio_pr_pp[4]->Draw("sames");
 
- c11b->cd(6);
- fBin->Draw();
- ahRatio_pr_aa[4]->Draw("sames");
+  c11b->cd(6);
+  fBin->Draw();
+  gPad->SetGridy();
+  ahRatio_pr_aa[4]->Draw("sames");
 
 
 
@@ -699,138 +712,144 @@ void compare_cent(bool bSavePlots       = true,
   // //   // ############################################## non-pr
   // //   // ############################################## non-pr
 
- TCanvas *c2 = new TCanvas("c2","c2",1200,400);
- c2->Divide(3,1);
+  TCanvas *c2 = new TCanvas("c2","c2",1200,400);
+  c2->Divide(3,1);
+ 
   // general stuff
- c2->cd(1);
- f4->Draw();// axis
- lNpr->Draw();
- ly->Draw();
- lpt->Draw();
+  c2->cd(1);
+  f4->Draw();// axis
+  lNpr->Draw();
+  ly->Draw();
+  lpt2->Draw();
   
- gNonPrJpsi->Draw("P");
- gNonPrJpsiTrad->Draw("P");
+  gNonPrJpsi->Draw("P");
+  gNonPrJpsiTrad->Draw("P");
 
- // yields
- c2->cd(2);
- fBin->Draw();// axis
- gPad->SetGridy();
+  // yields
+  c2->cd(2);
+  fBin->Draw();// axis
+  gPad->SetGridy();
   
- ahRatio_npr_pp[0]->Draw("sames");
+  ahRatio_npr_pp[0]->Draw("sames");
       
- lPP->Draw();
- lRatio->Draw();
+  lPP->Draw();
+  lRatio->Draw();
   
- c2->cd(3);
- fBin->Draw();// axis
- gPad->SetGridy();
+  c2->cd(3);
+  fBin->Draw();// axis
+  gPad->SetGridy();
     
- ahRatio_npr_aa[0]->Draw("sames");
+  ahRatio_npr_aa[0]->Draw("sames");
   
- lAA->Draw();
- lRatio->Draw();
+  lAA->Draw();
+  lRatio->Draw();
 
 
- if(bSavePlots)
-   {
-     c1->SaveAs(Form("%s/pdf/NonPrJpsi_vsCent_%s.pdf",outputDir,compWhat[whichCompare]));
-     c1->SaveAs(Form("%s/png/NonPrJpsi_vsCent_%s.png",outputDir,compWhat[whichCompare]));
-   }
+  if(bSavePlots)
+  {
+    c2->SaveAs(Form("%s/pdf/NonPrJpsi_vsCent_%s.pdf",outputDir,compWhat[whichCompare]));
+    c2->SaveAs(Form("%s/png/NonPrJpsi_vsCent_%s.png",outputDir,compWhat[whichCompare]));
+  }
   
   //------------------- (pt, y) dependence
- TCanvas *c22a = new TCanvas("c22a","c22a",1200,800);
- c22a->Divide(3,2);
- c22a->cd(1);
- f4->Draw();
+  TCanvas *c22a = new TCanvas("c22a","c22a",1200,800);
+  c22a->Divide(3,2);
+  c22a->cd(1);
+  f4->Draw();
 
- gNonPrJpsi_pt6530y012->Draw("P");
- gNonPrJpsiTrad_pt6530y012->Draw("P");
+  gNonPrJpsi_pt6530y012->Draw("P");
+  gNonPrJpsiTrad_pt6530y012->Draw("P");
 
- lNpr->Draw();
- leg21a->Draw();
- lpt->Draw();
- gPad->RedrawAxis();
+  lNpr->Draw();
+  leg21a->Draw();
+  lpt->Draw();
+  gPad->RedrawAxis();
 
- c22a->cd(2);
- fBin->Draw();
- lRatio->Draw();
+  c22a->cd(2);
+  fBin->Draw();
+  gPad->SetGridy();
+  lPP->Draw();
+  lRatio->Draw();
 
- ahRatio_npr_pp[1]->Draw("sames");
+  ahRatio_npr_pp[1]->Draw("sames");
 
- c22a->cd(3);
- fBin->Draw();
- lRatio->Draw();
+  c22a->cd(3);
+  fBin->Draw();
+  gPad->SetGridy();
+  lAA->Draw();
+  lRatio->Draw();
 
- ahRatio_npr_aa[1]->Draw("sames");
+  ahRatio_npr_aa[1]->Draw("sames");
 
- c22a->cd(4);
- f4->Draw();
- gNonPrJpsi_pt6530y1216->Draw("P");
- gNonPrJpsiTrad_pt6530y1216->Draw("P");
+  c22a->cd(4);
+  f4->Draw();
+  gNonPrJpsi_pt6530y1216->Draw("P");
+  gNonPrJpsiTrad_pt6530y1216->Draw("P");
 
- c22a->cd(5);
- fBin->Draw();
- lPP->Draw();
- ahRatio_npr_pp[2]->Draw("sames");
+  c22a->cd(5);
+  fBin->Draw();
+  gPad->SetGridy();
+  ahRatio_npr_pp[2]->Draw("sames");
 
- c22a->cd(6);
- fBin->Draw();
- lAA->Draw();
- ahRatio_npr_aa[2]->Draw("sames");
+  c22a->cd(6);
+  fBin->Draw();
+  gPad->SetGridy();
+  ahRatio_npr_aa[2]->Draw("sames");
 
- //------------------- fwd region
- TCanvas *c22b = new TCanvas("c22b","c22b",1200,800);
- c22b->Divide(3,2);
+  //------------------- fwd region
+  TCanvas *c22b = new TCanvas("c22b","c22b",1200,800);
+  c22b->Divide(3,2);
 
- c22b->cd(1);
- f4->Draw();
+  c22b->cd(1);
+  f4->Draw();
 
- gNonPrJpsi_pt6530y1624->Draw("P");
- gNonPrJpsiTrad_pt6530y1624->Draw("P");
+  gNonPrJpsi_pt6530y1624->Draw("P");
+  gNonPrJpsiTrad_pt6530y1624->Draw("P");
 
- lNpr->Draw();
- leg21b->Draw();
- gPad->RedrawAxis();
+  lNpr->Draw();
+  leg21b->Draw();
+  gPad->RedrawAxis();
 
- c22b->cd(2);
- fBin->Draw();
- ahRatio_npr_pp[3]->Draw("sames");
- lPP->Draw();
- lRatio->Draw();
+  c22b->cd(2);
+  fBin->Draw();
+  gPad->SetGridy();
+  ahRatio_npr_pp[3]->Draw("sames");
+  lPP->Draw();
+  lRatio->Draw();
 
- c22b->cd(3);
- fBin->Draw();
- lAA->Draw();
- lRatio->Draw();
+  c22b->cd(3);
+  fBin->Draw();
+  gPad->SetGridy();
+  lAA->Draw();
+  lRatio->Draw();
 
- ahRatio_npr_aa[3]->Draw("sames");
+  ahRatio_npr_aa[3]->Draw("sames");
 
- c22b->cd(4);
- f4->Draw();
- gNonPrJpsi_pt365y1624->Draw("P");
- gNonPrJpsiTrad_pt365y1624->Draw("P");
+  c22b->cd(4);
+  f4->Draw();
+  gNonPrJpsi_pt365y1624->Draw("P");
+  gNonPrJpsiTrad_pt365y1624->Draw("P");
 
- c22b->cd(5);
- fBin->Draw();
+  c22b->cd(5);
+  fBin->Draw();
+  gPad->SetGridy();
 
- ahRatio_npr_pp[4]->Draw("sames");
+  ahRatio_npr_pp[4]->Draw("sames");
 
- c22b->cd(6);
- fBin->Draw();
- ahRatio_npr_aa[4]->Draw("sames");
+  c22b->cd(6);
+  fBin->Draw();
+  gPad->SetGridy();
+  ahRatio_npr_aa[4]->Draw("sames");
 
+  if(bSavePlots)
+  {
+    c22a->SaveAs(Form("%s/pdf/NonPrJpsi_vsCent_yMid_%s.pdf",outputDir,compWhat[whichCompare]));
+    c22a->SaveAs(Form("%s/png/NonPrJpsi_vsCent_yMid_%s.png",outputDir,compWhat[whichCompare]));
+   
+    c22b->SaveAs(Form("%s/pdf/NonPrJpsi_vsCent_yFwd_%s.pdf",outputDir,compWhat[whichCompare]));
+    c22b->SaveAs(Form("%s/png/NonPrJpsi_vsCent_yFwd_%s.png",outputDir,compWhat[whichCompare]));
+  }
 
-
- if(bSavePlots)
-   {
-     c22a->SaveAs(Form("%s/pdf/NonPrJpsi_vsCent_yMid_%s.pdf",outputDir,compWhat[whichCompare]));
-     c22a->SaveAs(Form("%s/png/NonPrJpsi_vsCent_yMid_%s.png",outputDir,compWhat[whichCompare]));
-     
-     c22b->SaveAs(Form("%s/pdf/NonPrJpsi_vsCent_yFwd_%s.pdf",outputDir,compWhat[whichCompare]));
-     c22b->SaveAs(Form("%s/png/NonPrJpsi_vsCent_yFwd_%s.png",outputDir,compWhat[whichCompare]));
-   }
-
- 
 
  
 }

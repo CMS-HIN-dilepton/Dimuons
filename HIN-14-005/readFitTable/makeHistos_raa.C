@@ -35,23 +35,19 @@ The output root files of this macro, wich contains the histograms with the yield
 #include "Riostream.h"
 #include "dataBinning_2015.h"
 
-void makeHistos_raa(int sample = 0, // 0=PbPb,     1= pp
+void makeHistos_raa(int sample = 1, // 0=PbPb,     1= pp
                    int weight = 1, // 0=noWeight, 1=weight
                    int isEffFile = 0,// 0=no, 1=yes needed when making efficiency histograms
                    const char* inputFitDataFileLocation = "../data/raa"
                    ) 
 {
-  //latest
-  // const char* whichSample[2]    = {"20150823_PbPb_Lxyz",    "20150823_pp_Lxyz"};
-  // const char* whichWeight[2]    = {"noWeight_Lxyz_pTtune_PRMC", "weightedEff_Lxyz_pTtune_PRMC"};
-  // const char* whichWeight_pp[2] = {"noWeight_Lxyz_finerpT_PRMC","weightedEff_Lxyz_finerpT_PRMC"};
 
-  const char* whichSample[2]     = {"20150915_PbPb",      "20150915_pp"};
-  const char* whichWeight[2]    = {"noWeight_TnPAtRD_4DEff_RapPtEffMap2", "weightedEff_TnPAtRD_3DEff_RapPtEffMap2"};
-  const char* whichWeight_pp[2] = {"noWeight_TnPAtRD_4DEff_RapPtEffMap2", "weightedEff_TnPAtRD_3DEff_RapPtEffMap2"};
+  const char* whichSample[2]     = {"20151111_PbPb",      "20151111_pp"};
+  const char* whichWeight[2]    = {"noWeight_TnPAtRD3_4DEff_RapPtEffMap2_Ratio", "weightedEff_TnPAtRD3_4DEff_RapPtEffMap2_Ratio"};
+  const char* whichWeight_pp[2] = {"noWeight_TnPAtRD3_4DEff_RapPtEffMap2_Ratio", "weightedEff_TnPAtRD3_4DEff_RapPtEffMap2_Ratio"};
 
 
-  const char* effFileName[2]        = {"20150915_PbPb_Eff_wTnP_M2.95-3.25","20150915_pp_Eff_wTnP_M2.95-3.25"};
+  const char* effFileName[2]        = {"20151028_PbPb_Eff_newTnP","20151028_pp_Eff_newTnP"};
   const char* outputHistDataFile[2] = {"histsRaaYields","histEff"};
 
   TFile *pfOutput;
@@ -163,8 +159,8 @@ void makeHistos_raa(int sample = 0, // 0=PbPb,     1= pp
   TH1F *phPrp_y1624Cent = new TH1F("phPrp_y1624Cent", ";N_{part};Yield",nBinsNpart6,bins6);
   TH1F *phNPrp_y1624Cent = new TH1F("phNPrp_y1624Cent", ";N_{part};Yield",nBinsNpart6,bins6);
 
-  TH1F *phPrp_y1624LowPtCent  = new TH1F("phPrp_y1624LowPtCent", ";N_{part};Yield",nBinsNpart5,bins5);
-  TH1F *phNPrp_y1624LowPtCent = new TH1F("phNPrp_y1624LowPtCent", ";N_{part};Yield",nBinsNpart5,bins5);
+  TH1F *phPrp_y1624LowPtCent  = new TH1F("phPrp_y1624LowPtCent", ";N_{part};Yield",nBinsNpart6,bins6);
+  TH1F *phNPrp_y1624LowPtCent = new TH1F("phNPrp_y1624LowPtCent", ";N_{part};Yield",nBinsNpart6,bins6);
 
 // ------------------
   phPrp_mb->Sumw2();
@@ -334,21 +330,41 @@ void makeHistos_raa(int sample = 0, // 0=PbPb,     1= pp
       }//y1624
       
       // ************************** yields for 2D RAA --- low-pt
-      if(il==56 || il==59 || il==60 || il==62 || il==63) // centrality
-      {
-        if(il == 56) binn = 5; // 0-10
-        if(il == 59) binn = 4; // 10-20
-        if(il == 60) binn = 3; // 20-30
-        if(il == 62) binn = 2; // 30-40
-        if(il == 63) binn = 1; // 40-100
-        
-        cout << il << "prompt yield: " <<prpt[il]<<endl;
-        // fill histograms
-        phPrp_y1624LowPtCent->SetBinContent(binn,prpt[il]);
-        phPrp_y1624LowPtCent->SetBinError(binn,prptErr[il]);
-    
-        phNPrp_y1624LowPtCent->SetBinContent(binn,nprpt[il]);
-        phNPrp_y1624LowPtCent->SetBinError(binn,nprptErr[il]);
+      if (nBinsNpart6 == phPrp_y1624LowPtCent->GetNbinsX()) {
+        if(il==56 || il==59 || il==60 || il==62 || il==64 || il==65) // centrality
+        {
+          if(il == 56) binn = 6; // 0-10
+          if(il == 59) binn = 5; // 10-20
+          if(il == 60) binn = 4; // 20-30
+          if(il == 62) binn = 3; // 30-40
+          if(il == 64) binn = 2; // 40-50
+          if(il == 65) binn = 1; // 50-100
+          
+          cout << il << "prompt yield: " <<prpt[il]<<endl;
+          // fill histograms
+          phPrp_y1624LowPtCent->SetBinContent(binn,prpt[il]);
+          phPrp_y1624LowPtCent->SetBinError(binn,prptErr[il]);
+      
+          phNPrp_y1624LowPtCent->SetBinContent(binn,nprpt[il]);
+          phNPrp_y1624LowPtCent->SetBinError(binn,nprptErr[il]);
+        }
+      } else if (nBinsNpart5 == phPrp_y1624LowPtCent->GetNbinsX()) {
+        if(il==56 || il==59 || il==60 || il==62 || il==63) // centrality
+        {
+          if(il == 56) binn = 5; // 0-10
+          if(il == 59) binn = 4; // 10-20
+          if(il == 60) binn = 3; // 20-30
+          if(il == 62) binn = 2; // 30-40
+          if(il == 63) binn = 1; // 40-100
+          
+          cout << il << "prompt yield: " <<prpt[il]<<endl;
+          // fill histograms
+          phPrp_y1624LowPtCent->SetBinContent(binn,prpt[il]);
+          phPrp_y1624LowPtCent->SetBinError(binn,prptErr[il]);
+      
+          phNPrp_y1624LowPtCent->SetBinContent(binn,nprpt[il]);
+          phNPrp_y1624LowPtCent->SetBinError(binn,nprptErr[il]);
+        }
       }//y1624low
 
       if( il==54 || il==66 || il==67) // the 3 pt bins
@@ -506,7 +522,7 @@ void makeHistos_raa(int sample = 0, // 0=PbPb,     1= pp
       // ************************** yields for 2D RAA --- low-pt
       if(il==22) // centrality
       {
-        for(int ibin=1; ibin<=nBinsNpart5; ibin++)
+        for(int ibin=1; ibin<=nBinsNpart6; ibin++)
         {
           binn = ibin; 
           phPrp_y1624LowPtCent->SetBinContent(binn,prpt[il]);

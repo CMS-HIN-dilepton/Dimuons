@@ -38,10 +38,10 @@ Output: yields and raa (traditional vs ev-by-ev)
 #endif
 
 void compare_pt( bool bSavePlots    = true,
-	      bool bDoDebug         = 1, // adds some numbers, numerator, denominator, to help figure out if things are read properly
-	      int whichCompare      = 1,//0: no TnP corrections; 1: w/ TnP corr on Data; 2: w/ TnP corr on MC; 3: lxy w/ TnP on MC
-	      const char* inputDir  = "../readFitTable", // the place where the input root files, with the histograms are
-	      const char* outputDir = "figs/compare")// where the output figures will be
+              bool bDoDebug         = 1, // adds some numbers, numerator, denominator, to help figure out if things are read properly
+              int whichCompare      = 1,//0: no TnP corrections; 1: w/ TnP corr on Data; 2: w/ TnP corr on MC; 3: lxy w/ TnP on MC
+              const char* inputDir  = "../readFitTable", // the place where the input root files, with the histograms are
+              const char* outputDir = "figs/compare")// where the output figures will be
 {
  
   gSystem->mkdir(Form("./%s/png",outputDir), kTRUE);
@@ -198,7 +198,7 @@ void compare_pt( bool bSavePlots    = true,
       double yieldRatio_pr     = phCorr_pr_aa->GetBinContent(ibin)/phCorr_pr_pp->GetBinContent(ibin);
       
       double yieldRatioTrad_pr = (phRaw_pr_aa->GetBinContent(ibin)/phRaw_pr_pp->GetBinContent(ibin))
-	* (phEff_pr_pp->GetBinContent(ibin)/phEff_pr_aa->GetBinContent(ibin));
+        * (phEff_pr_pp->GetBinContent(ibin)/phEff_pr_aa->GetBinContent(ibin));
 
       raa_pr      =  yieldRatio_pr * scaleFactor * scale_cent;
       raaErr_pr   = TMath::Sqrt(TMath::Power(dRelErrRaw_pr_pp,2)+TMath::Power(dRelErrRaw_pr_aa,2))*raa_pr;
@@ -229,7 +229,7 @@ void compare_pt( bool bSavePlots    = true,
         nonPrJpsi_pt[ibin-1]        = raa_npr;
         nonPrJpsiErr_pt[ibin-1]     = raaErr_npr;
 
-	prJpsiTrad_pt[ibin-1]       = raaTrad_pr;
+        prJpsiTrad_pt[ibin-1]       = raaTrad_pr;
         prJpsiTradErr_pt[ibin-1]    = raaTradErr_pr;
               
         nonPrJpsiTrad_pt[ibin-1]    = raaTrad_npr;
@@ -244,21 +244,21 @@ void compare_pt( bool bSavePlots    = true,
         nonPrJpsi_pt365y1624_pt[ibin-1]         = raa_npr;
         nonPrJpsiErr_pt365y1624_pt[ibin-1]      = raaErr_npr;
 
-	prJpsiTrad_pt365y1624_pt[ibin-1]        = raaTrad_pr;
+        prJpsiTrad_pt365y1624_pt[ibin-1]        = raaTrad_pr;
         prJpsiTradErr_pt365y1624_pt[ibin-1]     = raaTradErr_pr;
 
         nonPrJpsiTrad_pt365y1624_pt[ibin-1]     = raaTrad_npr;
         nonPrJpsiTradErr_pt365y1624_pt[ibin-1]  = raaTradErr_npr;
 
-	if(bDoDebug)
-	  {
-	    cout<<"yield_npr_aa: raw "<<phRaw_npr_aa->GetBinContent(ibin)<<"\t eff:  "<<phEff_npr_aa->GetBinContent(ibin)<<endl;
-	    cout<<"yield_npr_aa: corr "<<phCorr_npr_aa->GetBinContent(ibin)<<endl;
-	  
-	    cout<<"yield_npr_pp: raw "<<phRaw_npr_pp->GetBinContent(ibin)<<"\t eff:  "<<phEff_npr_pp->GetBinContent(ibin)<<endl;
-	    cout<<"yield_npr_pp: corr "<<phCorr_npr_pp->GetBinContent(ibin)<<endl;
+        if(bDoDebug)
+          {
+            cout<<"yield_npr_aa: raw "<<phRaw_npr_aa->GetBinContent(ibin)<<"\t eff:  "<<phEff_npr_aa->GetBinContent(ibin)<<endl;
+            cout<<"yield_npr_aa: corr "<<phCorr_npr_aa->GetBinContent(ibin)<<endl;
+          
+            cout<<"yield_npr_pp: raw "<<phRaw_npr_pp->GetBinContent(ibin)<<"\t eff:  "<<phEff_npr_pp->GetBinContent(ibin)<<endl;
+            cout<<"yield_npr_pp: corr "<<phCorr_npr_pp->GetBinContent(ibin)<<endl;
 
-	  }
+          }
 
         break;
 
@@ -269,7 +269,7 @@ void compare_pt( bool bSavePlots    = true,
         nonPrJpsi_y1624MB_pt[ibin-1]         = raa_npr;
         nonPrJpsiErr_y1624MB_pt[ibin-1]      = raaErr_npr;
 
-	prJpsiTrad_y1624MB_pt[ibin-1]        = raaTrad_pr;
+        prJpsiTrad_y1624MB_pt[ibin-1]        = raaTrad_pr;
         prJpsiTradErr_y1624MB_pt[ibin-1]     = raaTradErr_pr;
 
         nonPrJpsiTrad_y1624MB_pt[ibin-1]     = raaTrad_npr;
@@ -277,8 +277,8 @@ void compare_pt( bool bSavePlots    = true,
 
         if(bDoDebug)
         {
-	  cout<<"yield_npr_aa "<<phCorr_npr_aa->GetBinContent(ibin)<<"\t yield_pr_pp "<<phCorr_npr_pp->GetBinContent(ibin)<<endl;
-	  cout<<setprecision(2);
+          cout<<"yield_npr_aa "<<phCorr_npr_aa->GetBinContent(ibin)<<"\t yield_pr_pp "<<phCorr_npr_pp->GetBinContent(ibin)<<endl;
+          cout<<setprecision(2);
           cout<<"!!!!! raa_pr = "<<raa_pr<<"\t raa_npr= "<<raa_npr<<endl;
         }
         break;
@@ -291,7 +291,7 @@ void compare_pt( bool bSavePlots    = true,
         nonPrJpsiErr_mb[0]     = raaErr_npr;
 
 
-	prJpsiTrad_mb[0]       = raaTrad_pr;
+        prJpsiTrad_mb[0]       = raaTrad_pr;
         prJpsiTradErr_mb[0]    = raaTradErr_pr;
         
         nonPrJpsiTrad_mb[0]    = raaTrad_npr;
@@ -400,19 +400,19 @@ void compare_pt( bool bSavePlots    = true,
     ahRatio_npr_aa[ih]->SetMarkerStyle(20);
 
     if(ih==1 || ih==2)
-      {
-	ahRatio_pr_pp[ih]->SetMarkerColor(kViolet+2);
-	ahRatio_npr_pp[ih]->SetMarkerColor(kViolet+2);
-	ahRatio_pr_aa[ih]->SetMarkerColor(kViolet+2);
-	ahRatio_npr_aa[ih]->SetMarkerColor(kViolet+2);
-      }
+    {
+      ahRatio_pr_pp[ih]->SetMarkerColor(kViolet+2);
+      ahRatio_npr_pp[ih]->SetMarkerColor(kViolet+2);
+      ahRatio_pr_aa[ih]->SetMarkerColor(kViolet+2);
+      ahRatio_npr_aa[ih]->SetMarkerColor(kViolet+2);
+    }
     if(ih==3)
-      {
-	ahRatio_pr_pp[ih]->SetMarkerColor(kCyan+2);
-	ahRatio_npr_pp[ih]->SetMarkerColor(kCyan+2);
-	ahRatio_pr_aa[ih]->SetMarkerColor(kCyan+2);
-	ahRatio_npr_aa[ih]->SetMarkerColor(kCyan+2);
-      }
+    {
+      ahRatio_pr_pp[ih]->SetMarkerColor(kCyan+2);
+      ahRatio_npr_pp[ih]->SetMarkerColor(kCyan+2);
+      ahRatio_pr_aa[ih]->SetMarkerColor(kCyan+2);
+      ahRatio_npr_aa[ih]->SetMarkerColor(kCyan+2);
+    }
 
   }
   //------------------------------------------------------ Drawing settings
@@ -482,8 +482,8 @@ void compare_pt( bool bSavePlots    = true,
   // axis for the yields
   TF1 *fBin = new TF1("fBin","1",0,8);
   fBin->SetLineWidth(1);
-  fBin->GetXaxis()->SetTitle("Bin p_{T}");
-  fBin->GetYaxis()->SetTitle("Yield");
+  fBin->GetXaxis()->SetTitle("Bin number");
+  fBin->GetYaxis()->SetTitle("Yield ratio");
   fBin->GetYaxis()->SetRangeUser(0.5,2);
   fBin->GetXaxis()->CenterTitle(kTRUE);
 
@@ -543,10 +543,10 @@ void compare_pt( bool bSavePlots    = true,
   lRatio->Draw();
   
   if(bSavePlots)
-    {
-      c1->SaveAs(Form("%s/pdf/PrJpsi_vsPt_%s.pdf",outputDir,compWhat[whichCompare]));
-      c1->SaveAs(Form("%s/png/PrJpsi_vsPt_%s.png",outputDir,compWhat[whichCompare]));
-    }
+  {
+    c1->SaveAs(Form("%s/pdf/PrJpsi_vsPt_%s.pdf",outputDir,compWhat[whichCompare]));
+    c1->SaveAs(Form("%s/png/PrJpsi_vsPt_%s.png",outputDir,compWhat[whichCompare]));
+  }
       
       //-------------------minbias dependence
   // raa minbias integrated in pt, y and cent; for low-pt and high-pt
@@ -589,10 +589,10 @@ void compare_pt( bool bSavePlots    = true,
   
   
   if(bSavePlots)
-    {
-      c11b->SaveAs(Form("%s/pdf/PrJpsi_vsPt_mb_%s.pdf",outputDir,compWhat[whichCompare]));
-      c11b->SaveAs(Form("%s/png/PrJpsi_vsPt_mb_%s.png",outputDir,compWhat[whichCompare]));
-    }
+  {
+    c11b->SaveAs(Form("%s/pdf/PrJpsi_vsPt_mb_%s.pdf",outputDir,compWhat[whichCompare]));
+    c11b->SaveAs(Form("%s/png/PrJpsi_vsPt_mb_%s.png",outputDir,compWhat[whichCompare]));
+  }
       
   // //   // ############################################## non-pr 
   // //   // ############################################## non-pr
@@ -635,10 +635,10 @@ void compare_pt( bool bSavePlots    = true,
   lRatio->Draw();
   
   if(bSavePlots)
-    {
-      c2->SaveAs(Form("%s/pdf/nonPrJpsi_vsPt_%s.pdf",outputDir,compWhat[whichCompare]));
-      c2->SaveAs(Form("%s/png/nonPrJpsi_vsPt_%s.png",outputDir,compWhat[whichCompare]));
-    }
+  {
+    c2->SaveAs(Form("%s/pdf/nonPrJpsi_vsPt_%s.pdf",outputDir,compWhat[whichCompare]));
+    c2->SaveAs(Form("%s/png/nonPrJpsi_vsPt_%s.png",outputDir,compWhat[whichCompare]));
+  }
   
   //-------------------minbias dependence
   // raa integrated in pt and cent, for low-pt and high-pt
@@ -682,9 +682,9 @@ void compare_pt( bool bSavePlots    = true,
   lRatio->Draw();
 
   if(bSavePlots)
-    {
-      c22b->SaveAs(Form("%s/pdf/nonPrJpsi_vsPt_mb_%s.pdf",outputDir,compWhat[whichCompare]));
-      c22b->SaveAs(Form("%s/png/nonPrJpsi_vsPt_mb_%s.png",outputDir,compWhat[whichCompare]));
-    }
+  {
+    c22b->SaveAs(Form("%s/pdf/nonPrJpsi_vsPt_mb_%s.pdf",outputDir,compWhat[whichCompare]));
+    c22b->SaveAs(Form("%s/png/nonPrJpsi_vsPt_mb_%s.png",outputDir,compWhat[whichCompare]));
+  }
   
 }
