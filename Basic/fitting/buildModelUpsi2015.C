@@ -55,7 +55,7 @@ void buildModelUpsi2015(RooWorkspace& w, int signalModel, int bkgdModel){
    RooAbsPdf  *sig3S   = NULL;
 
    switch(signalModel){    
-      case 1: //crystal boule
+      case 1: //Crystal Balls
          sig1S   = new RooCBShape("cb1S_1", "FSR cb 1s",
                *mass,*mean1S,*sigma1,*alpha,*npow);
 
@@ -65,19 +65,9 @@ void buildModelUpsi2015(RooWorkspace& w, int signalModel, int bkgdModel){
                *mass,*mean3S,*sigma3S,*alpha,*npow);
          cout << "you're fitting each signal peak with a Crystal Ball function"<< endl;
          break;
-      case 2: //Gaussein
-         sig1S  = new RooGaussian ("g1", "gaus 1s",
-               *mass,*mean1S,*sigma1);
-         cout << "you're fitting 1 signal peak with a Gaussian function"<< endl;
-         break;
-      case 3: //Gaussein + crystal boule
-         cb1S_1    = new RooCBShape ("cb1S_1", "FSR cb 1s",
-               *mass,*mean1S,*sigma1,*alpha,*npow);
-         sig1S  = new RooAddPdf ("cbg", "cbgaus 1s",
-               RooArgList(*gauss1,*cb1S_1),*sigmaFraction);
-         cout << "you're fitting 1 signal peak with a sum of a Gaussian and a Crystal Ball function"<< endl;
-         break;
-      case 4: //crystal boules
+      case 2: //Two Crystal Balls
+
+	 //----Upsilon 1S
          cb1S_1    = new RooCBShape ("cb1S_1", "FSR cb 1s",
                *mass,*mean1S,*sigma1,*alpha,*npow);
 
@@ -85,7 +75,7 @@ void buildModelUpsi2015(RooWorkspace& w, int signalModel, int bkgdModel){
                *mass,*mean1S,*sigmaGaus,*alpha,*npow);
          sig1S  = new RooAddPdf  ("cbcb","1S mass pdf",
                RooArgList(*cb1S_1,*cb1S_2),*sigmaFraction);
-         // /// Upsilon 2S
+         //----Upsilon 2S
          cb2S_1    = new RooCBShape ("cb2S_1", "FSR cb 2s", 
                *mass,*mean2S,*sigma2S,*alpha,*npow); 
          cb2S_2    = new RooCBShape ("cb2S_2", "FSR cb 2s", 
@@ -93,7 +83,7 @@ void buildModelUpsi2015(RooWorkspace& w, int signalModel, int bkgdModel){
          sig2S  = new RooAddPdf  ("sig2S","2S mass pdf",
                RooArgList(*cb2S_1,*cb2S_2),*sigmaFraction);
 
-         // /// Upsilon 3S
+         //----Upsilon 3S
          cb3S_1    = new RooCBShape ("cb3S_1", "FSR cb 3s", 
                *mass,*mean3S,*sigma3S,*alpha,*npow); 
          cb3S_2    = new RooCBShape ("cb3S_2", "FSR cb 3s", 
@@ -103,19 +93,42 @@ void buildModelUpsi2015(RooWorkspace& w, int signalModel, int bkgdModel){
          cout << "you're fitting each signal peak with a Double Crystal Ball function"<< endl;
          break;
 
-      case 5: //deux Gausseins
+      //---Cases below are fore single peak fitting
+      case 3: //Gaussian
+         sig1S  = new RooGaussian ("g1", "gaus 1s",
+               *mass,*mean1S,*sigma1);
+         cout << "you're fitting 1 signal peak with a Gaussian function"<< endl;
+         break;
+
+      case 4: //Crystal Ball
+         cb1S_1    = new RooCBShape ("cb1S_1", "FSR cb 1s",
+               *mass,*mean1S,*sigma1,*alpha,*npow);
+         sig1S  = new RooAddPdf ("cbg", "cbgaus 1s",
+               RooArgList(*cb1S_1),*sigma1);
+         cout << "you're fitting 1 signal peak with a sum of  a Crystal Ball function"<< endl;
+         break;
+
+      case 5: //Gaussian + Crystal Ball
+         cb1S_1    = new RooCBShape ("cb1S_1", "FSR cb 1s",
+               *mass,*mean1S,*sigma1,*alpha,*npow);
+         sig1S  = new RooAddPdf ("cbg", "cbgaus 1s",
+               RooArgList(*gauss1,*cb1S_1),*sigmaFraction);
+         cout << "you're fitting 1 signal peak with a sum of a Gaussian and a Crystal Ball function"<< endl;
+         break;
+
+      case 6: //Two Gaussians 
          sig1S  = new RooAddPdf ("cb1S_1", "cbgaus 1s",
                RooArgList(*gauss1,*gauss1b),*sigmaFraction);
          cout << "you're fitting each signal peak with a Double Gaussian function"<< endl;
          break;
    }
-   // bkg Chebychev
+   //Bkg Chebychev
    RooRealVar *nbkgd   = new RooRealVar("n_{Bkgd}","nbkgd",0,nt);
    RooRealVar *bkg_a1  = new RooRealVar("a1_bkg", "bkg_{a1}", 0, -5, 5);
    RooRealVar *bkg_a2  = new RooRealVar("a2_Bkg", "bkg_{a2}", 0, -2, 2);
    RooRealVar *bkg_a3  = new RooRealVar("a3_Bkg", "bkg_{a3}", 0, -0.9, 2);
 
-   //  likesign
+   //likesign
    RooRealVar *nLikesignbkgd = new RooRealVar("NLikesignBkg","nlikesignbkgd",nt*0.75,0,10*nt);
    // *************************************************** bkgModel
 
@@ -146,14 +159,21 @@ void buildModelUpsi2015(RooWorkspace& w, int signalModel, int bkgdModel){
 
    switch (bkgdModel) 
    {
-      case 3 : //use error function to fit the OS directly
+      case 1 : //use polynomial
+	 ChebPdf = new RooChebychev("ChebPdf","ChebPdf",
+		*mass, RooArgList(*bkg_a1,*bkg_a2));
+	 pdf_combinedbkgd = new RooAddPdf ("bkgPdf","total combined pdf",
+		RooArgList(*ChebPdf));
+        break;
+
+      case 2 : //use error function to fit the OS directly
          bkg_a3->setConstant(true);
          pdf_combinedbkgd            = new  RooGenericPdf("bkgPdf","bkgPdf",
                "exp(-@0/decay)*(TMath::Erf((@0-turnOn)/width)+1)",
                RooArgList(*mass,turnOn,width,decay));
          break;
 
-      case 4 : //use pol 2+ErfExp to fit the OS directly
+      case 3 : //use pol 2+ErfExp to fit the OS directly
 
          ChebPdf  = new RooChebychev("ChebPdf","ChebPdf",
                *mass, RooArgList(*bkg_a1,*bkg_a2));
@@ -165,7 +185,7 @@ void buildModelUpsi2015(RooWorkspace& w, int signalModel, int bkgdModel){
                RooArgList(*fPol));
 
          break;
-      case 5 : //use ( error function + polynomial 1) to fit the OS directly
+      case 4 : //use ( error function + polynomial 1) to fit the OS directly
 
          bkg_a3->setConstant(true);
          bkg_a2->setConstant(true);
@@ -178,7 +198,7 @@ void buildModelUpsi2015(RooWorkspace& w, int signalModel, int bkgdModel){
                RooArgList(*ChebPdf,*ErrPdf),
                RooArgList(*fPol));
          break;
-      case 6: // NOT WORKING
+      case 5: // NOT WORKING
          ChebPdf  = new RooChebychev("ChebPdf","ChebPdf",
                *mass, RooArgList(*bkg_a1,*bkg_a2));
          ExpPdf     = new  RooGenericPdf("ExpPdf","ExpPdf",
