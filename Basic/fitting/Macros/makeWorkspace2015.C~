@@ -1,15 +1,15 @@
-#include "allFunctions.h"
+#include "Macros/allFunctions.h"
 
 #include "TLorentzVector.h"
 #include "TClonesArray.h"
 
 using namespace RooFit;
 
-void makeWorkspace2015(RooWorkspace& ws, const char* filename,float mass_l, float mass_h, float muonEtaMin, float muonEtaMax, float muonPtMin, float dimuRapMin, float dimuRapMax, float dimuPtMin,float dimuPtMax, int dimuCentralityStart, int dimuCentralityEnd ){
-   double binw=0.05;
+void makeWorkspace2015(RooWorkspace& ws, const TString FileName, struct InputOpt opt){
+  double binw=0.05;
  
   cout<< "You're in makeWorkspace2015!" << endl;
-  std::string finput(filename);
+  std::string finput(FileName);
   cout << finput << endl;
   //  TFile f(finput,"read");
   TFile *f = new TFile(finput.c_str());
@@ -17,19 +17,20 @@ void makeWorkspace2015(RooWorkspace& ws, const char* filename,float mass_l, floa
   cout << theTree << endl;
   //  //RooWorkspace* ws = new RooWorkspace("ws","DiMuon Mass Fitting");
   //ws.var("invariantMass");	
-  RooRealVar* mass       = new RooRealVar("invariantMass","#mu#mu mass",mass_l,mass_h,"GeV/c^{2}");	
+  RooRealVar* mass       = new RooRealVar("invariantMass","#mu#mu mass", opt.dMuon.M.Min, opt.dMuon.M.Max, "GeV/c^{2}");	
   //  ws.import(*mass);
-  RooRealVar* dimuPt      = new RooRealVar("dimuPt","p_{T}(#DiMuon)",0,60,"GeV/c");
-  RooRealVar* dimuRapidity= new RooRealVar("dimuRapidity",  "dimuRapidity",-2.4, 2.4);
+  RooRealVar* dimuPt     = new RooRealVar("dimuPt","p_{T}(#DiMuon)",0,60,"GeV/c");
+  RooRealVar* dimuRapidity = new RooRealVar("dimuRapidity",  "dimuRapidity",-2.4, 2.4);
   RooRealVar* vProb      = new RooRealVar("vProb",  "vProb"  ,0.01,1.00);
   RooRealVar* QQsign     = new RooRealVar("QQsign",  "QQsign"  ,-1,5);
   RooRealVar* Centrality = new RooRealVar("Centrality","Centrality",0,200);
-  RooRealVar* muPlusPt   = new RooRealVar("muPlusPt","muPlusPt",muonPtMin,1000);
-  RooRealVar* muMinusPt  = new RooRealVar("muMinusPt","muMinusPt",muonPtMin,1000);
-  RooRealVar* muPlusEta  = new RooRealVar("muPlusEta","muPlusEta",  muonEtaMin,muonEtaMax);
-  RooRealVar* muMinusEta = new RooRealVar("muMinusEta","muMinusEta",muonEtaMin,muonEtaMax);
+  RooRealVar* RunNb      = new RooRealVar("RunNb","RunNb",0,350000);
+  RooRealVar* muPlusPt   = new RooRealVar("muPlusPt","muPlusPt", 0, 1000);
+  RooRealVar* muMinusPt  = new RooRealVar("muMinusPt","muMinusPt", 0, 1000);
+  RooRealVar* muPlusEta  = new RooRealVar("muPlusEta","muPlusEta", -2.4, 2.4);
+  RooRealVar* muMinusEta = new RooRealVar("muMinusEta","muMinusEta", -2.4, 2.4);
   RooDataSet* data0, *data;
-  RooArgSet cols(*mass,*dimuPt,*dimuRapidity,*Centrality,*muPlusPt,*muMinusPt,*muPlusEta,*muMinusEta);
+  RooArgSet cols(*mass,*dimuPt,*dimuRapidity,*Centrality,*muPlusPt,*muMinusPt,*muPlusEta,*muMinusEta, *RunNb);
   data0 = new RooDataSet("data","data",cols); 
 
   // import the tree to the RooDataSet
@@ -97,6 +98,7 @@ void makeWorkspace2015(RooWorkspace& ws, const char* filename,float mass_l, floa
          muMinusPt->setVal(qq4mumi->Pt());
          muPlusEta->setVal(qq4mupl->Eta());
          muMinusEta->setVal(qq4mumi->Eta());
+         RunNb->setVal(runNb);
 
          data0->add(cols);
       }
@@ -104,13 +106,22 @@ void makeWorkspace2015(RooWorkspace& ws, const char* filename,float mass_l, floa
 
 
   data0->Print();
-  TString cut_ap(Form("(%d<=Centrality && Centrality<%d) &&" 
-           "(%.2f<muPlusEta && muPlusEta < %.2f) &&" 
-           "(%.2f<muMinusEta && muMinusEta < %.2f) &&" 
-           "(%.2f<dimuPt && dimuPt<%.2f) &&"
-           "(abs(dimuRapidity)>%.2f && abs(dimuRapidity)<%.2f)  &&"
-           "(muPlusPt > %.2f && muMinusPt > %.2f)",
-           dimuCentralityStart,dimuCentralityEnd,muonEtaMin,muonEtaMax,muonEtaMin,muonEtaMax,dimuPtMin,dimuPtMax,dimuRapMin,dimuRapMax,muonPtMin,muonPtMin));
+  TString cut_ap(Form("(%.2f<invariantMass && invariantMass<%.2f) &&" 
+                      "(%d<=Centrality && Centrality<%d) &&" 
+                      "(%.2f<muPlusEta && muPlusEta < %.2f) &&" 
+                      "(%.2f<muMinusEta && muMinusEta < %.2f) &&" 
+                      "(%.2f<dimuPt && dimuPt<%.2f) &&"
+                      "(abs(dimuRapidity)>%.2f && abs(dimuRapidity)<%.2f)  &&"
+                      "(muPlusPt > %.2f && muMinusPt > %.2f) &&"
+                      "(%d<=RunNb && RunNb<%d)",
+                      opt.dMuon.M.Min, opt.dMuon.M.Max,
+                      opt.Centrality.Start, opt.Centrality.End,
+                      opt.sMuon.Eta.Min, opt.sMuon.Eta.Max,
+                      opt.sMuon.Eta.Min, opt.sMuon.Eta.Max,
+                      opt.dMuon.Pt.Min, opt.dMuon.Pt.Max,
+                      opt.dMuon.AbsRap.Min, opt.dMuon.AbsRap.Max,
+                      opt.sMuon.Pt.Min, opt.sMuon.Pt.Min,
+                      opt.RunNb.Start, opt.RunNb.End));
   cout << cut_ap << endl;
   data =  ( RooDataSet*) data0->reduce(Cut(cut_ap));
   ws.import(*data);

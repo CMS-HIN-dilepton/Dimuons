@@ -1,0 +1,68 @@
+#ifndef drawPlot_C
+#define drawPlot_C
+
+#include "CMS/tdrstyle.C"
+#include "CMS/CMS_lumi.C"
+#include "TCanvas.h"
+#include "TPad.h"
+#include "TFrame.h"
+#include "TAxis.h"
+
+void drawPlot(RooPlot* frame, RooAbsPdf* pdf, float nSigF1, struct InputOpt opt) {
+
+   setTDRStyle();
+
+   pdf->paramOn(frame,Layout(0.61,0.91,0.73)) ;
+   frame->getAttText()->SetTextSize(0.023);
+
+   frame->SetTitle("");
+   frame->GetXaxis()->SetTitle("#mu^{+}#mu^{-} Invariant Mass (GeV/c^{2})");
+   frame->GetXaxis()->CenterTitle(kTRUE);
+   frame->GetXaxis()->SetTitleSize(0.045);
+   frame->GetXaxis()->SetTitleFont(42);
+
+   frame->GetYaxis()->SetTitleSize(0.04);
+   frame->GetYaxis()->SetTitleOffset(1.3);
+   frame->GetYaxis()->SetTitleFont(42);
+   frame->GetYaxis()->SetRangeUser(0,(nSigF1/1.3));
+ 
+   TCanvas* cFig = new TCanvas("cFig", "cFig",800,800);
+   cFig->cd();
+ 
+   gPad->Update();
+   frame->Draw();
+
+   TLatex *t = new TLatex(); t->SetNDC(); t->SetTextSize(0.027);
+   float dy = 0; float deltaY = 0.035;
+  
+   if (opt.Centrality.Start=!-1 && (opt.Centrality.Start!=0 || opt.Centrality.End!=0)) {
+     t->DrawLatex(0.21, 0.81-dy, Form("Centrality: %d%% - %d%%", opt.Centrality.Start, (int)(opt.Centrality.End/2))); dy+=deltaY;
+   }
+   if (opt.dMuon.AbsRap.Min==0){
+     t->DrawLatex(0.21, 0.81-dy, Form("|y^{#mu^{+}#mu^{-}}| < %.1f",opt.dMuon.AbsRap.Max)); dy+=0.035;
+   }else{
+     t->DrawLatex(0.21, 0.81-dy, Form(" %.1f < |y^{#mu^{+}#mu^{-}}| < %.1f", opt.dMuon.AbsRap.Min, opt.dMuon.AbsRap.Max)); dy+=deltaY;
+   }
+   if (opt.dMuon.Pt.Min==0 && opt.dMuon.Pt.Max!=0){
+     t->DrawLatex(0.21, 0.81-dy, Form("p_{T}^{#mu^{+}#mu^{-}} < %.1f GeV/c", opt.dMuon.Pt.Max));  dy+=deltaY;
+   } else if (opt.dMuon.Pt.Min!=0 && opt.dMuon.Pt.Max==0){
+     t->DrawLatex(0.21, 0.81-dy, Form("%.1f < p_{T}^{#mu^{+}#mu^{-}} GeV/c", opt.dMuon.Pt.Min));  dy+=deltaY;
+   } else if (opt.dMuon.Pt.Min!=0 && opt.dMuon.Pt.Max!=0){
+     t->DrawLatex(0.21, 0.81-dy, Form("%.1f < p_{T}^{#mu^{+}#mu^{-}} < %.1f GeV/c", opt.dMuon.Pt.Min, opt.dMuon.Pt.Max));  dy+=deltaY; 
+   }
+
+   TLatex latex;
+   latex.SetNDC();
+   latex.SetTextSize(3);
+   latex.SetTextFont(42);
+
+   //Drawing the title
+   int nRun[] = {opt.RunNb.Start, opt.RunNb.End};
+   CMS_lumi(cFig, opt.isPbPb ? 105 : 104,33, nRun);
+   cFig->Update();
+   
+   cFig->SaveAs(Form("Plots/%sDataRun2_%d_%d_%s.png",(opt.isPbPb ? "PbPb" : "PP"), opt.RunNb.Start, opt.RunNb.End, (opt.isPbPb ? "JPsi" : "Upsilon")));
+   
+}
+
+#endif // #ifndef drawPlot_C
