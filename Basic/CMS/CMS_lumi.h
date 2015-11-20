@@ -1,6 +1,7 @@
 #include "TPad.h"
 #include "TLatex.h"
 #include "TLine.h"
+#include "TString.h"
 #include "TBox.h"
 #include "TASImage.h"
 
@@ -36,9 +37,9 @@ TString lumi_5TeV  = "pPb 34.6 nb^{-1}";
 TString lumi_PbPb2011  = "PbPb 166 #mub^{-1}";
 TString lumi_PbPb2015  = "PbPb ?.? #mub^{-1}";
 TString lumi_pp2013  = "pp 5.4 pb^{-1}";
-TString lumi_pp2015  = "pp ?.? pb^{-1}";
+TString lumi_pp2015  = "pp";
 
 bool drawLogo      = false;
 
-void CMS_lumi( TPad* pad, int iPeriod=3, int iPosX=10, int* nRun=0 );
+void CMS_lumi( TPad* pad, int iPeriod=3, int iPosX=10, TString label = lumi_pp2015 );
 

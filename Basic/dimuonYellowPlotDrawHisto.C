@@ -3,8 +3,8 @@
 // Draw the dimuon invariant mass from CMS data
 // Uses the output from 
 
-#include "tdrstyle.C"
-#include "CMS_lumi.C"
+#include "CMS/tdrstyle.C"
+#include "CMS/CMS_lumi.C"
 
 dimuonYellowPlotDrawHisto(){
   cout << "dimuonYellowPlot: Starting macro dimuonYellowPlot" << endl;

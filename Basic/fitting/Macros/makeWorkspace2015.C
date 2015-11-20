@@ -36,13 +36,13 @@ void makeWorkspace2015(RooWorkspace& ws, const TString FileName, struct InputOpt
   // import the tree to the RooDataSet
   UInt_t          runNb;
   Int_t           centrality;
-  Int_t           HLTriggers;
+  ULong64_t       HLTriggers;
   Int_t           Reco_QQ_size;
   Int_t           Reco_QQ_sign[99];   //[Reco_QQ_size]
   TClonesArray    *Reco_QQ_4mom;
   TClonesArray    *Reco_QQ_mupl_4mom;
   TClonesArray    *Reco_QQ_mumi_4mom;
-  Int_t           Reco_QQ_trig[99];   //[Reco_QQ_size]
+  ULong64_t       Reco_QQ_trig[99];   //[Reco_QQ_size]
   Float_t         Reco_QQ_VtxProb[99];   //[Reco_QQ_size]
 
   TBranch        *b_runNb;   //!
@@ -112,7 +112,7 @@ void makeWorkspace2015(RooWorkspace& ws, const TString FileName, struct InputOpt
                       "(%.2f<dimuPt && dimuPt<%.2f) &&"
                       "(abs(dimuRapidity)>%.2f && abs(dimuRapidity)<%.2f)  &&"
                       "(muPlusPt > %.2f && muMinusPt > %.2f) &&"
-                      "(%d<=RunNb && RunNb<%d)",
+                      "(%d<=RunNb && RunNb<=%d)",
                       opt.dMuon.M.Min, opt.dMuon.M.Max,
                       opt.Centrality.Start, opt.Centrality.End,
                       opt.sMuon.Eta.Min, opt.sMuon.Eta.Max,

@@ -1,8 +1,8 @@
 #ifndef drawPlot_C
 #define drawPlot_C
 
-#include "CMS/tdrstyle.C"
-#include "CMS/CMS_lumi.C"
+#include "../CMS/tdrstyle.C"
+#include "../CMS/CMS_lumi.C"
 #include "TCanvas.h"
 #include "TPad.h"
 #include "TFrame.h"
@@ -59,7 +59,12 @@ void drawPlot(RooPlot* frame, RooAbsPdf* pdf, float nSig, struct InputOpt opt) {
    latex.SetTextFont(42);
 
    //Drawing the title
-   TString label = opt.lumi + Form(", %d-%d", opt.RunNb.Start, opt.RunNb.End);
+   TString label;
+   if (opt.RunNb.Start==opt.RunNb.End){
+     label = opt.lumi + Form(" Run %d", opt.RunNb.Start);
+   } else {
+     label = opt.lumi + Form(", %d-%d", opt.RunNb.Start,opt.RunNb.End);
+   }
    CMS_lumi(cFig, 104, 33, label);
    cFig->Update();
    

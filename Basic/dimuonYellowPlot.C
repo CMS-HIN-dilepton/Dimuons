@@ -4,8 +4,8 @@
 //
 
 
-#include "tdrstyle.C"
-#include "CMS_lumi.C"
+#include "CMS/tdrstyle.C"
+#include "CMS/CMS_lumi.C"
 
 
 dimuonYellowPlot(bool isHI=true){

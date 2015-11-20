@@ -30,17 +30,17 @@ void SetOptions(InputOpt* opt, bool isData = true, bool isPbPb = false, int onia
   
   opt->Centrality.Start = opt->isPbPb ? 0 : -1;
   opt->Centrality.End   = 200;
-  opt->RunNb.Start      = 0;
-  opt->RunNb.End        = 192000;
+  opt->RunNb.Start      = 262163;
+  opt->RunNb.End        = 262166;
   
   return;
 };
 
 void fit2015(
-             const TString FileName = "/afs/cern.ch/user/e/echapon/workspace/public/RunPrep2015/oniatree_upsi1S_5TeV_3.8T.root", 
+             const TString FileName ="/afs/cern.ch/user/a/anstahll/public/pp502TeV/OniaTree_pp502TeV_Run262163.root", 
              bool isData    = true,     // isData = false for MC, true for Data
              bool isPbPb    = false,    // isPbPb = false for pp, true for PbPb
-             int  oniamode  = 2,        // oniamode-> 2: Upsilon and 1: J/Psi
+             int  oniamode  = 1,        // oniamode-> 2: Upsilon and 1: J/Psi
              bool inExcStat = false     // if inExcStat is true, then the excited states are fitted
              ) {
     
@@ -55,9 +55,9 @@ void fit2015(
   if (isData) {
     if (oniamode==1){
       sigModel = 1;
-      bkgModel = 2;
+      bkgModel = 1;
     } else {
-      sigModel = inExcStat ? 1 : 3; // gaussian   
+      sigModel = inExcStat ? 2 : 3; // gaussian   
       bkgModel = 3;
     }      
   } else {
@@ -65,7 +65,7 @@ void fit2015(
       sigModel = 4; // gaussian   
       bkgModel = 2;
     } else {
-      sigModel = inExcStat ? 1 : 3; // gaussian   
+      sigModel = inExcStat ? 2 : 3; // gaussian   
       bkgModel = 3;
     }
   }

@@ -30,7 +30,7 @@ public :
    Int_t           Centrality;
    Int_t           nTrig;
    Int_t           trigPrescale[8];   //[nTrig]
-   Int_t           HLTriggers;
+   ULong64_t       HLTriggers;
    Int_t           Npix;
    Int_t           NpixelTracks;
    Int_t           Ntracks;
@@ -61,7 +61,7 @@ public :
    TClonesArray    *Reco_QQ_4mom;
    TClonesArray    *Reco_QQ_mupl_4mom;
    TClonesArray    *Reco_QQ_mumi_4mom;
-   Int_t           Reco_QQ_trig[3];   //[Reco_QQ_size]
+   ULong64_t       Reco_QQ_trig[3];   //[Reco_QQ_size]
    Float_t         Reco_QQ_ctau[3];   //[Reco_QQ_size]
    Float_t         Reco_QQ_ctauErr[3];   //[Reco_QQ_size]
    Float_t         Reco_QQ_ctauTrue[3];   //[Reco_QQ_size]
@@ -116,7 +116,7 @@ public :
    Int_t           Reco_mu_type[7];   //[Reco_mu_size]
    Int_t           Reco_mu_charge[7];   //[Reco_mu_size]
    TClonesArray    *Reco_mu_4mom;
-   Int_t           Reco_mu_trig[7];   //[Reco_mu_size]
+   ULong64_t       Reco_mu_trig[7];   //[Reco_mu_size]
    Bool_t          Reco_mu_TrkMuArb[7];   //[Reco_mu_size]
    Bool_t          Reco_mu_TMOneStaTight[7];   //[Reco_mu_size]
    Int_t           Reco_mu_nMuValHits[7];   //[Reco_mu_size]
