@@ -12,7 +12,7 @@ void buildModelJpsi2015(RooWorkspace& w, int sigModel, int bkgModel){
   RooRealVar *nSigPSI2S = new RooRealVar("N_{#psi(2S)}","N_{#psi(2S)}",0,nt*10);
   RooRealVar *mass = (RooRealVar*) w.var("invariantMass");
 
-  RooRealVar *meanSigJSPI   = new RooRealVar("m_{J/#psi}","m_{J/#psi}",Mass.JPsi,Mass.JPsi-0.046,Mass.JPsi+0.046);
+  RooRealVar *meanSigJPSI   = new RooRealVar("m_{J/#psi}","m_{J/#psi}",Mass.JPsi,Mass.JPsi-0.046,Mass.JPsi+0.046);
   RooConstVar *rat = new RooConstVar("rat", "rat", Mass.Psi2S/Mass.JPsi);
   RooFormulaVar *meanSigPSI2S = new RooFormulaVar("m_{#psi(2S)}","@0*@1",RooArgList(*meanSigJPSI,*rat));
   RooRealVar *sigmaSigJPSI  = new RooRealVar("#sigma_{J/#psi}","#sigma_{J/#psi}",0.1, 0.02, 0.2); // 
