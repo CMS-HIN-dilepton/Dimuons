@@ -8,12 +8,16 @@ void buildModelJpsi2015(RooWorkspace& w, int sigModel, int bkgModel){
   int nt=100000;
 
   // Signal Model
-  RooRealVar *nSig1 = new RooRealVar("N_{J/#psi}","nSig1",0,nt*10);
-  RooRealVar *mass   = (RooRealVar*) w.var("invariantMass");
+  RooRealVar *nSigJPSI = new RooRealVar("N_{J/#psi}","N_{J/#psi}",0,nt*10);
+  RooRealVar *nSigPSI2S = new RooRealVar("N_{#psi(2S)}","N_{#psi(2S)}",0,nt*10);
+  RooRealVar *mass = (RooRealVar*) w.var("invariantMass");
 
-  RooRealVar *meanSig1   = new RooRealVar("m_{J/#psi}","m_{J/#psi}",Mass.JPsi,Mass.JPsi-0.046,Mass.JPsi+0.046);
-  RooRealVar *sigmaSig1  = new RooRealVar("#sigma_{J/#psi}","#sigma_{J/#psi}",0.1, 0.02, 0.2); // 
-  RooRealVar *sigmaSig2  = new RooRealVar("#sigma_{CB}","#sigma_{CB}",0.03, 0.001, 0.06); // 
+  RooRealVar *meanSigJSPI   = new RooRealVar("m_{J/#psi}","m_{J/#psi}",Mass.JPsi,Mass.JPsi-0.046,Mass.JPsi+0.046);
+  RooConstVar *rat = new RooConstVar("rat", "rat", Mass.Psi2S/Mass.JPsi);
+  RooFormulaVar *meanSigPSI2S = new RooFormulaVar("m_{#psi(2S)}","@0*@1",RooArgList(*meanSigJPSI,*rat));
+  RooRealVar *sigmaSigJPSI  = new RooRealVar("#sigma_{J/#psi}","#sigma_{J/#psi}",0.1, 0.02, 0.2); // 
+  RooFormulaVar *sigmaSigPSI2S  = new RooFormulaVar("#sigma_{#psi(2S)}","@0*@1",RooArgList(*sigmaSigJPSI,*rat)); // 
+  RooRealVar *sigmaSig3  = new RooRealVar("#sigma_{CB}","#sigma_{CB}",0.03, 0.001, 0.06); // 
 
   RooRealVar *alpha = new RooRealVar("#alpha_{CB}","tail shift",1., 0., 30.*100.);  
   RooRealVar *n  = new RooRealVar("n_{CB}","power order",5., 1., 30.*100.);  
@@ -27,48 +31,55 @@ void buildModelJpsi2015(RooWorkspace& w, int sigModel, int bkgModel){
   RooCBShape*  signalCB1WN = NULL;
   RooCBShape*  signalCB2WN = NULL;
 
-  RooAbsPdf* sigPDF = NULL;   
+  RooAbsPdf* sigJPSI  = NULL;   
+  RooAbsPdf* sigPSI2S = NULL; 
   RooRealVar *coeffGaus = new RooRealVar("coeffGaus","coeffGaus",0.1, 0.0,1.0*100.);
 
   switch(sigModel) 
     {    
     case 1: 
-      // Gaussian 
-      sigPDF  = new RooGaussian("signalG1","Gaussian Sig1", *mass, *meanSig1, *sigmaSig1); //signalG1
+      // Gaussian for JPsi and Psi(2S)
+      sigJPSI  = new RooGaussian("signalG1","Gaussian Sig1", *mass, *meanSig1, *sigmaSig1); //signalG1
+      sigPSI2S  = new RooGaussian("signalG2","Gaussian Sig2", *mass, *meanSig2, *sigmaSig2); //signalG2
+      cout << "you're fitting 2 signal peaks with Gaussian functions"<< endl;
+      break;   
+    case 2: 
+      // Gaussian for JPsi
+      sigJPSI  = new RooGaussian("signalG1","Gaussian Sig1", *mass, *meanSig1, *sigmaSig1); //signalG1
       cout << "you're fitting 1 signal peak with a Gaussian function"<< endl;
       break;    
-    case 2: 
-      // Crystal Ball
-      sigPDF = new RooGaussian("signalG1","Gaussian Sig1", *mass, *meanSig1, *sigmaSig1); //signalG1
+    case 3: 
+      // Crystal Ball for JPsi
+      sigJPSI = new RooGaussian("signalG1","Gaussian Sig1", *mass, *meanSig1, *sigmaSig1); //signalG1
       cout << "you're fitting 1 signal peak with a Crystal Ball function"<< endl;
       break;
-    case 3:
+    case 4:
       // Currently used in JPsi analysis
-      // Sum of gaussian 1 and crystall ball 2 with wide n 
+      // Sum of gaussian 1 and crystall ball 2 with wide n  for JPsi
       signalG1    = new RooGaussian("signalG1","Gaussian Sig1", *mass, *meanSig1, *sigmaSig1); //signalG1
       signalCB2WN = new RooCBShape("signalCB2WN","FSR cb 1s", *mass, *meanSig1, *sigmaSig2, *alpha, *nW);
-      sigPDF    = new RooAddPdf ("sigPDF", "sigPDF", RooArgList(*signalG1, *signalCB2WN), *coeffGaus);
-      cout << "you're fitting 1 signal peak with a sum of a Gaussian and a Crystal Ball function"<< endl;
-      break;
-    case 4:
-      // Sum of gaussian 1 and a crystall ball
-      signalG1  = new RooGaussian("signalG1","Gaussian Sig1", *mass, *meanSig1, *sigmaSig1);
-      signalCB1 = new RooCBShape("signalCB1", "FSR cb 1s", *mass, *meanSig1, *sigmaSig1, *alpha, *n);
-      sigPDF    = new RooAddPdf ("sigPDF", "sigPDF", RooArgList(*signalG1, *signalCB1), *coeffGaus);
+      sigJPSI    = new RooAddPdf ("sigPDF", "sigPDF", RooArgList(*signalG1, *signalCB2WN), *coeffGaus);
       cout << "you're fitting 1 signal peak with a sum of a Gaussian and a Crystal Ball function"<< endl;
       break;
     case 5:
-      // Sum of gaussian 1 and a crystall ball
+      // Sum of gaussian 1 and a crystall ball for JPsi
       signalG1  = new RooGaussian("signalG1","Gaussian Sig1", *mass, *meanSig1, *sigmaSig1);
-      signalCB2 = new RooCBShape("signalCB2", "FSR cb 1s", *mass, *meanSig1, *sigmaSig2, *alpha, *n);
-      sigPDF    = new RooAddPdf ("sigPDF", "sigPDF", RooArgList(*signalG1, *signalCB2), *coeffGaus);
+      signalCB1 = new RooCBShape("signalCB1", "FSR cb 1s", *mass, *meanSig1, *sigmaSig1, *alpha, *n);
+      sigJPSI    = new RooAddPdf ("sigPDF", "sigPDF", RooArgList(*signalG1, *signalCB1), *coeffGaus);
       cout << "you're fitting 1 signal peak with a sum of a Gaussian and a Crystal Ball function"<< endl;
       break;
     case 6:
-      // Sum of gaussian 1 and crystall ball with wide n
+      // Sum of gaussian 1 and a crystall ball for JPsi
+      signalG1  = new RooGaussian("signalG1","Gaussian Sig1", *mass, *meanSig1, *sigmaSig1);
+      signalCB2 = new RooCBShape("signalCB2", "FSR cb 1s", *mass, *meanSig1, *sigmaSig2, *alpha, *n);
+      sigJPSI    = new RooAddPdf ("sigPDF", "sigPDF", RooArgList(*signalG1, *signalCB2), *coeffGaus);
+      cout << "you're fitting 1 signal peak with a sum of a Gaussian and a Crystal Ball function"<< endl;
+      break;
+    case 7:
+      // Sum of gaussian 1 and crystall ball with wide n for JPsi
       signalG1    = new RooGaussian("signalG1","Gaussian Sig1", *mass, *meanSig1, *sigmaSig1);
       signalCB1WN = new RooCBShape("signalCB1WN","FSR cb 1s", *mass, *meanSig1, *sigmaSig1, *alpha, *nW);
-      sigPDF    = new RooAddPdf ("sigPDF", "sigPDF", RooArgList(*signalG1, *signalCB1WN), *coeffGaus);
+      sigJPSI    = new RooAddPdf ("sigPDF", "sigPDF", RooArgList(*signalG1, *signalCB1WN), *coeffGaus);
       cout << "you're fitting 1 signal peak with a sum of a Gaussian and a Crystal Ball function"<< endl;
       break;
     default :
@@ -99,7 +110,7 @@ void buildModelJpsi2015(RooWorkspace& w, int sigModel, int bkgModel){
   }
 
   // Total PDF = Signal + Background
-  RooAbsPdf  *pdf  = new RooAddPdf ("pdf","total p.d.f.", RooArgList(*sigPDF,*bkgPDF), RooArgList(*nSig1,*nBkg));
+  RooAbsPdf  *pdf  = new RooAddPdf ("pdf","total p.d.f.", RooArgList(*sigJPSI, *sigPSI2S, *bkgPDF), RooArgList(*nSigJPSI, *nSigPSI2S, *nBkg));
 
   w.import(*pdf);
   w.Print();

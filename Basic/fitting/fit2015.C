@@ -17,7 +17,7 @@ void SetOptions(InputOpt* opt, bool isData = true, bool isPbPb = false, int onia
   opt->lumi      = opt->isPbPb ? "PbPb ?.? #mub^{-1}" : "pp ?.? pb^{-1}" ;
   opt->dMuon.M.Min = opt->isJPsi ? 2.6 : 7.0;
   
-  opt->dMuon.M.Max = opt->isJPsi ? 3.5 : 14.0;
+  opt->dMuon.M.Max = opt->isJPsi ? 4.0 : 14.0;
   opt->dMuon.Pt.Min = 0.0;
   opt->dMuon.Pt.Max = 30.0;
   opt->dMuon.AbsRap.Min = 0.0;
@@ -31,7 +31,7 @@ void SetOptions(InputOpt* opt, bool isData = true, bool isPbPb = false, int onia
   opt->Centrality.Start = opt->isPbPb ? 0 : -1;
   opt->Centrality.End   = 200;
   opt->RunNb.Start      = 262163;
-  opt->RunNb.End        = 262166;
+  opt->RunNb.End        = 262205;
   
   return;
 };
@@ -41,7 +41,7 @@ void fit2015(
              bool isData    = true,     // isData = false for MC, true for Data
              bool isPbPb    = false,    // isPbPb = false for pp, true for PbPb
              int  oniamode  = 1,        // oniamode-> 2: Upsilon and 1: J/Psi
-             bool inExcStat = false     // if inExcStat is true, then the excited states are fitted
+             bool inExcStat = true     // if inExcStat is true, then the excited states are fitted
              ) {
     
   InputOpt opt;
@@ -54,7 +54,7 @@ void fit2015(
   int sigModel, bkgModel;  
   if (isData) {
     if (oniamode==1){
-      sigModel = 1;
+      sigModel = inExcStat ? 1 : 2;
       bkgModel = 1;
     } else {
       sigModel = inExcStat ? 2 : 3; // gaussian   
@@ -62,7 +62,7 @@ void fit2015(
     }      
   } else {
     if (oniamode==1){
-      sigModel = 4; // gaussian   
+      sigModel = inExcStat ? 1 : 2; // gaussian   
       bkgModel = 2;
     } else {
       sigModel = inExcStat ? 2 : 3; // gaussian   

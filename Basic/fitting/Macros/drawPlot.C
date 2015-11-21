@@ -12,7 +12,7 @@ void drawPlot(RooPlot* frame, RooAbsPdf* pdf, float nSig, struct InputOpt opt) {
 
    setTDRStyle();
 
-   float dx = opt.isJPsi ? 0.18 : 0.61;
+   float dx = opt.isJPsi ? 0.61 : 0.61;
    float txtSize = opt.isJPsi ? 0.032 : 0.028;
    pdf->paramOn(frame,Layout(dx,dx+0.3,0.73)) ;
    frame->getAttText()->SetTextSize(0.022);
@@ -65,7 +65,7 @@ void drawPlot(RooPlot* frame, RooAbsPdf* pdf, float nSig, struct InputOpt opt) {
    } else {
      label = opt.lumi + Form(", %d-%d", opt.RunNb.Start,opt.RunNb.End);
    }
-   CMS_lumi(cFig, 104, 33, label);
+   CMS_lumi(cFig, (opt.isPbPb ? 105 : 104), 33, label);
    cFig->Update();
    
    // gSystem->mkdir(opt.plotDir, kTRUE);
