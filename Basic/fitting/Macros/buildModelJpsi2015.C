@@ -1,4 +1,4 @@
-J#include "allFunctions.h"
+#include "allFunctions.h"
 #include "RooAddPdf.h"
 #include "RooFormulaVar.h"
 #include "RooConstVar.h"
