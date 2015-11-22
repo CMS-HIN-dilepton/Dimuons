@@ -1,5 +1,7 @@
-#include "Macros/allFunctions.h"
+J#include "allFunctions.h"
 #include "RooAddPdf.h"
+#include "RooFormulaVar.h"
+#include "RooConstVar.h"
 
 using namespace RooFit;
 
@@ -17,7 +19,7 @@ void buildModelJpsi2015(RooWorkspace& w, int sigModel, int bkgModel){
   RooFormulaVar *meanSigPSI2S = new RooFormulaVar("m_{#psi(2S)}","@0*@1",RooArgList(*meanSigJPSI,*rat));
   RooRealVar *sigmaSigJPSI  = new RooRealVar("#sigma_{J/#psi}","#sigma_{J/#psi}",0.1, 0.02, 0.2); // 
   RooFormulaVar *sigmaSigPSI2S  = new RooFormulaVar("#sigma_{#psi(2S)}","@0*@1",RooArgList(*sigmaSigJPSI,*rat)); // 
-  RooRealVar *sigmaSig3  = new RooRealVar("#sigma_{CB}","#sigma_{CB}",0.03, 0.001, 0.06); // 
+  RooRealVar *sigmaSigJPSI2  = new RooRealVar("#sigma_{CB}","#sigma_{CB}",0.03, 0.001, 0.06); // 
 
   RooRealVar *alpha = new RooRealVar("#alpha_{CB}","tail shift",1., 0., 30.*100.);  
   RooRealVar *n  = new RooRealVar("n_{CB}","power order",5., 1., 30.*100.);  
@@ -39,46 +41,46 @@ void buildModelJpsi2015(RooWorkspace& w, int sigModel, int bkgModel){
     {    
     case 1: 
       // Gaussian for JPsi and Psi(2S)
-      sigJPSI  = new RooGaussian("signalG1","Gaussian Sig1", *mass, *meanSig1, *sigmaSig1); //signalG1
-      sigPSI2S  = new RooGaussian("signalG2","Gaussian Sig2", *mass, *meanSig2, *sigmaSig2); //signalG2
+      sigJPSI  = new RooGaussian("signalG1","Gaussian Sig1", *mass, *meanSigJPSI, *sigmaSigJPSI); //signalG1
+      sigPSI2S  = new RooGaussian("signalG2","Gaussian Sig2", *mass, *meanSigPSI2S, *sigmaSigPSI2S); //signalG2
       cout << "you're fitting 2 signal peaks with Gaussian functions"<< endl;
       break;   
     case 2: 
       // Gaussian for JPsi
-      sigJPSI  = new RooGaussian("signalG1","Gaussian Sig1", *mass, *meanSig1, *sigmaSig1); //signalG1
+      sigJPSI  = new RooGaussian("signalG1","Gaussian Sig1", *mass, *meanSigJPSI, *sigmaSigJPSI); //signalG1
       cout << "you're fitting 1 signal peak with a Gaussian function"<< endl;
       break;    
     case 3: 
       // Crystal Ball for JPsi
-      sigJPSI = new RooGaussian("signalG1","Gaussian Sig1", *mass, *meanSig1, *sigmaSig1); //signalG1
+      sigJPSI = new RooGaussian("signalG1","Gaussian Sig1", *mass, *meanSigJPSI, *sigmaSigJPSI); //signalG1
       cout << "you're fitting 1 signal peak with a Crystal Ball function"<< endl;
       break;
     case 4:
       // Currently used in JPsi analysis
       // Sum of gaussian 1 and crystall ball 2 with wide n  for JPsi
-      signalG1    = new RooGaussian("signalG1","Gaussian Sig1", *mass, *meanSig1, *sigmaSig1); //signalG1
-      signalCB2WN = new RooCBShape("signalCB2WN","FSR cb 1s", *mass, *meanSig1, *sigmaSig2, *alpha, *nW);
+      signalG1    = new RooGaussian("signalG1","Gaussian Sig1", *mass, *meanSigJPSI, *sigmaSigJPSI); //signalG1
+      signalCB2WN = new RooCBShape("signalCB2WN","FSR cb 1s", *mass, *meanSigJPSI, *sigmaSigJPSI2, *alpha, *nW);
       sigJPSI    = new RooAddPdf ("sigPDF", "sigPDF", RooArgList(*signalG1, *signalCB2WN), *coeffGaus);
       cout << "you're fitting 1 signal peak with a sum of a Gaussian and a Crystal Ball function"<< endl;
       break;
     case 5:
       // Sum of gaussian 1 and a crystall ball for JPsi
-      signalG1  = new RooGaussian("signalG1","Gaussian Sig1", *mass, *meanSig1, *sigmaSig1);
-      signalCB1 = new RooCBShape("signalCB1", "FSR cb 1s", *mass, *meanSig1, *sigmaSig1, *alpha, *n);
+      signalG1  = new RooGaussian("signalG1","Gaussian Sig1", *mass, *meanSigJPSI, *sigmaSigJPSI);
+      signalCB1 = new RooCBShape("signalCB1", "FSR cb 1s", *mass, *meanSigJPSI, *sigmaSigJPSI, *alpha, *n);
       sigJPSI    = new RooAddPdf ("sigPDF", "sigPDF", RooArgList(*signalG1, *signalCB1), *coeffGaus);
       cout << "you're fitting 1 signal peak with a sum of a Gaussian and a Crystal Ball function"<< endl;
       break;
     case 6:
       // Sum of gaussian 1 and a crystall ball for JPsi
-      signalG1  = new RooGaussian("signalG1","Gaussian Sig1", *mass, *meanSig1, *sigmaSig1);
-      signalCB2 = new RooCBShape("signalCB2", "FSR cb 1s", *mass, *meanSig1, *sigmaSig2, *alpha, *n);
+      signalG1  = new RooGaussian("signalG1","Gaussian Sig1", *mass, *meanSigJPSI, *sigmaSigJPSI);
+      signalCB2 = new RooCBShape("signalCB2", "FSR cb 1s", *mass, *meanSigJPSI, *sigmaSigJPSI2, *alpha, *n);
       sigJPSI    = new RooAddPdf ("sigPDF", "sigPDF", RooArgList(*signalG1, *signalCB2), *coeffGaus);
       cout << "you're fitting 1 signal peak with a sum of a Gaussian and a Crystal Ball function"<< endl;
       break;
     case 7:
       // Sum of gaussian 1 and crystall ball with wide n for JPsi
-      signalG1    = new RooGaussian("signalG1","Gaussian Sig1", *mass, *meanSig1, *sigmaSig1);
-      signalCB1WN = new RooCBShape("signalCB1WN","FSR cb 1s", *mass, *meanSig1, *sigmaSig1, *alpha, *nW);
+      signalG1    = new RooGaussian("signalG1","Gaussian Sig1", *mass, *meanSigJPSI, *sigmaSigJPSI);
+      signalCB1WN = new RooCBShape("signalCB1WN","FSR cb 1s", *mass, *meanSigJPSI, *sigmaSigJPSI, *alpha, *nW);
       sigJPSI    = new RooAddPdf ("sigPDF", "sigPDF", RooArgList(*signalG1, *signalCB1WN), *coeffGaus);
       cout << "you're fitting 1 signal peak with a sum of a Gaussian and a Crystal Ball function"<< endl;
       break;

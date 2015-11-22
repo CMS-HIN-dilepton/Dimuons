@@ -1,8 +1,8 @@
 #ifndef drawPlot_C
 #define drawPlot_C
 
-#include "../CMS/tdrstyle.C"
-#include "../CMS/CMS_lumi.C"
+#include "../../CMS/tdrstyle.C"
+#include "../../CMS/CMS_lumi.C"
 #include "TCanvas.h"
 #include "TPad.h"
 #include "TFrame.h"
