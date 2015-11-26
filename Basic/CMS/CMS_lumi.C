@@ -99,6 +99,11 @@ CMS_lumi( TPad* pad, int iPeriod, int iPosX, TString label )
   else if (iPeriod==104)
     {
       lumiText += label;
+      lumiText2 += " #sqrt{s} = 5.02 TeV";
+    }
+  else if (iPeriod==105)
+    {
+      lumiText += label;
       lumiText2 += " #sqrt{s_{NN}} = 5.02 TeV";
     }
    
