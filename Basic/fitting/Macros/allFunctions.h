@@ -3,6 +3,7 @@
 
 #include "TFile.h"
 #include "TTree.h"
+#include "TSystem.h"
 #include "TROOT.h"
 #include "RooWorkspace.h"
 #include "RooAbsPdf.h"

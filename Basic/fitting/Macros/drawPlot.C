@@ -103,8 +103,8 @@ void drawPlot(RooPlot* frame, RooAbsPdf* pdf, struct InputOpt opt, bool doFit = 
    CMS_lumi(cFig, opt.isPbPb ? 105 : 104, 33, label);
    cFig->Update();
    
-   // gSystem->mkdir(opt.plotDir, kTRUE);
-   // cFig->SaveAs(opt.plotDir+Form("/%sDataRun2_%d_%d_%s.png", (opt.isPbPb ? "PbPb" : "PP"), opt.RunNb.Start, opt.RunNb.End, (opt.isPbPb ? "JPsi" : "Upsilon")));
+   gSystem->mkdir(opt.plotDir, kTRUE);
+   cFig->SaveAs(opt.plotDir+Form("/%sDataRun2_%d_%d_%s.png", (opt.isPbPb ? "PbPb" : "PP"), opt.RunNb.Start, opt.RunNb.End, (opt.isPbPb ? "JPsi" : "Upsilon")));
    
 }
 

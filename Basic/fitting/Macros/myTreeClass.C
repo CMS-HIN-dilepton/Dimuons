@@ -1,18 +1,18 @@
-#define myTreeClass_cxx
-#include "myTreeClass.h"
+#define myTree_cxx
+#include "myTree.h"
 #include <TH2.h>
 #include <TStyle.h>
 #include <TCanvas.h>
 
-void myTreeClass::Loop()
+void myTree::Loop()
 {
 //   In a ROOT session, you can do:
-//      root> .L myTreeClass.C
-//      root> myTreeClass t
-//      root> t.GetEntry(12); // Fill t data members with entry number 12
-//      root> t.Show();       // Show values of entry 12
-//      root> t.Show(16);     // Read and show values of entry 16
-//      root> t.Loop();       // Loop on all entries
+//      Root > .L myTree.C
+//      Root > myTree t
+//      Root > t.GetEntry(12); // Fill t data members with entry number 12
+//      Root > t.Show();       // Show values of entry 12
+//      Root > t.Show(16);     // Read and show values of entry 16
+//      Root > t.Loop();       // Loop on all entries
 //
 
 //     This is the loop skeleton where:
