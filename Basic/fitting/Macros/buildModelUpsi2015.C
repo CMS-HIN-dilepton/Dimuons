@@ -9,8 +9,8 @@ void buildModelUpsi2015(RooWorkspace& w, int sigModel, int bkgModel){
    RooRealVar *nsig1f   = new RooRealVar("N_{#varUpsilon(1S)}","nsig1S",0,nt*10);
    RooRealVar* mass       = (RooRealVar*) w.var("invariantMass");
 
-   RooRealVar *nsig2f = NULL;
-   RooRealVar *nsig3f = NULL;
+   RooRealVar *nsig2f = new RooRealVar("N_{#varUpsilon(2S)}","nsig2S",0,nt*10);
+   RooRealVar *nsig3f = new RooRealVar("N_{#varUpsilon(3S)}","nsig3S",0,nt*10); 
 
    RooRealVar  *mean = new RooRealVar("m_{ #varUpsilon(1S)}","#Upsilon mean", Mass.Y1S, Mass.Y1S-0.2, Mass.Y1S+0.2);
    RooConstVar *rat2 = new RooConstVar("rat2", "rat2", Mass.Y2S/Mass.Y1S);
@@ -159,7 +159,6 @@ void buildModelUpsi2015(RooWorkspace& w, int sigModel, int bkgModel){
 
    switch (bkgModel) 
    {
-     
       case 1 : //use polynomial
 	 ChebPdf = new RooChebychev("ChebPdf","ChebPdf",
 		*mass, RooArgList(*bkg_a1,*bkg_a2));

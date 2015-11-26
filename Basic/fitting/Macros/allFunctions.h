@@ -44,14 +44,15 @@ typedef struct SiMuonPar {
 typedef struct InputOpt {
   TString    plotDir; 
   TString    lumi;
-  bool       isData, isPbPb, isJPsi, inExcStat;
+  bool       isData, isPbPb;
+  int        oniaMode;
   StartEnd   Centrality, RunNb;
   DiMuonPar  dMuon;
   SiMuonPar  sMuon;
 } InputOpt;
 
-struct ParticleMass { double JPsi, Psi2S, Y1S, Y2S, Y3S; };
-ParticleMass Mass = {3.096, 3.686, 9.460, 10.023, 10.355};
+struct ParticleMass { double JPsi, Psi2S, Y1S, Y2S, Y3S, Z; };
+ParticleMass Mass = {3.096, 3.686, 9.460, 10.023, 10.355, 91.188};
 const double binw   = 0.1;    //bin width of the histogram
 
 #endif // #ifndef allFunctions_h

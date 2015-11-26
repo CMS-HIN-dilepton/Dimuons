@@ -6,32 +6,41 @@
 
 #include "Macros/drawPlot.C"
 
-void SetOptions(InputOpt* opt, bool isData = true, bool isPbPb = false, int oniamode = 1, bool inExcStat = false) {
+void SetOptions(InputOpt* opt, bool isData = true, bool isPbPb = false, int oniamode = 1) {
 
   opt->isData    = isData;
   opt->isPbPb    = isPbPb;
-  opt->isJPsi    = oniamode==1 ? true : false;
-  opt->inExcStat = inExcStat;
+  opt->oniaMode  = oniamode;
 
   opt->plotDir   = "Plots";
-  opt->lumi      = opt->isPbPb ? "PbPb ?.? #mub^{-1}" : "pp ?.? pb^{-1}" ;
-  opt->dMuon.M.Min = opt->isJPsi ? 2.6 : 7.0;
-  
-  opt->dMuon.M.Max = opt->isJPsi ? 4.0 : 14.0;
+  opt->lumi      = opt->isPbPb ? "PbPb" : "pp" ;
+
   opt->dMuon.Pt.Min = 0.0;
-  opt->dMuon.Pt.Max = 30.0;
+  opt->dMuon.Pt.Max = 100000.0;
   opt->dMuon.AbsRap.Min = 0.0;
   opt->dMuon.AbsRap.Max = 2.4;
-  
-  opt->sMuon.Pt.Min  = 3.0;
-  opt->sMuon.Pt.Max  = 100.0;
+  opt->sMuon.Pt.Max  = 100000.0;
   opt->sMuon.Eta.Min = -2.4;
   opt->sMuon.Eta.Max = 2.4;
+
+  if (opt->oniaMode==1){  
+    opt->dMuon.M.Min = 2.6;
+    opt->dMuon.M.Max = 4.0; 
+    opt->sMuon.Pt.Min  = 3.0;
+  } else if (opt->oniaMode==2){
+    opt->dMuon.M.Min = 7.0;
+    opt->dMuon.M.Max = 14.0; 
+    opt->sMuon.Pt.Min  = 4.0;
+  } else if (opt->oniaMode==3){
+    opt->dMuon.M.Min = 70.0;
+    opt->dMuon.M.Max = 110.0; 
+    opt->sMuon.Pt.Min  = 10.0;
+  }
   
   opt->Centrality.Start = opt->isPbPb ? 0 : -1;
   opt->Centrality.End   = 200;
   opt->RunNb.Start      = 262163;
-  opt->RunNb.End        = 262205;
+  opt->RunNb.End        = 262328;
   
   return;
 };
@@ -40,57 +49,62 @@ void fit2015(
              const TString FileName ="/afs/cern.ch/user/a/anstahll/public/pp502TeV/OniaTree_pp502TeV_Run262163.root", 
              bool isData    = true,     // isData = false for MC, true for Data
              bool isPbPb    = false,    // isPbPb = false for pp, true for PbPb
-             int  oniamode  = 1,        // oniamode-> 2: Upsilon and 1: J/Psi
-             bool inExcStat = true     // if inExcStat is true, then the excited states are fitted
+             int  oniamode  = 1,        // oniamode-> 3: Z,  2: Upsilon and 1: J/Psi
+	     bool doFit = true,
+             bool inExcStat = true      // if inExcStat is true, then the excited states are fitted
              ) {
     
   InputOpt opt;
-  SetOptions(&opt, isData, isPbPb, oniamode, inExcStat); 
+  SetOptions(&opt, isData, isPbPb, oniamode); 
   
-  TString colltag = opt.isPbPb ? "PbPb" : "pp";
-  TString  nSigName = opt.isJPsi ? "N_{J/#psi}" : "N_{#varUpsilon(1S)}" ;
-  cout << opt.dMuon.M.Min << " " << opt.dMuon.M.Max << endl;
-
-  int sigModel, bkgModel;  
-  if (isData) {
-    if (oniamode==1){
-      sigModel = inExcStat ? 1 : 2;
-      bkgModel = 1;
-    } else {
-      sigModel = inExcStat ? 2 : 3; // gaussian   
-      bkgModel = 3;
-    }      
-  } else {
-    if (oniamode==1){
-      sigModel = inExcStat ? 1 : 2; // gaussian   
-      bkgModel = 2;
-    } else {
-      sigModel = inExcStat ? 2 : 3; // gaussian   
-      bkgModel = 3;
-    }
-  }
-
   RooWorkspace myws;
   makeWorkspace2015(myws, FileName, opt);
 
-  if (opt.isJPsi) buildModelJpsi2015(myws, sigModel, bkgModel);
-  else buildModelUpsi2015(myws, sigModel, bkgModel);
+  RooRealVar* mass      = (RooRealVar*) myws.var("invariantMass"); 
+  RooDataSet* dataOS_fit = (RooDataSet*) myws.data("dataOS");
+  RooDataSet* dataSS_fit = (RooDataSet*) myws.data("dataSS");
+  RooAbsPdf*  pdf = NULL;
 
-  RooRealVar* mass      =(RooRealVar*) myws.var("invariantMass"); //
-  RooDataSet* data0_fit =(RooDataSet*) myws.data("data");
-  RooAbsPdf*  pdf       =(RooAbsPdf*)  myws.pdf("pdf");
-  
-  RooFitResult* fitObject = pdf->fitTo(*data0_fit,Save(),Hesse(kTRUE),Extended(kTRUE)); // Fit
+  int nbins = 1; //ceil((opt.dMuon->M->Max - opt.dMuon->M->Min)/binw);
+  if (oniamode==1){
+    nbins = 140; 
+  } else if (oniamode==2) {
+    nbins = 70; 
+  } else if (oniamode==3) {
+    nbins = 40;
+  } 
 
-  Double_t baseNll = fitObject->minNll();
-  RooRealVar *nSig   =(RooRealVar*) myws.var(nSigName);
+  if (doFit) {
+    int sigModel=0, bkgModel=0;  
+    if (isData) {
+      if (oniamode==1){
+        sigModel = inExcStat ? 1 : 2;
+        bkgModel = 1;
+      } else {
+        sigModel = inExcStat ? 2 : 3; // gaussian   
+        bkgModel = 3;
+      }      
+    } else {
+      if (oniamode==1){
+        sigModel = inExcStat ? 1 : 2; // gaussian   
+        bkgModel = 2;
+      } else {
+        sigModel = inExcStat ? 2 : 3; // gaussian   
+        bkgModel = 3;
+      }
+    }
 
-  RooArgSet allvars = myws.allVars();
-  int npars = allvars.getSize() ;
-  int nbins = 40; //ceil((opt.dMuon->M->Max - opt.dMuon->M->Min)/binw);
+    if (opt.oniaMode==1) buildModelJpsi2015(myws, signalModel, bkgdModel);
+    else if (opt.oniaMode==2) buildModelUpsi2015(myws, signalModel, bkgdModel);
+
+    pdf       =(RooAbsPdf*)  myws.pdf("pdf");
+    RooFitResult* fitObject = pdf->fitTo(*dataOS_fit,Save(),Hesse(kTRUE),Extended(kTRUE)); // Fit
+  }
+
   RooPlot* frame = mass->frame(Bins(nbins),Range(opt.dMuon.M.Min, opt.dMuon.M.Max));  
-  data0_fit->plotOn(frame); // data drawn first for pdf object to pick the proper normalisation
-  pdf->plotOn(frame,Name("thePdf"));
+  dataOS_fit->plotOn(frame, Name("dataOS_FIT"), MarkerColor(kBlue), LineColor(kBlue), MarkerSize(1.2));
+  dataSS_fit->plotOn(frame, Name("dataSS_FIT"), MarkerColor(kRed), LineColor(kRed), MarkerSize(1.2)); 
+  if (doFit) {pdf->plotOn(frame,Name("thePdf"),Normalization(dataOS_fit->sumEntries(),RooAbsReal::NumEvent));}
   
-  drawPlot(frame, pdf, nSig->getVal(), opt);
+  drawPlot(frame, pdf, opt, doFit);
 }
