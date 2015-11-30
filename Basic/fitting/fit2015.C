@@ -6,7 +6,7 @@
 
 #include "Macros/drawPlot.C"
 
-void SetOptions(InputOpt* opt, bool isData = true, bool isPbPb = false, int oniamode = 1) {
+void SetOptions(InputOpt* opt, bool isData = true, bool isPbPb = false, int oniamode = 1,bool inExcStat= false) {
 
   opt->isData    = isData;
   opt->isPbPb    = isPbPb;
@@ -25,7 +25,7 @@ void SetOptions(InputOpt* opt, bool isData = true, bool isPbPb = false, int onia
 
   if (opt->oniaMode==1){  
     opt->dMuon.M.Min = 2.6;
-    opt->dMuon.M.Max = 4.0; 
+    opt->dMuon.M.Max = inExcStat ? 4.0 : 3.5; 
     opt->sMuon.Pt.Min  = 3.0;
   } else if (opt->oniaMode==2){
     opt->dMuon.M.Min = 7.0;
@@ -47,15 +47,15 @@ void SetOptions(InputOpt* opt, bool isData = true, bool isPbPb = false, int onia
 
 void fit2015(
              const TString FileName ="/afs/cern.ch/user/a/anstahll/public/pp502TeV/OniaTree_pp502TeV_Run262163.root", 
+             int  oniamode  = 2,        // oniamode-> 3: Z,  2: Upsilon and 1: J/Psi
              bool isData    = true,     // isData = false for MC, true for Data
              bool isPbPb    = false,    // isPbPb = false for pp, true for PbPb
-             int  oniamode  = 1,        // oniamode-> 3: Z,  2: Upsilon and 1: J/Psi
 	     bool doFit = true,
              bool inExcStat = true      // if inExcStat is true, then the excited states are fitted
              ) {
     
   InputOpt opt;
-  SetOptions(&opt, isData, isPbPb, oniamode); 
+  SetOptions(&opt, isData, isPbPb, oniamode,inExcStat); 
   
   RooWorkspace myws;
   makeWorkspace2015(myws, FileName, opt);
@@ -82,7 +82,7 @@ void fit2015(
         bkgModel = 1;
       } else {
         sigModel = inExcStat ? 2 : 3; // gaussian   
-        bkgModel = 3;
+        bkgModel = 2;
       }      
     } else {
       if (oniamode==1){
@@ -94,8 +94,8 @@ void fit2015(
       }
     }
 
-    if (opt.oniaMode==1) buildModelJpsi2015(myws, signalModel, bkgdModel);
-    else if (opt.oniaMode==2) buildModelUpsi2015(myws, signalModel, bkgdModel);
+    if (opt.oniaMode==1) buildModelJpsi2015(myws, sigModel, bkgModel,inExcStat);
+    else if (opt.oniaMode==2) buildModelUpsi2015(myws, sigModel, bkgModel,inExcStat);
 
     pdf       =(RooAbsPdf*)  myws.pdf("pdf");
     RooFitResult* fitObject = pdf->fitTo(*dataOS_fit,Save(),Hesse(kTRUE),Extended(kTRUE)); // Fit
@@ -106,5 +106,5 @@ void fit2015(
   dataSS_fit->plotOn(frame, Name("dataSS_FIT"), MarkerColor(kRed), LineColor(kRed), MarkerSize(1.2)); 
   if (doFit) {pdf->plotOn(frame,Name("thePdf"),Normalization(dataOS_fit->sumEntries(),RooAbsReal::NumEvent));}
   
-  drawPlot(frame, pdf, opt, doFit);
+  drawPlot(frame, pdf, opt, doFit,inExcStat);
 }

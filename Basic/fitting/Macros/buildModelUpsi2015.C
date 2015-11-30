@@ -2,15 +2,22 @@
 
 using namespace RooFit;
 
-void buildModelUpsi2015(RooWorkspace& w, int sigModel, int bkgModel){
+void buildModelUpsi2015(RooWorkspace& w, int sigModel, int bkgModel,bool fitExcited){
    // C r e a t e   m o d e l  
    int nt=100000;
    // cout << "you're building a model for the quarkonium resonance of mass = "<< M1S <<" GeV/c^{2},"endl;
    RooRealVar *nsig1f   = new RooRealVar("N_{#varUpsilon(1S)}","nsig1S",0,nt*10);
    RooRealVar* mass       = (RooRealVar*) w.var("invariantMass");
 
+  
+
    RooRealVar *nsig2f = new RooRealVar("N_{#varUpsilon(2S)}","nsig2S",0,nt*10);
    RooRealVar *nsig3f = new RooRealVar("N_{#varUpsilon(3S)}","nsig3S",0,nt*10); 
+
+   if(!fitExcited){
+   nsig2f = NULL;
+   nsig3f = NULL;  
+   }
 
    RooRealVar  *mean = new RooRealVar("m_{ #varUpsilon(1S)}","#Upsilon mean", Mass.Y1S, Mass.Y1S-0.2, Mass.Y1S+0.2);
    RooConstVar *rat2 = new RooConstVar("rat2", "rat2", Mass.Y2S/Mass.Y1S);

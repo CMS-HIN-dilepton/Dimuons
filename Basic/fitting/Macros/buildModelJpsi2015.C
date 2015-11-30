@@ -5,13 +5,14 @@
 
 using namespace RooFit;
 
-void buildModelJpsi2015(RooWorkspace& w, int sigModel, int bkgModel){
+void buildModelJpsi2015(RooWorkspace& w, int sigModel, int bkgModel,bool fitExcited){
   // C r e a t e   m o d e l  
   int nt=100000;
 
   // Signal Model
   RooRealVar *nSigJPSI = new RooRealVar("N_{J/#psi}","N_{J/#psi}",0,nt*10);
   RooRealVar *nSigPSI2S = new RooRealVar("N_{#psi(2S)}","N_{#psi(2S)}",0,nt*10);
+  if(!fitExcited){nSigPSI2S=NULL;}
   RooRealVar *mass = (RooRealVar*) w.var("invariantMass");
 
   RooRealVar *meanSigJPSI   = new RooRealVar("m_{J/#psi}","m_{J/#psi}",Mass.JPsi,Mass.JPsi-0.046,Mass.JPsi+0.046);

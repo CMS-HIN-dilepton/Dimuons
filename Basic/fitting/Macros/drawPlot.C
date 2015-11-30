@@ -10,7 +10,7 @@
 #include "TLegend.h"
 #include "TSystem.h"
 
-void drawPlot(RooPlot* frame, RooAbsPdf* pdf, struct InputOpt opt, bool doFit = false) {
+void drawPlot(RooPlot* frame, RooAbsPdf* pdf, struct InputOpt opt, bool doFit = false,bool fitExcited=false) {
 
    setTDRStyle();
 
@@ -57,13 +57,13 @@ void drawPlot(RooPlot* frame, RooAbsPdf* pdf, struct InputOpt opt, bool doFit = 
    if (opt.oniaMode==1){
      t->SetTextSize(0.05);
      t->DrawLatex(0.51, 0.80, "J/#psi");
-     t->DrawLatex(0.78, 0.25, "#psi(2S)");
+     if(fitExcited){t->DrawLatex(0.78, 0.25, "#psi(2S)");}
      t->SetTextSize(0.03);
    } else if (opt.oniaMode==2) {
      t->SetTextSize(0.05);
-     t->DrawLatex(0.47, 0.80, "#Upsilon(1S)");
-     t->DrawLatex(0.51, 0.47, "#Upsilon(2S)");
-     t->DrawLatex(0.56, 0.32, "#Upsilon(3S)");
+     t->DrawLatex(0.47, 0.80, "#varUpsilon(1S)");
+     if(fitExcited){t->DrawLatex(0.51, 0.47, "#varUpsilon(2S)");
+     t->DrawLatex(0.56, 0.32, "#varUpsilon(3S)");}
      t->SetTextSize(0.03);
    } else if (opt.oniaMode==3) {
      t->SetTextSize(0.05);
@@ -88,7 +88,7 @@ void drawPlot(RooPlot* frame, RooAbsPdf* pdf, struct InputOpt opt, bool doFit = 
    }
    */
 
-   TLegend* leg = new TLegend(0.71 ,0.51,0.91,0.66); leg->SetTextSize(0.025);
+   TLegend* leg = new TLegend(0.17 ,0.51,0.40,0.66); leg->SetTextSize(0.025);
    leg->AddEntry(frame->findObject("dataOS_FIT"),"Opposite charge","pe");
    leg->AddEntry(frame->findObject("dataSS_FIT"),"Same charge","pe");
    leg->Draw("same");
@@ -98,7 +98,7 @@ void drawPlot(RooPlot* frame, RooAbsPdf* pdf, struct InputOpt opt, bool doFit = 
    if (opt.RunNb.Start==opt.RunNb.End){
      label = opt.lumi + Form(" Run %d", opt.RunNb.Start);
    } else {
-     label = opt.lumi + Form("pp [Express %d-%d]", opt.RunNb.Start,opt.RunNb.End);
+     label = opt.lumi + Form("[Express %d-%d]", opt.RunNb.Start,opt.RunNb.End);
    }
    CMS_lumi(cFig, opt.isPbPb ? 105 : 104, 33, label);
    cFig->Update();
