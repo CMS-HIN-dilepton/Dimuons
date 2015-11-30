@@ -5,8 +5,8 @@
 // i.e. this is the second step, one should run dimuonYellowPlotMakeHisto.C 
 // first.
 
-#include "tdrstyle.C"
-#include "CMS_lumi.C"
+#include "CMS/tdrstyle.C"
+#include "CMS/CMS_lumi.C"
 
 dimuonYellowPlotDrawHisto(){
   cout << "dimuonYellowPlot: Starting macro dimuonYellowPlot" << endl;

@@ -1,91 +1,110 @@
-#include "allFunctions.h"
+#include "Macros/allFunctions.h"
 
-#include "makeWorkspace2015.C"
-#include "buildModelUpsi2015.C"
-#include "buildModelJpsi2015.C"
+#include "Macros/makeWorkspace2015.C"
+#include "Macros/buildModelUpsi2015.C"
+#include "Macros/buildModelJpsi2015.C"
 
-double massmin = 7; // actually modified later depending on oniamode
-double massmax = 11.5; // actually modified later depending on oniamode
-double singlemuon_ptmin = 3;
-double singlemuon_etamin = -2.4;
-double singlemuon_etamax = 2.4;
-double dimu_ptmin = 0;
-double dimu_ptmax = 30;
-double dimu_absymin = 0;
-double dimu_absymax = 2.4;
-int centralitymin = 0;
-int centralitymax = 200;
+#include "Macros/drawPlot.C"
 
+void SetOptions(InputOpt* opt, bool isData = true, bool isPbPb = false, int oniamode = 1) {
 
-void fit2015(const char *filename="/afs/cern.ch/user/e/echapon/workspace/public/RunPrep2015/oniatree_upsi1S_5TeV_3.8T.root", 
-      bool ispbpb=false, 
-      int oniamode=2, 
-      bool isdata=false) {
-   // ispbpb = false for pp, true for PbPb
-   // oniamode = 1 for J/psi, 2 for upsilon
-   // isdata = false for MC, true for data
+  opt->isData    = isData;
+  opt->isPbPb    = isPbPb;
+  opt->oniaMode  = oniamode;
 
-   TString colltag = "PbPb";
-   int signalModel, bkgdModel;
+  opt->plotDir   = "Plots";
+  opt->lumi      = opt->isPbPb ? "PbPb" : "pp" ;
 
-   if (isdata) {
-      signalModel = 2; // gaussian
-      bkgdModel = 3;
-   }
-   else {
-      signalModel = 2; // gaussian
-      bkgdModel = 3;
-   }
+  opt->dMuon.Pt.Min = 0.0;
+  opt->dMuon.Pt.Max = 100000.0;
+  opt->dMuon.AbsRap.Min = 0.0;
+  opt->dMuon.AbsRap.Max = 2.4;
+  opt->sMuon.Pt.Max  = 100000.0;
+  opt->sMuon.Eta.Min = -2.4;
+  opt->sMuon.Eta.Max = 2.4;
 
-   if (!ispbpb) {
-      centralitymin=-1;
-      colltag = "pp";
-   }
+  if (opt->oniaMode==1){  
+    opt->dMuon.M.Min = 2.6;
+    opt->dMuon.M.Max = 4.0; 
+    opt->sMuon.Pt.Min  = 3.0;
+  } else if (opt->oniaMode==2){
+    opt->dMuon.M.Min = 7.0;
+    opt->dMuon.M.Max = 14.0; 
+    opt->sMuon.Pt.Min  = 4.0;
+  } else if (opt->oniaMode==3){
+    opt->dMuon.M.Min = 70.0;
+    opt->dMuon.M.Max = 110.0; 
+    opt->sMuon.Pt.Min  = 10.0;
+  }
+  
+  opt->Centrality.Start = opt->isPbPb ? 0 : -1;
+  opt->Centrality.End   = 200;
+  opt->RunNb.Start      = 262163;
+  opt->RunNb.End        = 262328;
+  
+  return;
+};
 
-   TString nsigname = "";
-   if (oniamode==1) {
-      nsigname = "N_{J/#psi}";
-      massmin = 2.5;
-      massmax = 4;
-   }
-   else if (oniamode==2) {
-      nsigname = "N_{ #varUpsilon(1S)}";
-      massmin = 7;
-      massmax = 14;
-   }
-   else {cout << "Error, oniamode should be 1 (jpsi) or 2 (upsilon)" << endl; return;}
+void fit2015(
+             const TString FileName ="/afs/cern.ch/user/a/anstahll/public/pp502TeV/OniaTree_pp502TeV_Run262163.root", 
+             bool isData    = true,     // isData = false for MC, true for Data
+             bool isPbPb    = false,    // isPbPb = false for pp, true for PbPb
+             int  oniamode  = 1,        // oniamode-> 3: Z,  2: Upsilon and 1: J/Psi
+	     bool doFit = true,
+             bool inExcStat = true      // if inExcStat is true, then the excited states are fitted
+             ) {
+    
+  InputOpt opt;
+  SetOptions(&opt, isData, isPbPb, oniamode); 
+  
+  RooWorkspace myws;
+  makeWorkspace2015(myws, FileName, opt);
 
-   cout << massmin << " " << massmax << endl;
+  RooRealVar* mass      = (RooRealVar*) myws.var("invariantMass"); 
+  RooDataSet* dataOS_fit = (RooDataSet*) myws.data("dataOS");
+  RooDataSet* dataSS_fit = (RooDataSet*) myws.data("dataSS");
+  RooAbsPdf*  pdf = NULL;
 
-   RooWorkspace myws;
-   makeWorkspace2015(myws, 
-         filename,
-         massmin,massmax,
-         singlemuon_etamin,singlemuon_etamax,
-         singlemuon_ptmin,
-         dimu_absymin,dimu_absymax, 
-         dimu_ptmin,dimu_ptmax, 
-         centralitymin,centralitymax );
+  int nbins = 1; //ceil((opt.dMuon->M->Max - opt.dMuon->M->Min)/binw);
+  if (oniamode==1){
+    nbins = 140; 
+  } else if (oniamode==2) {
+    nbins = 70; 
+  } else if (oniamode==3) {
+    nbins = 40;
+  } 
 
-   if (oniamode==1) buildModelJpsi2015(myws, signalModel, bkgdModel);
-   else if (oniamode==2) buildModelUpsi2015(myws, signalModel, bkgdModel);
+  if (doFit) {
+    int sigModel=0, bkgModel=0;  
+    if (isData) {
+      if (oniamode==1){
+        sigModel = inExcStat ? 1 : 2;
+        bkgModel = 1;
+      } else {
+        sigModel = inExcStat ? 2 : 3; // gaussian   
+        bkgModel = 3;
+      }      
+    } else {
+      if (oniamode==1){
+        sigModel = inExcStat ? 1 : 2; // gaussian   
+        bkgModel = 2;
+      } else {
+        sigModel = inExcStat ? 2 : 3; // gaussian   
+        bkgModel = 3;
+      }
+    }
 
-   RooRealVar* mass =(RooRealVar*) myws.var("invariantMass"); //
-   RooDataSet* data0_fit =(RooDataSet*) myws.data("data");
-   RooAbsPdf* pdf = (RooAbsPdf*) myws.pdf("pdf");
-   RooFitResult* fitObject = pdf->fitTo(*data0_fit,Save(),Hesse(kTRUE),Extended(kTRUE)); // Fit
-   pdf->Print();
-   Double_t baseNll = fitObject->minNll();
-   // RooMinuit m(*nll);
+    if (opt.oniaMode==1) buildModelJpsi2015(myws, signalModel, bkgdModel);
+    else if (opt.oniaMode==2) buildModelUpsi2015(myws, signalModel, bkgdModel);
 
-   RooRealVar *nsig1f   =(RooRealVar*) myws.var(nsigname);
+    pdf       =(RooAbsPdf*)  myws.pdf("pdf");
+    RooFitResult* fitObject = pdf->fitTo(*dataOS_fit,Save(),Hesse(kTRUE),Extended(kTRUE)); // Fit
+  }
 
-   RooArgSet allvars = myws.allVars();
-   int npars= allvars.getSize() ;
-   int nbins = 40;//ceil((massmax-massmin)/binw);
-   RooPlot* frame = mass->frame(Bins(nbins),Range(massmin,massmax));  
-   data0_fit->plotOn(frame);// data drawn first for pdf object to pick the proper normalisation
-   pdf->plotOn(frame,Name("thePdf"));
-
-   frame->Draw();
+  RooPlot* frame = mass->frame(Bins(nbins),Range(opt.dMuon.M.Min, opt.dMuon.M.Max));  
+  dataOS_fit->plotOn(frame, Name("dataOS_FIT"), MarkerColor(kBlue), LineColor(kBlue), MarkerSize(1.2));
+  dataSS_fit->plotOn(frame, Name("dataSS_FIT"), MarkerColor(kRed), LineColor(kRed), MarkerSize(1.2)); 
+  if (doFit) {pdf->plotOn(frame,Name("thePdf"),Normalization(dataOS_fit->sumEntries(),RooAbsReal::NumEvent));}
+  
+  drawPlot(frame, pdf, opt, doFit);
 }
