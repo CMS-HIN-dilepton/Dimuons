@@ -1,7 +1,9 @@
 //
 // dimuonYellowPlotDrawHisto.C
 // Draw the dimuon invariant mass from CMS data
-// Uses the output from 
+// Uses the output from dimuonYellowPlotMakeHisto.C
+// i.e. this is the second step, one should run dimuonYellowPlotMakeHisto.C 
+// first.
 
 #include "tdrstyle.C"
 #include "CMS_lumi.C"
@@ -38,8 +40,14 @@ dimuonYellowPlotDrawHisto(){
   // scaling code won't work, the part inside the for-loop will not recognize the
   // name of the histogram as a variable.
   //
-
-  TString inFileName = "dimuonMassYellowPlotHistos.root";
+  
+  // 2015 pp data, express stream
+  //TString inFileName = "dimuonMassYellowPlotHistos262163_262277.root";
+  
+  // 2015 PbPb Data, express stream
+  //TString inFileName = "dimuonMassYellowPlotHistosPbPbExpressAdd.root";
+  //TString inFileName = "dimuonMassYellowPlotHistosPbPbExpressPt1_5Rap1_6Add.root";
+  TString inFileName = "dummy.root";
   cout << "dimuonYellowPlot: Opening histogram file " << inFileName << endl;
 
   TFile *inf = new TFile(inFileName,"READ");
@@ -54,6 +62,7 @@ dimuonYellowPlotDrawHisto(){
   massHistoUnlikeSign->GetYaxis()->SetTitleOffset(1.2);
   massHistoUnlikeSign->GetYaxis()->SetTitleSize(0.04);
   massHistoUnlikeSign->GetXaxis()->SetTitleSize(0.045);
+  //massHistoUnlikeSign->Rebin(4);
 
   // Set up the Canvas
   TCanvas* yellowPlot = new TCanvas("yellowPlot","yellowPlot",500,500);
@@ -64,7 +73,7 @@ dimuonYellowPlotDrawHisto(){
   // Draw histograms
   cout << "dimuonYellowPlot Drawing histogram " << endl;
   massHistoUnlikeSign->GetXaxis()->SetRangeUser(2,2e2);
-  massHistoUnlikeSign->GetYaxis()->SetRangeUser(2e1,9e5);
+  massHistoUnlikeSign->GetYaxis()->SetRangeUser(2e-1,3e5);
   massHistoUnlikeSign->GetXaxis()->SetTitleFont(42);
   massHistoUnlikeSign->GetYaxis()->SetTitleFont(42);
   massHistoUnlikeSign->SetFillColor(kYellow);
@@ -93,8 +102,14 @@ dimuonYellowPlotDrawHisto(){
   //
   // iPeriod options: 99 for pPb 5.02 TeV, 101 for PbPb 2011, 102 for pp 2013
   //
+  // iPeriod 99 will give sqrt(s) = 5.02 TeV, but the collision and luminosity need
+  // to be changed.
+
   int iPeriod      = 99;     
   lumiTextOffset   = 0.3; // default 0.28
+  
+  //lumi_5TeV = "pp, ~20 pb^{-1} lumi";
+  lumi_5TeV = "PbPb, Online Express Stream";
 
   // Call the CMS_lumi macro to draw:
   // CMS preliminary, aligned on the right and justified (iPos=33, third argument)
@@ -147,11 +162,11 @@ dimuonYellowPlotDrawHisto(){
   
   latexPsiPrime = latex->DrawLatex(0.22,0.6,"#psi(2S)");
 
-  latexUpsi = latex->DrawLatex(0.45,0.7,"#varUpsilon(1,2,3S)");
+  latexUpsi = latex->DrawLatex(0.40,0.6,"#varUpsilon(1,2,3S)");
 
   latexZ0 = latex->DrawLatex(0.8,0.5,"Z");
 
-  latexPtCut = latex->DrawLatex(0.25,0.20,"p_{T}^{#mu} > 4 GeV/c");
+  latexPtCut = latex->DrawLatex(0.25,0.20,"#splitline{p_{T}^{#mu} > 3.5 GeV/c}{|y|<1.6}");
 
   return;
 }
