@@ -47,10 +47,10 @@ void SetOptions(InputOpt* opt, bool isData = true, bool isPbPb = false, int onia
 
 void fit2015(
              TString FileName ="/afs/cern.ch/user/a/anstahll/work/public/ExpressStream2015/ppData/OniaTree_262163_262328.root", 
-             int  oniamode  = 3,        // oniamode-> 3: Z,  2: Upsilon and 1: J/Psi
+             int  oniamode  = 1,        // oniamode-> 3: Z,  2: Upsilon and 1: J/Psi
              bool isData    = true,     // isData = false for MC, true for Data
-             bool isPbPb    = false,    // isPbPb = false for pp, true for PbPb
-	     bool doFit = true,
+             bool isPbPb    = true,    // isPbPb = false for pp, true for PbPb
+	     bool doFit = true ,
              bool inExcStat = true      // if inExcStat is true, then the excited states are fitted
              ) {
 
@@ -65,7 +65,7 @@ void fit2015(
     
   int nbins = 1; //ceil((opt.dMuon->M->Max - opt.dMuon->M->Min)/binw);
   if (oniamode==1){
-    nbins = 140; 
+    nbins = 140;
   } else if (oniamode==2) {
     nbins = 70; 
   } else if (oniamode==3) {
