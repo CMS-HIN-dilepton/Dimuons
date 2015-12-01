@@ -18,7 +18,7 @@ void buildModelUpsi2015(RooWorkspace& w, int sigModel, int bkgModel,bool fitExci
 
    bool doRatio = true;
 
-   if(doRatio){
+   if(doRatio && fitExcited){
    f2Svs1S   = new RooRealVar("R_{#frac{2S}{1S}}","f2Svs1S",0.26,-0.1,1.0);
    f3Svs1S   = new RooRealVar("R_{#frac{3S}{1S}}","f3Svs1S",0.13,-0.1,1.0);
    RooFormulaVar *tmp1 = new RooFormulaVar("N_{ #varUpsilon(2S)}","@0*@1", RooArgList(*nsig1f,*f2Svs1S));
