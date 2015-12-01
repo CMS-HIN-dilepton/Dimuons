@@ -13,12 +13,29 @@ void buildModelUpsi2015(RooWorkspace& w, int sigModel, int bkgModel,bool fitExci
 
    RooRealVar *nsig2f = new RooRealVar("N_{#varUpsilon(2S)}","nsig2S",0,nt*10);
    RooRealVar *nsig3f = new RooRealVar("N_{#varUpsilon(3S)}","nsig3S",0,nt*10); 
+   RooRealVar *f2Svs1S   = NULL;
+   RooRealVar *f3Svs1S   = NULL;
+
+   bool doRatio = true;
+
+   if(doRatio){
+   f2Svs1S   = new RooRealVar("R_{#frac{2S}{1S}}","f2Svs1S",0.26,-0.1,1.0);
+   f3Svs1S   = new RooRealVar("R_{#frac{3S}{1S}}","f3Svs1S",0.13,-0.1,1.0);
+   RooFormulaVar *tmp1 = new RooFormulaVar("N_{ #varUpsilon(2S)}","@0*@1", RooArgList(*nsig1f,*f2Svs1S));
+   RooFormulaVar *tmp2 = new RooFormulaVar("N_{ #varUpsilon(3S)}","@0*@1", RooArgList(*nsig1f,*f3Svs1S));
+   f2Svs1S->setConstant(kFALSE);
+   f3Svs1S->setConstant(kFALSE);
+   nsig2f = (RooRealVar*)tmp1;
+   nsig3f = (RooRealVar*)tmp2;
+   }
+
+
 
    if(!fitExcited){
    nsig2f = NULL;
    nsig3f = NULL;  
    }
-
+   
    RooRealVar  *mean = new RooRealVar("m_{ #varUpsilon(1S)}","#Upsilon mean", Mass.Y1S, Mass.Y1S-0.2, Mass.Y1S+0.2);
    RooConstVar *rat2 = new RooConstVar("rat2", "rat2", Mass.Y2S/Mass.Y1S);
    RooConstVar *rat3 = new RooConstVar("rat3", "rat3", Mass.Y3S/Mass.Y1S);
