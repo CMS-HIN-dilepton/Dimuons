@@ -39,32 +39,30 @@ void SetOptions(InputOpt* opt, bool isData = true, bool isPbPb = false, int onia
   
   opt->Centrality.Start = opt->isPbPb ? 0 : -1;
   opt->Centrality.End   = 200;
-  opt->RunNb.Start      = 262163;
-  opt->RunNb.End        = 262328;
+  opt->RunNb.Start      = opt->isPbPb ? 262548 : 262163;
+  opt->RunNb.End        = opt->isPbPb ? 262893 : 262328;
   
   return;
 };
 
 void fit2015(
-             const TString FileName ="/afs/cern.ch/user/a/anstahll/public/pp502TeV/OniaTree_pp502TeV_Run262163.root", 
-             int  oniamode  = 2,        // oniamode-> 3: Z,  2: Upsilon and 1: J/Psi
+             TString FileName ="/afs/cern.ch/user/a/anstahll/work/public/ExpressStream2015/ppData/OniaTree_262163_262328.root", 
+             int  oniamode  = 3,        // oniamode-> 3: Z,  2: Upsilon and 1: J/Psi
              bool isData    = true,     // isData = false for MC, true for Data
              bool isPbPb    = false,    // isPbPb = false for pp, true for PbPb
 	     bool doFit = true,
              bool inExcStat = true      // if inExcStat is true, then the excited states are fitted
              ) {
-    
+
   InputOpt opt;
-  SetOptions(&opt, isData, isPbPb, oniamode,inExcStat); 
-  
-  RooWorkspace myws;
-  makeWorkspace2015(myws, FileName, opt);
+  SetOptions(&opt, isData, isPbPb, oniamode,inExcStat);
 
-  RooRealVar* mass      = (RooRealVar*) myws.var("invariantMass"); 
-  RooDataSet* dataOS_fit = (RooDataSet*) myws.data("dataOS");
-  RooDataSet* dataSS_fit = (RooDataSet*) myws.data("dataSS");
-  RooAbsPdf*  pdf = NULL;
-
+  if (isPbPb) {
+    FileName = "/afs/cern.ch/user/a/anstahll/work/public/ExpressStream2015/PbPbData/OniaTree_262548_262893.root";
+  } else {
+    FileName = "/afs/cern.ch/user/a/anstahll/work/public/ExpressStream2015/ppData/OniaTree_262163_262328.root";
+  }
+    
   int nbins = 1; //ceil((opt.dMuon->M->Max - opt.dMuon->M->Min)/binw);
   if (oniamode==1){
     nbins = 140; 
@@ -73,12 +71,22 @@ void fit2015(
   } else if (oniamode==3) {
     nbins = 40;
   } 
+ 
+  RooWorkspace myws;
+  TH1F* hDataOS =  new TH1F("hDataOS","hDataOS", nbins, opt.dMuon.M.Min, opt.dMuon.M.Max);
+  makeWorkspace2015(myws, FileName, opt, hDataOS);
 
+  RooRealVar* mass      = (RooRealVar*) myws.var("invariantMass"); 
+  RooDataSet* dataOS_fit = (RooDataSet*) myws.data("dataOS");
+  RooDataSet* dataSS_fit = (RooDataSet*) myws.data("dataSS");
+  RooAbsPdf*  pdf = NULL;
+
+  if (oniamode==3) { doFit=false; }
   if (doFit) {
     int sigModel=0, bkgModel=0;  
     if (isData) {
       if (oniamode==1){
-        sigModel = inExcStat ? 1 : 2;
+        sigModel = inExcStat ? 2 : 3;
         bkgModel = 1;
       } else {
         sigModel = inExcStat ? 2 : 3; // gaussian   
@@ -86,7 +94,7 @@ void fit2015(
       }      
     } else {
       if (oniamode==1){
-        sigModel = inExcStat ? 1 : 2; // gaussian   
+        sigModel = inExcStat ? 2 : 3; // gaussian   
         bkgModel = 2;
       } else {
         sigModel = inExcStat ? 2 : 3; // gaussian   
@@ -107,4 +115,29 @@ void fit2015(
   if (doFit) {pdf->plotOn(frame,Name("thePdf"),Normalization(dataOS_fit->sumEntries(),RooAbsReal::NumEvent));}
   
   drawPlot(frame, pdf, opt, doFit,inExcStat);
+
+  TString OutputFileName = "";
+  if (isPbPb) {
+    FileName = "/afs/cern.ch/user/a/anstahll/work/public/ExpressStream2015/PbPbData/OniaTree_262548_262893.root";
+    opt.RunNb.Start=262548;
+    opt.RunNb.End=262893;
+    if (oniamode==1) {OutputFileName = (TString)("JPSIPbPbDataset.root");}
+    if (oniamode==2) {OutputFileName = (TString)("YPbPbDataset.root");}
+    if (oniamode==3) {OutputFileName = (TString)("ZPbPbDataset.root");}
+  } else {
+    FileName = "/afs/cern.ch/user/a/anstahll/work/public/ExpressStream2015/ppData/OniaTree_262163_262328.root";
+    opt.RunNb.Start=262163;
+    opt.RunNb.End=262328;
+    if (oniamode==1) {OutputFileName = (TString)("JPSIppDataset.root");}
+    if (oniamode==2) {OutputFileName = (TString)("YppDataset.root");}
+    if (oniamode==3) {OutputFileName = (TString)("ZppDataset.root");}
+  }
+  
+  TFile* oFile =  new TFile(OutputFileName,"RECREATE");
+  oFile->cd();
+  hDataOS->Write("hDataOS");
+  dataOS_fit->Write("dataOS_FIT");
+  oFile->Write();
+  oFile->Close();
+
 }

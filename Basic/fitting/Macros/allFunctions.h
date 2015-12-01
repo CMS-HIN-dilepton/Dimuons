@@ -23,6 +23,7 @@
 #include "RooAddPdf.h"
 #include "RooConstVar.h"
 #include "RooArgList.h"
+#include "TH1F.h"
 
 #include <iostream>
 

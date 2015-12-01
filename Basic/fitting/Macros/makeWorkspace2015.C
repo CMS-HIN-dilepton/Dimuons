@@ -5,7 +5,7 @@
 
 using namespace RooFit;
 
-void makeWorkspace2015(RooWorkspace& ws, const TString FileName, struct InputOpt opt){
+void makeWorkspace2015(RooWorkspace& ws, const TString FileName, struct InputOpt opt, TH1F* hDataOS){
   double binw=0.05;
  
   std::string finput(FileName);
@@ -13,7 +13,6 @@ void makeWorkspace2015(RooWorkspace& ws, const TString FileName, struct InputOpt
   TTree* theTree       = (TTree*)gROOT->FindObject("myTree"); // OS --- all mass
  
   RooRealVar* mass       = new RooRealVar("invariantMass","#mu#mu mass", opt.dMuon.M.Min, opt.dMuon.M.Max, "GeV/c^{2}");	
-  //  ws.import(*mass);
   RooRealVar* dimuPt     = new RooRealVar("dimuPt","p_{T}(#DiMuon)",0,60,"GeV/c");
   RooRealVar* dimuRapidity = new RooRealVar("dimuRapidity",  "dimuRapidity",-2.4, 2.4);
   RooRealVar* vProb      = new RooRealVar("vProb",  "vProb"  ,0.01,1.00);
@@ -94,8 +93,21 @@ void makeWorkspace2015(RooWorkspace& ws, const TString FileName, struct InputOpt
          muPlusEta->setVal(qq4mupl->Eta());
          muMinusEta->setVal(qq4mumi->Eta());
          RunNb->setVal(runNb);
-
          data0->add(cols);
+         if ( 
+             (Reco_QQ_sign[i]==0) && 
+             (runNb>(UInt_t)(opt.RunNb.Start) && runNb<(UInt_t)(opt.RunNb.End)) &&
+             (qq4mom->M()>=opt.dMuon.M.Min && qq4mom->M()<=opt.dMuon.M.Max) &&
+             (centrality>=opt.Centrality.Start && centrality<=opt.Centrality.End) &&
+             (qq4mom->Pt()>opt.dMuon.Pt.Min && qq4mom->Pt()<opt.dMuon.Pt.Max) &&
+             (abs(qq4mom->Rapidity())>opt.dMuon.AbsRap.Min && abs(qq4mom->Rapidity())<opt.dMuon.AbsRap.Max) &&
+             (qq4mupl->Pt()>opt.sMuon.Pt.Min && qq4mupl->Pt()<opt.sMuon.Pt.Max) &&
+             (qq4mumi->Pt()>opt.sMuon.Pt.Min && qq4mumi->Pt()<opt.sMuon.Pt.Max) &&
+             (qq4mupl->Eta()>opt.sMuon.Eta.Min && qq4mupl->Eta()<opt.sMuon.Eta.Max) &&
+             (qq4mumi->Eta()>opt.sMuon.Eta.Min && qq4mumi->Eta()<opt.sMuon.Eta.Max) 
+              ){
+           hDataOS->Fill(qq4mom->M());
+         }
       }
    }
 

@@ -16,9 +16,10 @@ void drawPlot(RooPlot* frame, RooAbsPdf* pdf, struct InputOpt opt, bool doFit = 
 
    float txtSize = opt.oniaMode==1 ? 0.032 : 0.028;
    if (doFit) {
-     float dx = opt.oniaMode==1 ? 0.61 : 0.61;
-     pdf->paramOn(frame,Layout(dx,dx+0.3,0.73)) ;
+     float dx = opt.oniaMode==1 ? 0.63 : 0.61;
+     pdf->paramOn(frame,Layout(dx,dx+0.3,0.75)) ;
      frame->getAttText()->SetTextSize(0.022);
+
    }
 
    frame->SetTitle("");
