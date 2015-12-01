@@ -10,17 +10,43 @@
 #include "TLegend.h"
 #include "TSystem.h"
 
-void drawPlot(RooPlot* frame, RooAbsPdf* pdf, struct InputOpt opt, bool doFit = false,bool fitExcited=false) {
+void drawPlot(RooPlot* frame,RooPlot* frame2, RooAbsPdf* pdf, struct InputOpt opt, bool doFit = false,bool fitExcited=false) {
 
    setTDRStyle();
+   
+   TCanvas* cFig = new TCanvas("cFig", "cFig",800,800);
+   TPad *pad1 = new TPad("pad1","",0,0.23,1,1);
+   TPad *pad2 = new TPad("pad2","",0,0,1,.228);
+   TLine * pline = new TLine(opt.dMuon.M.Min,0.0,opt.dMuon.M.Max,0.0);
 
    float txtSize = opt.oniaMode==1 ? 0.032 : 0.028;
    if (doFit) {
      float dx = opt.oniaMode==1 ? 0.63 : 0.61;
      pdf->paramOn(frame,Layout(dx,dx+0.3,0.75)) ;
      frame->getAttText()->SetTextSize(0.022);
-
-   }
+     frame->SetTitle("");
+     frame->GetXaxis()->SetTitle("");
+     frame->GetXaxis()->CenterTitle(kTRUE);
+     frame->GetXaxis()->SetTitleSize(0.045);
+     frame->GetXaxis()->SetTitleFont(42);
+     frame->GetXaxis()->SetTitleOffset(3);
+     frame->GetXaxis()->SetLabelOffset(3);
+     frame->GetYaxis()->SetTitleSize(0.04);
+     frame->GetYaxis()->SetTitleOffset(1.7);
+     frame->GetYaxis()->SetTitleFont(42);
+     
+     cFig->cd();
+     pad2->SetTopMargin(0.02);
+     pad2->SetBottomMargin(0.4);
+     pad2->SetFillStyle(4000); 
+     pad2->SetFrameFillStyle(4000); 
+     pad1->SetBottomMargin(0.015); 
+     //plot fit
+     pad1->Draw();
+     pad1->cd(); 
+     frame->Draw();
+     }
+   else{
 
    frame->SetTitle("");
    frame->GetXaxis()->SetTitle("#mu#mu mass (GeV/c^{2})");
@@ -31,13 +57,12 @@ void drawPlot(RooPlot* frame, RooAbsPdf* pdf, struct InputOpt opt, bool doFit = 
    frame->GetYaxis()->SetTitleSize(0.04);
    frame->GetYaxis()->SetTitleOffset(1.7);
    frame->GetYaxis()->SetTitleFont(42);
-   //   frame->GetYaxis()->SetRangeUser(0,(nSig));
  
-   TCanvas* cFig = new TCanvas("cFig", "cFig",800,800);
    cFig->cd();
  
    gPad->Update();
    frame->Draw();
+   }
 
    TLatex *t = new TLatex(); t->SetNDC(); t->SetTextSize(txtSize);
    float dy = 0; float deltaY = 0.001;
@@ -101,9 +126,35 @@ void drawPlot(RooPlot* frame, RooAbsPdf* pdf, struct InputOpt opt, bool doFit = 
    } else {
      label = opt.lumi + Form("[Express %d-%d]", opt.RunNb.Start,opt.RunNb.End);
    }
-   CMS_lumi(cFig, opt.isPbPb ? 105 : 104, 33, label);
-   cFig->Update();
-   
+   if(doFit){ 
+     CMS_lumi(pad1, opt.isPbPb ? 105 : 104, 33, label);
+        
+     pad1->Update();
+     cFig->cd(); 
+     //---plot pull
+     pad2->Draw();
+     pad2->cd();
+    
+     frame2->GetYaxis()->CenterTitle(kTRUE);
+     frame2->GetYaxis()->SetTitleOffset(0.4);
+     frame2->GetYaxis()->SetTitleSize(0.1);
+     frame2->GetYaxis()->SetLabelSize(0.1);
+     frame2->GetYaxis()->SetTitle("Pull");
+     frame2->GetXaxis()->CenterTitle(kTRUE);
+     frame2->GetXaxis()->SetTitleOffset(1);
+     frame2->GetXaxis()->SetTitleSize(0.12);
+     frame2->GetXaxis()->SetLabelSize(0.1);
+     frame2->GetXaxis()->SetTitle("m_{#mu^{+}#mu^{-}} (GeV/c^{2})");
+
+     frame2->Draw(); 
+     pline->Draw("same");
+     pad2->Update();
+     }
+   else{
+     CMS_lumi(cFig, opt.isPbPb ? 105 : 104, 33, label);
+     cFig->Update();
+     }
+ 
    gSystem->mkdir(opt.plotDir, kTRUE);
    cFig->SaveAs(opt.plotDir+Form("/%sDataRun2_%d_%d_%s.png", (opt.isPbPb ? "PbPb" : "PP"), opt.RunNb.Start, opt.RunNb.End, (opt.isPbPb ? "JPsi" : "Upsilon")));
    

@@ -47,10 +47,10 @@ void SetOptions(InputOpt* opt, bool isData = true, bool isPbPb = false, int onia
 
 void fit2015(
              TString FileName ="/afs/cern.ch/user/a/anstahll/work/public/ExpressStream2015/ppData/OniaTree_262163_262328.root", 
-             int  oniamode  = 1,        // oniamode-> 3: Z,  2: Upsilon and 1: J/Psi
+             int  oniamode  = 2,        // oniamode-> 3: Z,  2: Upsilon and 1: J/Psi
              bool isData    = true,     // isData = false for MC, true for Data
-             bool isPbPb    = true,    // isPbPb = false for pp, true for PbPb
-	     bool doFit = true ,
+             bool isPbPb    = false,    // isPbPb = false for pp, true for PbPb
+	     bool doFit = false ,
              bool inExcStat = true      // if inExcStat is true, then the excited states are fitted
              ) {
 
@@ -89,7 +89,7 @@ void fit2015(
         sigModel = inExcStat ? 2 : 3;
         bkgModel = 1;
       } else {
-        sigModel = inExcStat ? 2 : 3; // gaussian   
+        sigModel = inExcStat ? 1 : 3; // gaussian   
         bkgModel = 2;
       }      
     } else {
@@ -110,11 +110,19 @@ void fit2015(
   }
 
   RooPlot* frame = mass->frame(Bins(nbins),Range(opt.dMuon.M.Min, opt.dMuon.M.Max));  
-  dataOS_fit->plotOn(frame, Name("dataOS_FIT"), MarkerColor(kBlue), LineColor(kBlue), MarkerSize(1.2));
+  RooPlot* frame2 = NULL;
   dataSS_fit->plotOn(frame, Name("dataSS_FIT"), MarkerColor(kRed), LineColor(kRed), MarkerSize(1.2)); 
-  if (doFit) {pdf->plotOn(frame,Name("thePdf"),Normalization(dataOS_fit->sumEntries(),RooAbsReal::NumEvent));}
+  dataOS_fit->plotOn(frame, Name("dataOS_FIT"), MarkerColor(kBlue), LineColor(kBlue), MarkerSize(1.2));
   
-  drawPlot(frame, pdf, opt, doFit,inExcStat);
+
+  if (doFit) {
+     pdf->plotOn(frame,Name("thePdf"),Normalization(dataOS_fit->sumEntries(),RooAbsReal::NumEvent));
+     RooHist *hpull = frame -> pullHist(0,0,true);
+     hpull -> SetName("hpull");
+     frame2 = mass->frame(Title("Pull Distribution"),Bins(nbins),Range(opt.dMuon.M.Min,opt.dMuon.M.Max));
+     frame2 -> addPlotable(hpull,"PX");  
+     } 
+  drawPlot(frame,frame2, pdf, opt, doFit,inExcStat);
 
   TString OutputFileName = "";
   if (isPbPb) {
